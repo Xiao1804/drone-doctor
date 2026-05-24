@@ -1,0 +1,353 @@
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+
+function ProfilePage() {
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [editMode, setEditMode] = useState(false)
+  const [formData, setFormData] = useState({
+    email: '',
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  })
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    const userData = localStorage.getItem('user')
+
+    if (!token || !userData) {
+      navigate('/auth')
+      return
+    }
+
+    setUser(JSON.parse(userData))
+    setFormData({ ...formData, email: JSON.parse(userData).email })
+    setLoading(false)
+  }, [navigate])
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+
+    try {
+      const token = localStorage.getItem('token')
+      const response = await axios.put('/api/user/me', {
+        email: formData.email
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+
+      localStorage.setItem('user', JSON.stringify(response.data.user))
+      setUser(response.data.user)
+      setEditMode(false)
+      alert('更新成功！')
+
+    } catch (error) {
+      console.error('Update error:', error)
+      alert(error.response?.data?.error || '更新失败')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault()
+
+    if (formData.newPassword !== formData.confirmPassword) {
+      alert('两次密码输入不一致')
+      return
+    }
+
+    if (formData.newPassword.length < 6) {
+      alert('新密码至少6个字符')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const token = localStorage.getItem('token')
+      await axios.post('/api/user/change-password', {
+        oldPassword: formData.currentPassword,
+        newPassword: formData.newPassword
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+
+      alert('密码修改成功！')
+      setFormData({
+        ...formData,
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      })
+
+    } catch (error) {
+      console.error('Change password error:', error)
+      alert(error.response?.data?.error || '密码修改失败')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleLogout = () => {
+    if (window.confirm('确定要退出登录吗？')) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      navigate('/')
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-600">加载中...</div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 pb-20">
+      {/* Header */}
+      <div className="bg-[#FF6B00] text-white px-4 py-6">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() => navigate('/')}
+              className="text-white hover:opacity-80"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <h1 className="text-xl font-bold">个人中心</h1>
+            <div className="w-6"></div>
+          </div>
+
+          {/* User Info Card */}
+          <div className="bg-white/10 backdrop-blur rounded-xl p-4 mt-4">
+            <div className="flex items-center space-x-4">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                <span className="text-2xl font-bold">{user?.username?.charAt(0).toUpperCase()}</span>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold">{user?.username}</h2>
+                <p className="text-white/80 text-sm">{user?.email}</p>
+                {user?.isAdmin && (
+                  <span className="inline-block mt-1 px-2 py-0.5 bg-white/20 rounded text-xs">
+                    管理员
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+        {/* Profile Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+            <h3 className="font-bold text-gray-900">基本信息</h3>
+            <button
+              onClick={() => setEditMode(!editMode)}
+              className="text-sm text-[#FF6B00] hover:underline"
+            >
+              {editMode ? '取消' : '编辑'}
+            </button>
+          </div>
+
+          {editMode ? (
+            <form onSubmit={handleUpdateProfile} className="p-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  用户名
+                </label>
+                <input
+                  type="text"
+                  value={user?.username}
+                  disabled
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">用户名不可修改</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  邮箱
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#FF6B00]"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 bg-[#FF6B00] text-white rounded-lg font-medium hover:bg-orange-600 transition-colors disabled:opacity-50"
+              >
+                {loading ? '保存中...' : '保存修改'}
+              </button>
+            </form>
+          ) : (
+            <div className="p-4 space-y-3">
+              <div className="flex justify-between py-2">
+                <span className="text-gray-600">用户名</span>
+                <span className="text-gray-900 font-medium">{user?.username}</span>
+              </div>
+              <div className="flex justify-between py-2">
+                <span className="text-gray-600">邮箱</span>
+                <span className="text-gray-900 font-medium">{user?.email}</span>
+              </div>
+              <div className="flex justify-between py-2">
+                <span className="text-gray-600">注册时间</span>
+                <span className="text-gray-900 font-medium">
+                  {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Change Password Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-200">
+            <h3 className="font-bold text-gray-900">修改密码</h3>
+          </div>
+
+          <form onSubmit={handleChangePassword} className="p-4 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                当前密码
+              </label>
+              <input
+                type="password"
+                name="currentPassword"
+                value={formData.currentPassword}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#FF6B00]"
+                placeholder="请输入当前密码"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                新密码
+              </label>
+              <input
+                type="password"
+                name="newPassword"
+                value={formData.newPassword}
+                onChange={handleChange}
+                required
+                minLength={6}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#FF6B00]"
+                placeholder="至少6个字符"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                确认新密码
+              </label>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+                minLength={6}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#FF6B00]"
+                placeholder="再次输入新密码"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-50"
+            >
+              {loading ? '修改中...' : '修改密码'}
+            </button>
+          </form>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-200">
+            <h3 className="font-bold text-gray-900">快捷操作</h3>
+          </div>
+
+          <div className="divide-y divide-gray-200">
+            <button
+              onClick={() => navigate('/history')}
+              className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50"
+            >
+              <div className="flex items-center space-x-3">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-gray-900">诊断历史</span>
+              </div>
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50"
+            >
+              <div className="flex items-center space-x-3">
+                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span className="text-red-600">退出登录</span>
+              </div>
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+          <h3 className="font-bold text-gray-900 mb-4">使用统计</h3>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-[#FF6B00]">{user?.stats?.diagnosisCount || 0}</div>
+              <div className="text-xs text-gray-600 mt-1">诊断次数</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-[#FF6B00]">{user?.stats?.savedCount || 0}</div>
+              <div className="text-xs text-gray-600 mt-1">收藏记录</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-[#FF6B00]">{user?.stats?.reportCount || 0}</div>
+              <div className="text-xs text-gray-600 mt-1">生成报告</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default ProfilePage

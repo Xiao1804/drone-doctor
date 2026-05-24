@@ -1,0 +1,426 @@
+/**
+ * DroneDoctor Design System - UI Component Styles
+ */
+
+/* ==================== 按钮增强样式 ==================== */
+
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.btn:hover::after {
+  opacity: 1;
+}
+
+/* ==================== 输入框增强样式 ==================== */
+
+.input-error {
+  border-color: var(--color-error-primary);
+}
+
+.input-error:focus {
+  border-color: var(--color-error-primary);
+  box-shadow: 0 0 0 3px var(--color-error-light);
+}
+
+/* 输入框前缀/后缀 */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-prefix,
+.input-suffix {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+}
+
+.input-prefix {
+  left: var(--spacing-4);
+}
+
+.input-suffix {
+  right: var(--spacing-4);
+}
+
+.input-with-prefix {
+  padding-left: var(--spacing-10);
+}
+
+.input-with-suffix {
+  padding-right: var(--spacing-10);
+}
+
+/* ==================== 卡片增强样式 ==================== */
+
+.card-hoverable {
+  cursor: pointer;
+}
+
+.card-hoverable:hover {
+  transform: translateY(-2px);
+}
+
+/* ==================== 标签增强样式 ==================== */
+
+.tag-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: var(--spacing-1);
+  font-size: 14px;
+  line-height: 1;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity var(--transition-fast);
+}
+
+.tag-remove:hover {
+  opacity: 1;
+}
+
+/* ==================== 加载状态增强样式 ==================== */
+
+.spinner-sm {
+  width: 16px;
+  height: 16px;
+  border-width: 1.5px;
+}
+
+.spinner-lg {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+.skeleton-text {
+  height: 16px;
+  margin-bottom: var(--spacing-2);
+}
+
+.skeleton-circle {
+  border-radius: 50%;
+}
+
+.skeleton-rect {
+  border-radius: var(--radius-md);
+}
+
+/* ==================== 提示增强样式 ==================== */
+
+.tooltip-top .tooltip-content {
+  bottom: 100%;
+  top: auto;
+  margin-bottom: var(--spacing-2);
+}
+
+.tooltip-bottom .tooltip-content {
+  top: 100%;
+  bottom: auto;
+  margin-top: var(--spacing-2);
+}
+
+.tooltip-left .tooltip-content {
+  right: 100%;
+  left: auto;
+  bottom: 50%;
+  transform: translateY(50%);
+  margin-right: var(--spacing-2);
+}
+
+.tooltip-right .tooltip-content {
+  left: 100%;
+  right: auto;
+  bottom: 50%;
+  transform: translateY(50%);
+  margin-left: var(--spacing-2);
+}
+
+/* ==================== 涟漪效果 ==================== */
+
+.ripple-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(0);
+  animation: ripple-animation 0.6s ease-out;
+  pointer-events: none;
+}
+
+@keyframes ripple-animation {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* ==================== 进度条 ==================== */
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.progress-track {
+  flex: 1;
+  height: 8px;
+  background-color: var(--color-neutral-200);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: var(--color-brand-primary);
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow) var(--ease-out);
+}
+
+.progress-sm .progress-track {
+  height: 4px;
+}
+
+.progress-lg .progress-track {
+  height: 12px;
+}
+
+.progress-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  min-width: 40px;
+  text-align: right;
+}
+
+/* 进度条变体 */
+.progress-success .progress-fill {
+  background-color: var(--color-success-primary);
+}
+
+.progress-warning .progress-fill {
+  background-color: var(--color-warning-primary);
+}
+
+.progress-error .progress-fill {
+  background-color: var(--color-error-primary);
+}
+
+/* ==================== 空状态 ==================== */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-12) var(--spacing-6);
+  text-align: center;
+}
+
+.empty-state-icon {
+  font-size: 64px;
+  margin-bottom: var(--spacing-4);
+  opacity: 0.5;
+}
+
+.empty-state-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-2);
+}
+
+.empty-state-description {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  max-width: 400px;
+  margin-bottom: var(--spacing-6);
+}
+
+.empty-state-action {
+  margin-top: var(--spacing-4);
+}
+
+/* ==================== 错误边界 ==================== */
+
+.error-boundary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: var(--spacing-8);
+  text-align: center;
+}
+
+.error-boundary h2 {
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--spacing-4);
+  color: var(--color-text-primary);
+}
+
+.error-boundary button {
+  padding: var(--spacing-3) var(--spacing-6);
+  background-color: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.error-boundary button:hover {
+  background-color: var(--color-brand-hover);
+}
+
+/* ==================== 交互反馈 ==================== */
+
+/* 点击反馈 */
+.clickable {
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.clickable:active {
+  transform: scale(0.98);
+}
+
+/* 悬停反馈 */
+.hover-lift {
+  transition: all var(--transition-base);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* 焦点环 */
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-brand-light);
+}
+
+/* ==================== 微交互动画 ==================== */
+
+/* 淡入淡出 */
+.fade-enter {
+  opacity: 0;
+}
+
+.fade-enter-active {
+  opacity: 1;
+  transition: opacity var(--transition-base);
+}
+
+.fade-exit {
+  opacity: 1;
+}
+
+.fade-exit-active {
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+/* 滑入滑出 */
+.slide-up-enter {
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+.slide-up-enter-active {
+  transform: translateY(0);
+  opacity: 1;
+  transition: all var(--transition-base);
+}
+
+.slide-up-exit {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.slide-up-exit-active {
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all var(--transition-base);
+}
+
+/* 缩放 */
+.scale-enter {
+  transform: scale(0.95);
+  opacity: 0;
+}
+
+.scale-enter-active {
+  transform: scale(1);
+  opacity: 1;
+  transition: all var(--transition-base);
+}
+
+.scale-exit {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.scale-exit-active {
+  transform: scale(0.95);
+  opacity: 0;
+  transition: all var(--transition-base);
+}
+
+/* ==================== 响应式调整 ==================== */
+
+@media (max-width: 768px) {
+  .btn-lg,
+  .btn-xl {
+    padding: var(--spacing-3) var(--spacing-6);
+    font-size: var(--font-size-base);
+  }
+  
+  .input-lg {
+    padding: var(--spacing-3) var(--spacing-4);
+    font-size: var(--font-size-base);
+  }
+  
+  .card {
+    padding: var(--spacing-4);
+  }
+  
+  .empty-state {
+    padding: var(--spacing-8) var(--spacing-4);
+  }
+  
+  .empty-state-icon {
+    font-size: 48px;
+  }
+}

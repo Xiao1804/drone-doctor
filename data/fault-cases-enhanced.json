@@ -1,0 +1,8869 @@
+[
+  {
+    "id": "F001",
+    "faultType": "动力系统",
+    "symptom": "无人机无法起飞",
+    "keywords": [
+      "无法起飞",
+      "起飞失败",
+      "不升空"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电池电量不足",
+        "probability": "30%",
+        "description": "电池电量低于20%"
+      },
+      {
+        "cause": "GPS信号弱",
+        "probability": "25%",
+        "description": "卫星数少于6颗"
+      },
+      {
+        "cause": "下视传感器异常",
+        "probability": "20%",
+        "description": "起飞面反光或传感器被遮挡"
+      },
+      {
+        "cause": "IMU未校准",
+        "probability": "15%",
+        "description": "IMU温漂未校准"
+      },
+      {
+        "cause": "螺旋桨损坏",
+        "probability": "10%",
+        "description": "螺旋桨损坏或安装错误"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查电池电量",
+        "criteria": "电量>80%",
+        "solution": "充电至80%以上",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查GPS信号",
+        "criteria": "卫星数≥6颗",
+        "solution": "移至开阔地带",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查起飞面",
+        "criteria": "平整、哑光地面",
+        "solution": "移至水泥地或草地",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "清洁下视传感器",
+        "criteria": "传感器无灰尘",
+        "solution": "用超细纤维布擦拭",
+        "tools": [
+          "超细纤维布"
+        ],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 5,
+        "operation": "IMU校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成IMU校准",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      }
+    ],
+    "requiredTools": [
+      "超细纤维布"
+    ],
+    "totalEstimatedTime": "15-20分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "DJI官方维修手册 V2.3",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-01-15",
+    "reviewStatus": "approved",
+    "tags": [
+      "常见故障",
+      "新手友好"
+    ],
+    "relatedCases": [
+      "F002",
+      "F003"
+    ]
+  },
+  {
+    "id": "F002",
+    "faultType": "导航系统",
+    "symptom": "GPS信号弱",
+    "keywords": [
+      "GPS信号弱",
+      "GPS无信号",
+      "卫星少"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "环境遮挡",
+        "probability": "40%",
+        "description": "高楼、树木、山体遮挡GPS信号"
+      },
+      {
+        "cause": "电磁干扰",
+        "probability": "30%",
+        "description": "高压线、基站、金属建筑干扰"
+      },
+      {
+        "cause": "GPS模块故障",
+        "probability": "20%",
+        "description": "GPS模块损坏或连接线松动"
+      },
+      {
+        "cause": "固件版本过低",
+        "probability": "10%",
+        "description": "固件版本过旧"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "移至开阔地带",
+        "criteria": "远离遮挡物",
+        "solution": "选择空旷场地",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "远离干扰源",
+        "criteria": "距离干扰源>50米",
+        "solution": "远离高压线、基站",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "等待GPS冷启动",
+        "criteria": "卫星数≥6颗",
+        "solution": "开机后等待2-5分钟",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查固件版本",
+        "criteria": "固件为最新",
+        "solution": "通过App更新固件",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "15-20分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "DJI官方维修手册 V2.3",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-01-15",
+    "reviewStatus": "approved",
+    "tags": [
+      "常见故障",
+      "环境相关"
+    ],
+    "relatedCases": [
+      "F001"
+    ]
+  },
+  {
+    "id": "F003",
+    "faultType": "动力系统",
+    "symptom": "电机不转",
+    "keywords": [
+      "电机不转",
+      "电机停转",
+      "电机故障"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电机连接线松动",
+        "probability": "35%",
+        "description": "电机连接线插头松动或氧化"
+      },
+      {
+        "cause": "电机烧毁",
+        "probability": "25%",
+        "description": "电机线圈烧毁或轴承损坏"
+      },
+      {
+        "cause": "电调故障",
+        "probability": "20%",
+        "description": "电调损坏或信号异常"
+      },
+      {
+        "cause": "螺旋桨卡滞",
+        "probability": "20%",
+        "description": "螺旋桨被异物卡住"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查螺旋桨",
+        "criteria": "螺旋桨无异物",
+        "solution": "清除异物",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查电机连接线",
+        "criteria": "连接线插紧",
+        "solution": "重新插紧连接线",
+        "tools": [
+          "螺丝刀",
+          "砂纸"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "手动转动电机",
+        "criteria": "电机转动顺滑",
+        "solution": "若有虚位，更换电机",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测量电机电阻",
+        "criteria": "电阻值正常(5-15Ω)",
+        "solution": "若异常，更换电机",
+        "tools": [
+          "万用表"
+        ],
+        "estimatedTime": "3分钟"
+      }
+    ],
+    "requiredTools": [
+      "螺丝刀",
+      "砂纸",
+      "万用表"
+    ],
+    "totalEstimatedTime": "15-20分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "维修技师",
+    "sourceDetail": "高级维修技师张工(工号:DJ001)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-01-20",
+    "reviewStatus": "approved",
+    "tags": [
+      "硬件故障",
+      "需专业维修"
+    ],
+    "relatedCases": [
+      "F001"
+    ]
+  },
+  {
+    "id": "F004",
+    "faultType": "图传系统",
+    "symptom": "图传黑屏",
+    "keywords": [
+      "图传黑屏",
+      "图传无画面",
+      "画面丢失"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "图传频段干扰",
+        "probability": "50%",
+        "description": "附近WiFi、基站干扰"
+      },
+      {
+        "cause": "图传天线连接线松动",
+        "probability": "30%",
+        "description": "天线连接线松动"
+      },
+      {
+        "cause": "相机过热保护",
+        "probability": "20%",
+        "description": "长时间悬停或高温环境"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "切换图传频段",
+        "criteria": "图传恢复",
+        "solution": "在App中切换频段(2.4G/5.8G)",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查天线连接",
+        "criteria": "天线连接牢固",
+        "solution": "检查并插紧天线",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "降低飞行高度",
+        "criteria": "图传恢复",
+        "solution": "降低高度至100米以下",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "重启图传系统",
+        "criteria": "图传恢复",
+        "solution": "在App中关闭并重新开启图传",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "5分钟",
+    "difficulty": "⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "DJI官方维修手册 V2.3",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-01-15",
+    "reviewStatus": "approved",
+    "tags": [
+      "常见故障",
+      "新手友好"
+    ],
+    "relatedCases": [
+      "F005"
+    ]
+  },
+  {
+    "id": "F005",
+    "faultType": "云台系统",
+    "symptom": "云台卡住",
+    "keywords": [
+      "云台卡住",
+      "云台不转",
+      "云台电机过载"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "云台电机卡滞",
+        "probability": "40%",
+        "description": "电机轴承磨损或异物卡住"
+      },
+      {
+        "cause": "云台连接线松动",
+        "probability": "30%",
+        "description": "连接线插头松动或氧化"
+      },
+      {
+        "cause": "云台电机烧毁",
+        "probability": "20%",
+        "description": "电机线圈烧毁"
+      },
+      {
+        "cause": "云台校准异常",
+        "probability": "10%",
+        "description": "云台校准数据异常"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "云台自动校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成云台校准",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "手动转动云台",
+        "criteria": "云台转动顺滑",
+        "solution": "检查是否有异物",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查云台连接线",
+        "criteria": "连接线插紧",
+        "solution": "拆开云台外壳检查",
+        "tools": [
+          "螺丝刀",
+          "砂纸"
+        ],
+        "estimatedTime": "10分钟"
+      }
+    ],
+    "requiredTools": [
+      "螺丝刀",
+      "砂纸"
+    ],
+    "totalEstimatedTime": "15-40分钟",
+    "difficulty": "⭐⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "维修技师",
+    "sourceDetail": "高级维修技师李工(工号:DJ002)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-01-22",
+    "reviewStatus": "approved",
+    "tags": [
+      "硬件故障",
+      "需专业维修"
+    ],
+    "relatedCases": []
+  },
+  {
+    "id": "F006",
+    "faultType": "电源系统",
+    "symptom": "电池鼓包",
+    "keywords": [
+      "电池鼓包",
+      "电池膨胀",
+      "电池变形"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "过充过放",
+        "probability": "40%",
+        "description": "长期过充或过放导致电池老化"
+      },
+      {
+        "cause": "高温环境使用",
+        "probability": "30%",
+        "description": "高温环境下长时间飞行"
+      },
+      {
+        "cause": "电池质量问题",
+        "probability": "20%",
+        "description": "电池本身质量问题"
+      },
+      {
+        "cause": "长期存放未使用",
+        "probability": "10%",
+        "description": "电池长期存放未充电维护"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查电池外观",
+        "criteria": "电池平整无鼓包",
+        "solution": "若鼓包，立即停止使用",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查电池电压",
+        "criteria": "电压在正常范围",
+        "solution": "用万用表测量电压",
+        "tools": [
+          "万用表"
+        ],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查电池循环次数",
+        "criteria": "循环次数<200次",
+        "solution": "在App中查看电池健康度",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "安全处理",
+        "criteria": "电池安全处理",
+        "solution": "鼓包电池需专业回收处理",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      }
+    ],
+    "requiredTools": [
+      "万用表"
+    ],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "官方文档",
+    "sourceDetail": "DJI电池安全使用指南",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-01-25",
+    "reviewStatus": "approved",
+    "tags": [
+      "安全相关",
+      "需专业维修"
+    ],
+    "relatedCases": []
+  },
+  {
+    "id": "F007",
+    "faultType": "动力系统",
+    "symptom": "续航时间明显缩短",
+    "keywords": [
+      "续航短",
+      "飞行时间短",
+      "电池不耐用"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电池老化",
+        "probability": "50%",
+        "description": "电池循环次数过多，容量衰减"
+      },
+      {
+        "cause": "低温环境",
+        "probability": "25%",
+        "description": "低温环境下电池放电效率降低"
+      },
+      {
+        "cause": "电机效率下降",
+        "probability": "15%",
+        "description": "电机轴承磨损，效率降低"
+      },
+      {
+        "cause": "飞行负载过重",
+        "probability": "10%",
+        "description": "挂载设备过重"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查电池健康度",
+        "criteria": "健康度>80%",
+        "solution": "在App中查看电池健康度",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查电池循环次数",
+        "criteria": "循环次数<200次",
+        "solution": "若>200次，建议更换电池",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查环境温度",
+        "criteria": "温度>10°C",
+        "solution": "低温环境需预热电池",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查电机转动",
+        "criteria": "电机转动顺滑",
+        "solution": "若有异响，检查电机轴承",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "用户ID:U12345反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-02-01",
+    "reviewStatus": "approved",
+    "tags": [
+      "常见故障",
+      "电池相关"
+    ],
+    "relatedCases": [
+      "F006"
+    ]
+  },
+  {
+    "id": "F008",
+    "faultType": "传感器系统",
+    "symptom": "避障功能异常",
+    "keywords": [
+      "避障异常",
+      "避障失效",
+      "传感器报警"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "传感器被遮挡",
+        "probability": "45%",
+        "description": "传感器镜头被灰尘、污渍遮挡"
+      },
+      {
+        "cause": "光线不足",
+        "probability": "25%",
+        "description": "弱光环境下避障功能受限"
+      },
+      {
+        "cause": "传感器校准异常",
+        "probability": "20%",
+        "description": "传感器校准数据异常"
+      },
+      {
+        "cause": "传感器硬件故障",
+        "probability": "10%",
+        "description": "传感器损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "清洁传感器",
+        "criteria": "传感器镜头清洁",
+        "solution": "用超细纤维布擦拭传感器",
+        "tools": [
+          "超细纤维布"
+        ],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查环境光线",
+        "criteria": "光线充足",
+        "solution": "避免在弱光环境飞行",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "传感器校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成传感器校准",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试避障功能",
+        "criteria": "避障正常",
+        "solution": "在安全环境下测试避障",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      }
+    ],
+    "requiredTools": [
+      "超细纤维布"
+    ],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "DJI官方维修手册 V2.3",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-02-05",
+    "reviewStatus": "approved",
+    "tags": [
+      "传感器相关",
+      "新手友好"
+    ],
+    "relatedCases": []
+  },
+  {
+    "id": "F009",
+    "faultType": "喷洒系统",
+    "symptom": "喷头电机异常",
+    "keywords": [
+      "喷头电机异常",
+      "喷洒不工作",
+      "喷头故障"
+    ],
+    "applicableModels": [
+      "T30",
+      "T40",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "喷头电机连接线松动",
+        "probability": "40%",
+        "description": "电机连接线插头松动"
+      },
+      {
+        "cause": "喷头电机烧毁",
+        "probability": "30%",
+        "description": "电机线圈烧毁"
+      },
+      {
+        "cause": "喷头堵塞",
+        "probability": "20%",
+        "description": "喷头被农药残留堵塞"
+      },
+      {
+        "cause": "控制板故障",
+        "probability": "10%",
+        "description": "喷洒控制板损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查喷头是否堵塞",
+        "criteria": "喷头畅通",
+        "solution": "清洗喷头",
+        "tools": [
+          "清洗工具"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查电机连接线",
+        "criteria": "连接线插紧",
+        "solution": "重新插紧连接线",
+        "tools": [
+          "螺丝刀"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 3,
+        "operation": "测试电机转动",
+        "criteria": "电机正常转动",
+        "solution": "手动测试电机",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查控制板",
+        "criteria": "控制板正常",
+        "solution": "用万用表检测控制板输出",
+        "tools": [
+          "万用表"
+        ],
+        "estimatedTime": "5分钟"
+      }
+    ],
+    "requiredTools": [
+      "清洗工具",
+      "螺丝刀",
+      "万用表"
+    ],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "维修技师",
+    "sourceDetail": "植保机维修技师王工(工号:DJ003)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-02-10",
+    "reviewStatus": "approved",
+    "tags": [
+      "植保机专用",
+      "需专业维修"
+    ],
+    "relatedCases": [
+      "F010"
+    ]
+  },
+  {
+    "id": "F010",
+    "faultType": "喷洒系统",
+    "symptom": "管路堵塞",
+    "keywords": [
+      "管路堵塞",
+      "喷洒管堵塞",
+      "药液不通"
+    ],
+    "applicableModels": [
+      "T30",
+      "T40",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "农药残留结晶",
+        "probability": "50%",
+        "description": "农药未清洗干净导致结晶堵塞"
+      },
+      {
+        "cause": "过滤器堵塞",
+        "probability": "30%",
+        "description": "过滤器被杂质堵塞"
+      },
+      {
+        "cause": "管路老化",
+        "probability": "15%",
+        "description": "管路老化变形"
+      },
+      {
+        "cause": "药液质量问题",
+        "probability": "5%",
+        "description": "药液配比不当或质量问题"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查过滤器",
+        "criteria": "过滤器畅通",
+        "solution": "清洗或更换过滤器",
+        "tools": [
+          "清洗工具"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 2,
+        "operation": "清洗管路",
+        "criteria": "管路畅通",
+        "solution": "用清水反向冲洗管路",
+        "tools": [
+          "清洗工具"
+        ],
+        "estimatedTime": "10分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查管路状态",
+        "criteria": "管路无老化变形",
+        "solution": "若老化，更换管路",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查药液配比",
+        "criteria": "配比正确",
+        "solution": "按说明书正确配比",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [
+      "清洗工具"
+    ],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "植保机维修技师王工(工号:DJ003)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-02-10",
+    "reviewStatus": "approved",
+    "tags": [
+      "植保机专用",
+      "日常维护"
+    ],
+    "relatedCases": [
+      "F009"
+    ]
+  },
+  {
+    "id": "F011",
+    "faultType": "动力系统",
+    "symptom": "飞行中突然掉高",
+    "keywords": [
+      "掉高",
+      "高度下降",
+      "飞行不稳"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电池电压不足",
+        "probability": "35%",
+        "description": "电池电压突然下降"
+      },
+      {
+        "cause": "电机故障",
+        "probability": "25%",
+        "description": "单个或多个电机故障"
+      },
+      {
+        "cause": "桨叶损坏",
+        "probability": "20%",
+        "description": "桨叶断裂或变形"
+      },
+      {
+        "cause": "气压计异常",
+        "probability": "15%",
+        "description": "气压计数据异常"
+      },
+      {
+        "cause": "强风影响",
+        "probability": "5%",
+        "description": "强风导致高度下降"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查电池电压",
+        "criteria": "电压稳定",
+        "solution": "查看飞行日志中的电压曲线",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查电机状态",
+        "criteria": "电机正常",
+        "solution": "检查电机是否有异响或卡滞",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查桨叶",
+        "criteria": "桨叶完好",
+        "solution": "检查桨叶是否有裂纹或变形",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "校准气压计",
+        "criteria": "校准成功",
+        "solution": "在App中完成气压计校准",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 5,
+        "operation": "分析飞行日志",
+        "criteria": "日志无异常",
+        "solution": "导出飞行日志分析",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "用户ID:U23456反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-02-15",
+    "reviewStatus": "approved",
+    "tags": [
+      "飞行安全",
+      "需排查"
+    ],
+    "relatedCases": [
+      "F003"
+    ]
+  },
+  {
+    "id": "F012",
+    "faultType": "图传系统",
+    "symptom": "图传延迟严重",
+    "keywords": [
+      "图传延迟",
+      "画面卡顿",
+      "图传慢"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "图传频段拥堵",
+        "probability": "40%",
+        "description": "2.4G频段设备过多"
+      },
+      {
+        "cause": "距离过远",
+        "probability": "30%",
+        "description": "超出图传距离限制"
+      },
+      {
+        "cause": "手机性能不足",
+        "probability": "20%",
+        "description": "手机CPU/GPU性能不足"
+      },
+      {
+        "cause": "图传天线问题",
+        "probability": "10%",
+        "description": "天线角度或连接问题"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "切换图传频段",
+        "criteria": "延迟降低",
+        "solution": "切换至5.8G频段",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "降低飞行距离",
+        "criteria": "延迟降低",
+        "solution": "控制在图传距离内",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "关闭后台应用",
+        "criteria": "手机流畅",
+        "solution": "关闭手机后台应用",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "调整天线角度",
+        "criteria": "信号增强",
+        "solution": "调整遥控器天线角度",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "5分钟",
+    "difficulty": "⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "用户ID:U34567反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-02-18",
+    "reviewStatus": "approved",
+    "tags": [
+      "常见故障",
+      "新手友好"
+    ],
+    "relatedCases": [
+      "F004"
+    ]
+  },
+  {
+    "id": "F013",
+    "faultType": "云台系统",
+    "symptom": "画面抖动",
+    "keywords": [
+      "画面抖动",
+      "画面不稳",
+      "云台抖动"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "云台未校准",
+        "probability": "40%",
+        "description": "云台校准数据异常"
+      },
+      {
+        "cause": "云台电机故障",
+        "probability": "25%",
+        "description": "云台电机性能下降"
+      },
+      {
+        "cause": "云台连接线松动",
+        "probability": "20%",
+        "description": "连接线接触不良"
+      },
+      {
+        "cause": "云台减震球老化",
+        "probability": "15%",
+        "description": "减震球老化失去弹性"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "云台自动校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成云台校准",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查云台连接线",
+        "criteria": "连接线牢固",
+        "solution": "检查并插紧连接线",
+        "tools": [
+          "螺丝刀"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查减震球",
+        "criteria": "减震球弹性良好",
+        "solution": "若老化，更换减震球",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试云台稳定性",
+        "criteria": "画面稳定",
+        "solution": "在悬停状态下测试",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [
+      "螺丝刀"
+    ],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "高级维修技师李工(工号:DJ002)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-02-20",
+    "reviewStatus": "approved",
+    "tags": [
+      "常见故障",
+      "云台相关"
+    ],
+    "relatedCases": [
+      "F005"
+    ]
+  },
+  {
+    "id": "F014",
+    "faultType": "传感器系统",
+    "symptom": "指南针异常",
+    "keywords": [
+      "指南针异常",
+      "指南针错误",
+      "方向不准"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "磁场干扰",
+        "probability": "50%",
+        "description": "附近有金属物体或磁场干扰"
+      },
+      {
+        "cause": "指南针未校准",
+        "probability": "30%",
+        "description": "指南针校准数据异常"
+      },
+      {
+        "cause": "指南针硬件故障",
+        "probability": "15%",
+        "description": "指南针传感器损坏"
+      },
+      {
+        "cause": "地理位置特殊",
+        "probability": "5%",
+        "description": "特殊地理位置（如矿区）"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "远离干扰源",
+        "criteria": "远离金属物体",
+        "solution": "移至空旷地带",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "指南针校准",
+        "criteria": "校准成功",
+        "solution": "按App提示完成校准",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查环境",
+        "criteria": "环境无干扰",
+        "solution": "避免在矿区、高压线附近飞行",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "重启无人机",
+        "criteria": "指南针正常",
+        "solution": "重启后重新校准",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "DJI官方维修手册 V2.3",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-02-22",
+    "reviewStatus": "approved",
+    "tags": [
+      "传感器相关",
+      "新手友好"
+    ],
+    "relatedCases": []
+  },
+  {
+    "id": "F015",
+    "faultType": "导航系统",
+    "symptom": "返航点刷新失败",
+    "keywords": [
+      "返航点失败",
+      "返航点错误",
+      "无法设置返航点"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "GPS信号弱",
+        "probability": "50%",
+        "description": "卫星数不足"
+      },
+      {
+        "cause": "位置服务未开启",
+        "probability": "25%",
+        "description": "手机GPS未开启"
+      },
+      {
+        "cause": "App权限不足",
+        "probability": "15%",
+        "description": "App未获取位置权限"
+      },
+      {
+        "cause": "系统时间错误",
+        "probability": "10%",
+        "description": "手机系统时间不准确"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查GPS信号",
+        "criteria": "卫星数≥6颗",
+        "solution": "移至开阔地带",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "开启位置服务",
+        "criteria": "位置服务已开启",
+        "solution": "在手机设置中开启GPS",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查App权限",
+        "criteria": "权限已授予",
+        "solution": "授予App位置权限",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "校准系统时间",
+        "criteria": "时间准确",
+        "solution": "开启自动校准时间",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "5分钟",
+    "difficulty": "⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "用户ID:U45678反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-02-25",
+    "reviewStatus": "approved",
+    "tags": [
+      "新手友好",
+      "常见故障"
+    ],
+    "relatedCases": [
+      "F002"
+    ]
+  },
+  {
+    "id": "F016",
+    "faultType": "动力系统",
+    "symptom": "电机异响",
+    "keywords": [
+      "电机异响",
+      "电机噪音",
+      "电机声音异常"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电机轴承磨损",
+        "probability": "40%",
+        "description": "电机轴承老化磨损"
+      },
+      {
+        "cause": "电机进水",
+        "probability": "25%",
+        "description": "电机进水导致锈蚀"
+      },
+      {
+        "cause": "电机线圈烧毁",
+        "probability": "20%",
+        "description": "电机线圈部分烧毁"
+      },
+      {
+        "cause": "桨叶不平衡",
+        "probability": "15%",
+        "description": "桨叶质量不均匀"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查桨叶",
+        "criteria": "桨叶完好平衡",
+        "solution": "更换或平衡桨叶",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "手动转动电机",
+        "criteria": "转动顺滑无杂音",
+        "solution": "若有异响，检查轴承",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查电机外观",
+        "criteria": "无进水锈蚀痕迹",
+        "solution": "若有进水痕迹，更换电机",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测量电机电阻",
+        "criteria": "电阻值正常(5-15Ω)",
+        "solution": "若异常，更换电机",
+        "tools": [
+          "万用表"
+        ],
+        "estimatedTime": "3分钟"
+      }
+    ],
+    "requiredTools": [
+      "万用表"
+    ],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "维修技师",
+    "sourceDetail": "高级维修技师张工(工号:DJ001)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-02-28",
+    "reviewStatus": "approved",
+    "tags": [
+      "硬件故障",
+      "需专业维修"
+    ],
+    "relatedCases": [
+      "F003"
+    ]
+  },
+  {
+    "id": "F017",
+    "faultType": "图传系统",
+    "symptom": "图传信号中断",
+    "keywords": [
+      "图传中断",
+      "信号丢失",
+      "图传断连"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "超出图传距离",
+        "probability": "40%",
+        "description": "飞行距离超出图传范围"
+      },
+      {
+        "cause": "障碍物遮挡",
+        "probability": "30%",
+        "description": "建筑物、山体遮挡信号"
+      },
+      {
+        "cause": "图传频段干扰",
+        "probability": "20%",
+        "description": "同频段设备干扰"
+      },
+      {
+        "cause": "图传天线故障",
+        "probability": "10%",
+        "description": "天线损坏或连接问题"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "降低飞行高度",
+        "criteria": "信号恢复",
+        "solution": "降低高度避开遮挡",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "缩短飞行距离",
+        "criteria": "信号恢复",
+        "solution": "控制在图传距离内",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "切换图传频段",
+        "criteria": "信号稳定",
+        "solution": "切换至干扰少的频段",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查天线状态",
+        "criteria": "天线完好",
+        "solution": "检查天线连接和角度",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "5分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "用户ID:U56789反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-03-01",
+    "reviewStatus": "approved",
+    "tags": [
+      "常见故障",
+      "新手友好"
+    ],
+    "relatedCases": [
+      "F004",
+      "F012"
+    ]
+  },
+  {
+    "id": "F018",
+    "faultType": "电源系统",
+    "symptom": "电池无法充电",
+    "keywords": [
+      "电池无法充电",
+      "充电失败",
+      "电池不充电"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "充电器故障",
+        "probability": "35%",
+        "description": "充电器损坏或输出异常"
+      },
+      {
+        "cause": "电池过放保护",
+        "probability": "30%",
+        "description": "电池电压过低触发保护"
+      },
+      {
+        "cause": "充电接口问题",
+        "probability": "20%",
+        "description": "充电接口氧化或松动"
+      },
+      {
+        "cause": "电池温度异常",
+        "probability": "15%",
+        "description": "电池温度过高或过低"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查充电器",
+        "criteria": "充电器指示灯正常",
+        "solution": "尝试更换充电器",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查充电接口",
+        "criteria": "接口清洁无氧化",
+        "solution": "清洁充电接口",
+        "tools": [
+          "酒精",
+          "棉签"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查电池温度",
+        "criteria": "温度在5-40°C",
+        "solution": "等待电池温度恢复正常",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 4,
+        "operation": "激活过放电池",
+        "criteria": "电池开始充电",
+        "solution": "长时间连接充电器激活",
+        "tools": [],
+        "estimatedTime": "30分钟"
+      }
+    ],
+    "requiredTools": [
+      "酒精",
+      "棉签"
+    ],
+    "totalEstimatedTime": "40分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "DJI电池使用指南",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-03-05",
+    "reviewStatus": "approved",
+    "tags": [
+      "电池相关",
+      "常见故障"
+    ],
+    "relatedCases": [
+      "F006"
+    ]
+  },
+  {
+    "id": "F019",
+    "faultType": "传感器系统",
+    "symptom": "IMU校准失败",
+    "keywords": [
+      "IMU校准失败",
+      "IMU错误",
+      "IMU异常"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "校准环境不当",
+        "probability": "40%",
+        "description": "在校准过程中移动或震动"
+      },
+      {
+        "cause": "IMU硬件故障",
+        "probability": "30%",
+        "description": "IMU传感器损坏"
+      },
+      {
+        "cause": "固件版本问题",
+        "probability": "20%",
+        "description": "固件版本过旧或有bug"
+      },
+      {
+        "cause": "IMU数据异常",
+        "probability": "10%",
+        "description": "IMU数据严重偏差"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "选择平坦地面",
+        "criteria": "地面水平",
+        "solution": "在水平地面上校准",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "保持静止",
+        "criteria": "校准过程中无移动",
+        "solution": "校准期间不要触碰无人机",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "更新固件",
+        "criteria": "固件为最新",
+        "solution": "通过App更新固件",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      },
+      {
+        "step": 4,
+        "operation": "恢复出厂设置",
+        "criteria": "校准成功",
+        "solution": "在App中恢复出厂设置后重试",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "25分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "高级维修技师张工(工号:DJ001)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-03-08",
+    "reviewStatus": "approved",
+    "tags": [
+      "传感器相关",
+      "需耐心操作"
+    ],
+    "relatedCases": []
+  },
+  {
+    "id": "F020",
+    "faultType": "动力系统",
+    "symptom": "飞行姿态异常",
+    "keywords": [
+      "姿态异常",
+      "飞行不稳",
+      "漂移"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "IMU未校准",
+        "probability": "35%",
+        "description": "IMU温漂未校准"
+      },
+      {
+        "cause": "指南针异常",
+        "probability": "25%",
+        "description": "指南针数据异常"
+      },
+      {
+        "cause": "电机性能不一致",
+        "probability": "20%",
+        "description": "电机老化或损坏"
+      },
+      {
+        "cause": "桨叶不平衡",
+        "probability": "15%",
+        "description": "桨叶质量不均匀"
+      },
+      {
+        "cause": "重心偏移",
+        "probability": "5%",
+        "description": "挂载设备导致重心偏移"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "IMU校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成IMU校准",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 2,
+        "operation": "指南针校准",
+        "criteria": "校准成功",
+        "solution": "按App提示完成校准",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查电机",
+        "criteria": "电机性能一致",
+        "solution": "检查电机转动和声音",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查桨叶",
+        "criteria": "桨叶完好平衡",
+        "solution": "更换或平衡桨叶",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 5,
+        "operation": "检查重心",
+        "criteria": "重心居中",
+        "solution": "调整挂载设备位置",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "用户ID:U67890反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-03-10",
+    "reviewStatus": "approved",
+    "tags": [
+      "飞行安全",
+      "需排查"
+    ],
+    "relatedCases": [
+      "F014",
+      "F019"
+    ]
+  },
+  {
+    "id": "F021",
+    "faultType": "雷达系统",
+    "symptom": "避障雷达失效",
+    "keywords": [
+      "避障雷达失效",
+      "雷达不工作",
+      "雷达报警"
+    ],
+    "applicableModels": [
+      "T30",
+      "T40",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "雷达传感器被遮挡",
+        "probability": "40%",
+        "description": "雷达镜头被灰尘、农药残留遮挡"
+      },
+      {
+        "cause": "雷达连接线松动",
+        "probability": "25%",
+        "description": "雷达连接线插头松动或氧化"
+      },
+      {
+        "cause": "雷达模块故障",
+        "probability": "20%",
+        "description": "雷达模块损坏"
+      },
+      {
+        "cause": "固件版本问题",
+        "probability": "15%",
+        "description": "固件版本过旧或有bug"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "清洁雷达传感器",
+        "criteria": "传感器镜头清洁",
+        "solution": "用超细纤维布擦拭雷达镜头",
+        "tools": [
+          "超细纤维布"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查雷达连接线",
+        "criteria": "连接线插紧",
+        "solution": "检查并插紧连接线",
+        "tools": [
+          "螺丝刀"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查固件版本",
+        "criteria": "固件为最新",
+        "solution": "通过App更新固件",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试雷达功能",
+        "criteria": "雷达正常工作",
+        "solution": "在安全环境下测试避障",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      }
+    ],
+    "requiredTools": [
+      "超细纤维布",
+      "螺丝刀"
+    ],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "植保机维修技师王工(工号:DJ003)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-03-12",
+    "reviewStatus": "approved",
+    "tags": [
+      "植保机专用",
+      "雷达相关"
+    ],
+    "relatedCases": [
+      "F008"
+    ]
+  },
+  {
+    "id": "F022",
+    "faultType": "遥控器系统",
+    "symptom": "遥控器无法连接",
+    "keywords": [
+      "遥控器无法连接",
+      "遥控器断连",
+      "遥控器配对失败"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列",
+      "Phantom系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "遥控器未对频",
+        "probability": "35%",
+        "description": "遥控器与无人机未完成对频"
+      },
+      {
+        "cause": "遥控器电量不足",
+        "probability": "25%",
+        "description": "遥控器电量低于20%"
+      },
+      {
+        "cause": "频段干扰",
+        "probability": "20%",
+        "description": "同频段设备干扰"
+      },
+      {
+        "cause": "遥控器硬件故障",
+        "probability": "15%",
+        "description": "遥控器主板或天线损坏"
+      },
+      {
+        "cause": "固件版本不匹配",
+        "probability": "5%",
+        "description": "遥控器与无人机固件版本不一致"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查遥控器电量",
+        "criteria": "电量>50%",
+        "solution": "充电至50%以上",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "重新对频",
+        "criteria": "对频成功",
+        "solution": "按App提示完成对频操作",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 3,
+        "operation": "切换频段",
+        "criteria": "连接成功",
+        "solution": "切换至干扰少的频段",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查固件版本",
+        "criteria": "版本一致",
+        "solution": "更新遥控器和无人机固件",
+        "tools": [],
+        "estimatedTime": "15分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "DJI官方维修手册 V2.3",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-03-15",
+    "reviewStatus": "approved",
+    "tags": [
+      "常见故障",
+      "新手友好"
+    ],
+    "relatedCases": []
+  },
+  {
+    "id": "F023",
+    "faultType": "动力系统",
+    "symptom": "螺旋桨脱落",
+    "keywords": [
+      "螺旋桨脱落",
+      "桨叶飞出",
+      "桨叶脱落"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列",
+      "Phantom系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "螺旋桨未安装到位",
+        "probability": "50%",
+        "description": "螺旋桨未完全卡入电机轴"
+      },
+      {
+        "cause": "螺旋桨卡扣损坏",
+        "probability": "25%",
+        "description": "螺旋桨卡扣磨损或断裂"
+      },
+      {
+        "cause": "电机轴磨损",
+        "probability": "15%",
+        "description": "电机轴磨损导致无法固定螺旋桨"
+      },
+      {
+        "cause": "使用非原装螺旋桨",
+        "probability": "10%",
+        "description": "非原装螺旋桨尺寸不匹配"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查螺旋桨安装",
+        "criteria": "螺旋桨安装牢固",
+        "solution": "重新安装并确认卡入到位",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查螺旋桨卡扣",
+        "criteria": "卡扣完好",
+        "solution": "若损坏，更换螺旋桨",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查电机轴",
+        "criteria": "电机轴无磨损",
+        "solution": "若磨损，更换电机",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "使用原装螺旋桨",
+        "criteria": "螺旋桨匹配",
+        "solution": "更换为原装螺旋桨",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "用户ID:U78901反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-03-18",
+    "reviewStatus": "approved",
+    "tags": [
+      "安全相关",
+      "新手友好"
+    ],
+    "relatedCases": []
+  },
+  {
+    "id": "F024",
+    "faultType": "图传系统",
+    "symptom": "图传画面花屏",
+    "keywords": [
+      "图传花屏",
+      "画面马赛克",
+      "画面撕裂"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "图传信号干扰",
+        "probability": "45%",
+        "description": "同频段设备干扰导致数据丢包"
+      },
+      {
+        "cause": "图传编码器故障",
+        "probability": "25%",
+        "description": "相机编码器异常"
+      },
+      {
+        "cause": "存储卡写入速度慢",
+        "probability": "20%",
+        "description": "存储卡速度等级不足"
+      },
+      {
+        "cause": "手机解码能力不足",
+        "probability": "10%",
+        "description": "手机性能不足无法流畅解码"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "切换图传频段",
+        "criteria": "画面正常",
+        "solution": "切换至干扰少的频段",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "更换存储卡",
+        "criteria": "存储卡速度≥U3",
+        "solution": "更换高速存储卡",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "关闭后台应用",
+        "criteria": "手机流畅",
+        "solution": "关闭手机后台应用释放内存",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "重启图传系统",
+        "criteria": "画面正常",
+        "solution": "在App中关闭并重新开启图传",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "5分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "用户ID:U89012反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-03-20",
+    "reviewStatus": "approved",
+    "tags": [
+      "常见故障",
+      "图传相关"
+    ],
+    "relatedCases": [
+      "F004",
+      "F012"
+    ]
+  },
+  {
+    "id": "F025",
+    "faultType": "云台系统",
+    "symptom": "云台过热保护",
+    "keywords": [
+      "云台过热",
+      "云台保护",
+      "云台温度高"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "长时间连续使用",
+        "probability": "40%",
+        "description": "长时间悬停或录像导致云台电机过热"
+      },
+      {
+        "cause": "高温环境",
+        "probability": "30%",
+        "description": "环境温度过高(>35°C)"
+      },
+      {
+        "cause": "云台电机故障",
+        "probability": "20%",
+        "description": "电机效率下降导致发热增加"
+      },
+      {
+        "cause": "云台负载过重",
+        "probability": "10%",
+        "description": "挂载设备过重"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "停止使用并降温",
+        "criteria": "云台温度正常",
+        "solution": "关闭电源等待10-15分钟",
+        "tools": [],
+        "estimatedTime": "15分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查环境温度",
+        "criteria": "温度<35°C",
+        "solution": "移至阴凉处或选择凉爽时段飞行",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "减少连续使用时间",
+        "criteria": "不过热",
+        "solution": "每飞行15分钟休息5分钟",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查云台电机",
+        "criteria": "电机正常",
+        "solution": "若频繁过热，检查电机状态",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "DJI官方维修手册 V2.3",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-03-22",
+    "reviewStatus": "approved",
+    "tags": [
+      "常见故障",
+      "环境相关"
+    ],
+    "relatedCases": [
+      "F005"
+    ]
+  },
+  {
+    "id": "F026",
+    "faultType": "电源系统",
+    "symptom": "电池电量显示不准",
+    "keywords": [
+      "电量显示不准",
+      "电量跳变",
+      "电量异常"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电池校准数据异常",
+        "probability": "40%",
+        "description": "电池电量计校准数据偏差"
+      },
+      {
+        "cause": "电池老化",
+        "probability": "30%",
+        "description": "电池容量衰减导致显示不准"
+      },
+      {
+        "cause": "温度影响",
+        "probability": "20%",
+        "description": "低温环境下电池电压下降快"
+      },
+      {
+        "cause": "电池固件问题",
+        "probability": "10%",
+        "description": "电池固件版本过旧"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "完全充放电循环",
+        "criteria": "电量显示准确",
+        "solution": "完全充电后使用至自动关机，再充满",
+        "tools": [],
+        "estimatedTime": "120分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查电池健康度",
+        "criteria": "健康度>80%",
+        "solution": "在App中查看电池健康度",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查环境温度",
+        "criteria": "温度>10°C",
+        "solution": "低温环境需预热电池",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "更新电池固件",
+        "criteria": "固件为最新",
+        "solution": "通过App更新电池固件",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "130分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "高级维修技师张工(工号:DJ001)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-03-25",
+    "reviewStatus": "approved",
+    "tags": [
+      "电池相关",
+      "需耐心操作"
+    ],
+    "relatedCases": [
+      "F006",
+      "F007"
+    ]
+  },
+  {
+    "id": "F027",
+    "faultType": "传感器系统",
+    "symptom": "视觉传感器异常",
+    "keywords": [
+      "视觉传感器异常",
+      "视觉定位失效",
+      "下视传感器错误"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "传感器被遮挡",
+        "probability": "45%",
+        "description": "传感器镜头被灰尘、污渍遮挡"
+      },
+      {
+        "cause": "光线不足",
+        "probability": "25%",
+        "description": "弱光环境下视觉定位受限"
+      },
+      {
+        "cause": "地面纹理不足",
+        "probability": "20%",
+        "description": "纯色或反光地面无法识别"
+      },
+      {
+        "cause": "传感器硬件故障",
+        "probability": "10%",
+        "description": "传感器损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "清洁传感器",
+        "criteria": "传感器镜头清洁",
+        "solution": "用超细纤维布擦拭传感器",
+        "tools": [
+          "超细纤维布"
+        ],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查环境光线",
+        "criteria": "光线充足",
+        "solution": "避免在弱光环境飞行",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "选择合适地面",
+        "criteria": "地面有纹理",
+        "solution": "避免在纯色或反光地面起飞",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "传感器校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成传感器校准",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      }
+    ],
+    "requiredTools": [
+      "超细纤维布"
+    ],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "DJI官方维修手册 V2.3",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-03-28",
+    "reviewStatus": "approved",
+    "tags": [
+      "传感器相关",
+      "新手友好"
+    ],
+    "relatedCases": [
+      "F008"
+    ]
+  },
+  {
+    "id": "F028",
+    "faultType": "导航系统",
+    "symptom": "自动返航失败",
+    "keywords": [
+      "自动返航失败",
+      "返航错误",
+      "无法返航"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "返航点未记录",
+        "probability": "35%",
+        "description": "起飞时GPS信号弱未记录返航点"
+      },
+      {
+        "cause": "GPS信号丢失",
+        "probability": "25%",
+        "description": "飞行中GPS信号丢失"
+      },
+      {
+        "cause": "电量不足",
+        "probability": "20%",
+        "description": "电量不足以支持返航"
+      },
+      {
+        "cause": "障碍物阻挡",
+        "probability": "15%",
+        "description": "返航路径上有障碍物"
+      },
+      {
+        "cause": "强风影响",
+        "probability": "5%",
+        "description": "强风导致无法返航"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查返航点",
+        "criteria": "返航点已记录",
+        "solution": "起飞前确认返航点已刷新",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查GPS信号",
+        "criteria": "卫星数≥6颗",
+        "solution": "保持GPS信号良好",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查电量",
+        "criteria": "电量充足",
+        "solution": "预留足够返航电量",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "设置返航高度",
+        "criteria": "高度高于障碍物",
+        "solution": "在App中设置合适的返航高度",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "5分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "用户ID:U90123反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-03-30",
+    "reviewStatus": "approved",
+    "tags": [
+      "飞行安全",
+      "常见故障"
+    ],
+    "relatedCases": [
+      "F002",
+      "F015"
+    ]
+  },
+  {
+    "id": "F029",
+    "faultType": "喷洒系统",
+    "symptom": "液泵故障",
+    "keywords": [
+      "液泵故障",
+      "喷洒泵不工作",
+      "液泵异常"
+    ],
+    "applicableModels": [
+      "T30",
+      "T40",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "液泵电机烧毁",
+        "probability": "35%",
+        "description": "液泵电机线圈烧毁"
+      },
+      {
+        "cause": "液泵连接线松动",
+        "probability": "30%",
+        "description": "液泵连接线插头松动或氧化"
+      },
+      {
+        "cause": "液泵堵塞",
+        "probability": "20%",
+        "description": "液泵被农药残留堵塞"
+      },
+      {
+        "cause": "控制板故障",
+        "probability": "15%",
+        "description": "喷洒控制板损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查液泵连接线",
+        "criteria": "连接线插紧",
+        "solution": "检查并插紧连接线",
+        "tools": [
+          "螺丝刀"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 2,
+        "operation": "清洗液泵",
+        "criteria": "液泵畅通",
+        "solution": "用清水冲洗液泵",
+        "tools": [
+          "清洗工具"
+        ],
+        "estimatedTime": "10分钟"
+      },
+      {
+        "step": 3,
+        "operation": "测试液泵电机",
+        "criteria": "电机正常转动",
+        "solution": "手动测试电机",
+        "tools": [
+          "万用表"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查控制板",
+        "criteria": "控制板正常",
+        "solution": "用万用表检测控制板输出",
+        "tools": [
+          "万用表"
+        ],
+        "estimatedTime": "5分钟"
+      }
+    ],
+    "requiredTools": [
+      "螺丝刀",
+      "清洗工具",
+      "万用表"
+    ],
+    "totalEstimatedTime": "25分钟",
+    "difficulty": "⭐⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "维修技师",
+    "sourceDetail": "植保机维修技师王工(工号:DJ003)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-04-01",
+    "reviewStatus": "approved",
+    "tags": [
+      "植保机专用",
+      "需专业维修"
+    ],
+    "relatedCases": [
+      "F009",
+      "F010"
+    ]
+  },
+  {
+    "id": "F030",
+    "faultType": "雷达系统",
+    "symptom": "喷洒雷达异常",
+    "keywords": [
+      "喷洒雷达异常",
+      "仿地雷达错误",
+      "雷达数据不准"
+    ],
+    "applicableModels": [
+      "T30",
+      "T40",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "雷达传感器被遮挡",
+        "probability": "40%",
+        "description": "雷达镜头被农药残留或灰尘遮挡"
+      },
+      {
+        "cause": "雷达校准数据异常",
+        "probability": "30%",
+        "description": "雷达校准数据偏差"
+      },
+      {
+        "cause": "雷达连接线松动",
+        "probability": "20%",
+        "description": "雷达连接线插头松动"
+      },
+      {
+        "cause": "雷达模块故障",
+        "probability": "10%",
+        "description": "雷达模块损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "清洁雷达传感器",
+        "criteria": "传感器镜头清洁",
+        "solution": "用超细纤维布擦拭雷达镜头",
+        "tools": [
+          "超细纤维布"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 2,
+        "operation": "雷达校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成雷达校准",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查雷达连接线",
+        "criteria": "连接线插紧",
+        "solution": "检查并插紧连接线",
+        "tools": [
+          "螺丝刀"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试雷达功能",
+        "criteria": "雷达正常工作",
+        "solution": "在安全环境下测试仿地飞行",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      }
+    ],
+    "requiredTools": [
+      "超细纤维布",
+      "螺丝刀"
+    ],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "植保机维修技师王工(工号:DJ003)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-04-03",
+    "reviewStatus": "approved",
+    "tags": [
+      "植保机专用",
+      "雷达相关"
+    ],
+    "relatedCases": [
+      "F021"
+    ]
+  },
+  {
+    "id": "F031",
+    "faultType": "遥控器系统",
+    "symptom": "遥控器按键失灵",
+    "keywords": [
+      "遥控器按键失灵",
+      "按键无反应",
+      "按键卡滞"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列",
+      "Phantom系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "按键积灰或氧化",
+        "probability": "40%",
+        "description": "按键触点积灰或氧化导致接触不良"
+      },
+      {
+        "cause": "按键机械损坏",
+        "probability": "30%",
+        "description": "按键弹簧或触点损坏"
+      },
+      {
+        "cause": "遥控器主板故障",
+        "probability": "20%",
+        "description": "主板按键电路损坏"
+      },
+      {
+        "cause": "固件问题",
+        "probability": "10%",
+        "description": "固件版本过旧或有bug"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "清洁按键",
+        "criteria": "按键清洁",
+        "solution": "用酒精棉签清洁按键周围",
+        "tools": [
+          "酒精",
+          "棉签"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 2,
+        "operation": "多次按压按键",
+        "criteria": "按键恢复",
+        "solution": "反复按压按键恢复弹性",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查固件版本",
+        "criteria": "固件为最新",
+        "solution": "通过App更新遥控器固件",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试按键功能",
+        "criteria": "按键正常",
+        "solution": "在App中测试按键响应",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [
+      "酒精",
+      "棉签"
+    ],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "高级维修技师李工(工号:DJ002)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-04-05",
+    "reviewStatus": "approved",
+    "tags": [
+      "遥控器相关",
+      "日常维护"
+    ],
+    "relatedCases": [
+      "F022"
+    ]
+  },
+  {
+    "id": "F032",
+    "faultType": "动力系统",
+    "symptom": "电机过热",
+    "keywords": [
+      "电机过热",
+      "电机发烫",
+      "电机温度高"
+    ],
+    "applicableModels": [
+      "T30",
+      "T40",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "长时间满载飞行",
+        "probability": "40%",
+        "description": "长时间满载喷洒导致电机过热"
+      },
+      {
+        "cause": "电机轴承磨损",
+        "probability": "25%",
+        "description": "电机轴承磨损导致效率下降发热"
+      },
+      {
+        "cause": "环境温度过高",
+        "probability": "20%",
+        "description": "高温环境作业"
+      },
+      {
+        "cause": "电机散热不良",
+        "probability": "15%",
+        "description": "电机散热片堵塞或损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "停止飞行并降温",
+        "criteria": "电机温度正常",
+        "solution": "关闭电源等待10-15分钟",
+        "tools": [],
+        "estimatedTime": "15分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查电机转动",
+        "criteria": "电机转动顺滑",
+        "solution": "手动转动检查是否有阻力",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "清洁电机散热片",
+        "criteria": "散热片清洁",
+        "solution": "用压缩空气清洁散热片",
+        "tools": [
+          "压缩空气"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 4,
+        "operation": "减少连续作业时间",
+        "criteria": "不过热",
+        "solution": "每作业10亩休息5分钟",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      }
+    ],
+    "requiredTools": [
+      "压缩空气"
+    ],
+    "totalEstimatedTime": "25分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "植保机维修技师王工(工号:DJ003)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-04-08",
+    "reviewStatus": "approved",
+    "tags": [
+      "植保机专用",
+      "环境相关"
+    ],
+    "relatedCases": [
+      "F016"
+    ]
+  },
+  {
+    "id": "F033",
+    "faultType": "其他",
+    "symptom": "App无法连接无人机",
+    "keywords": [
+      "App无法连接",
+      "连接失败",
+      "App断连"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列",
+      "Phantom系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "USB连接线问题",
+        "probability": "35%",
+        "description": "USB线损坏或接触不良"
+      },
+      {
+        "cause": "手机USB调试模式开启",
+        "probability": "25%",
+        "description": "Android手机USB调试模式导致连接异常"
+      },
+      {
+        "cause": "App版本过旧",
+        "probability": "20%",
+        "description": "DJI Fly App版本过旧"
+      },
+      {
+        "cause": "手机系统兼容性问题",
+        "probability": "15%",
+        "description": "手机系统版本不兼容"
+      },
+      {
+        "cause": "遥控器USB接口故障",
+        "probability": "5%",
+        "description": "遥控器USB接口损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "更换USB连接线",
+        "criteria": "连接成功",
+        "solution": "使用原装USB线",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "关闭USB调试模式",
+        "criteria": "连接成功",
+        "solution": "在手机设置中关闭USB调试",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "更新App版本",
+        "criteria": "App为最新版",
+        "solution": "在应用商店更新DJI Fly",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 4,
+        "operation": "重启手机和遥控器",
+        "criteria": "连接成功",
+        "solution": "重启后重新连接",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "用户ID:U01234反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-04-10",
+    "reviewStatus": "approved",
+    "tags": [
+      "常见故障",
+      "新手友好"
+    ],
+    "relatedCases": [
+      "F022"
+    ]
+  },
+  {
+    "id": "F034",
+    "faultType": "图传系统",
+    "symptom": "图传距离缩短",
+    "keywords": [
+      "图传距离短",
+      "信号弱",
+      "图传范围小"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "图传天线角度不当",
+        "probability": "35%",
+        "description": "遥控器天线角度未对准无人机"
+      },
+      {
+        "cause": "环境干扰严重",
+        "probability": "30%",
+        "description": "城市环境WiFi和基站干扰多"
+      },
+      {
+        "cause": "图传天线故障",
+        "probability": "20%",
+        "description": "无人机或遥控器天线损坏"
+      },
+      {
+        "cause": "图传频段选择不当",
+        "probability": "15%",
+        "description": "选择了干扰多的频段"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "调整天线角度",
+        "criteria": "天线对准无人机",
+        "solution": "调整遥控器天线使平面朝向无人机",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "切换图传频段",
+        "criteria": "信号增强",
+        "solution": "尝试切换2.4G和5.8G频段",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "选择合适飞行环境",
+        "criteria": "干扰少",
+        "solution": "远离WiFi密集区域",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查天线状态",
+        "criteria": "天线完好",
+        "solution": "检查天线是否有物理损坏",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "5分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "DJI官方维修手册 V2.3",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-04-12",
+    "reviewStatus": "approved",
+    "tags": [
+      "常见故障",
+      "图传相关"
+    ],
+    "relatedCases": [
+      "F004",
+      "F017"
+    ]
+  },
+  {
+    "id": "F035",
+    "faultType": "云台系统",
+    "symptom": "云台自动旋转",
+    "keywords": [
+      "云台自动旋转",
+      "云台漂移",
+      "云台自动偏转"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "云台校准数据异常",
+        "probability": "40%",
+        "description": "云台校准数据偏差"
+      },
+      {
+        "cause": "云台电机故障",
+        "probability": "25%",
+        "description": "云台电机性能不稳定"
+      },
+      {
+        "cause": "云台连接线接触不良",
+        "probability": "20%",
+        "description": "连接线松动或氧化"
+      },
+      {
+        "cause": "固件版本问题",
+        "probability": "15%",
+        "description": "固件版本过旧或有bug"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "云台自动校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成云台校准",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查云台连接线",
+        "criteria": "连接线牢固",
+        "solution": "检查并插紧连接线",
+        "tools": [
+          "螺丝刀"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "更新固件",
+        "criteria": "固件为最新",
+        "solution": "通过App更新固件",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试云台稳定性",
+        "criteria": "云台稳定",
+        "solution": "在悬停状态下测试",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [
+      "螺丝刀"
+    ],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "高级维修技师李工(工号:DJ002)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-04-15",
+    "reviewStatus": "approved",
+    "tags": [
+      "云台相关",
+      "需排查"
+    ],
+    "relatedCases": [
+      "F005",
+      "F013"
+    ]
+  },
+  {
+    "id": "F036",
+    "faultType": "电源系统",
+    "symptom": "电池无法识别",
+    "keywords": [
+      "电池无法识别",
+      "电池不识别",
+      "电池错误"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电池触点氧化",
+        "probability": "40%",
+        "description": "电池或飞机触点氧化导致接触不良"
+      },
+      {
+        "cause": "电池固件版本过旧",
+        "probability": "25%",
+        "description": "电池固件版本不匹配"
+      },
+      {
+        "cause": "电池通信芯片故障",
+        "probability": "20%",
+        "description": "电池通信芯片损坏"
+      },
+      {
+        "cause": "电池过放保护",
+        "probability": "15%",
+        "description": "电池电压过低触发保护"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "清洁电池触点",
+        "criteria": "触点清洁",
+        "solution": "用酒精棉签清洁触点",
+        "tools": [
+          "酒精",
+          "棉签"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 2,
+        "operation": "重新安装电池",
+        "criteria": "电池识别成功",
+        "solution": "重新安装电池确保接触良好",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "更新电池固件",
+        "criteria": "固件为最新",
+        "solution": "通过App更新电池固件",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      },
+      {
+        "step": 4,
+        "operation": "尝试激活电池",
+        "criteria": "电池识别成功",
+        "solution": "长时间连接充电器激活",
+        "tools": [],
+        "estimatedTime": "30分钟"
+      }
+    ],
+    "requiredTools": [
+      "酒精",
+      "棉签"
+    ],
+    "totalEstimatedTime": "45分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "DJI电池使用指南",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-04-18",
+    "reviewStatus": "approved",
+    "tags": [
+      "电池相关",
+      "常见故障"
+    ],
+    "relatedCases": [
+      "F006",
+      "F018"
+    ]
+  },
+  {
+    "id": "F037",
+    "faultType": "传感器系统",
+    "symptom": "超声波传感器异常",
+    "keywords": [
+      "超声波传感器异常",
+      "高度传感器错误",
+      "定高失效"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "传感器被遮挡",
+        "probability": "45%",
+        "description": "传感器被灰尘或异物遮挡"
+      },
+      {
+        "cause": "地面材质影响",
+        "probability": "25%",
+        "description": "吸音材料或水面影响超声波反射"
+      },
+      {
+        "cause": "传感器硬件故障",
+        "probability": "20%",
+        "description": "传感器损坏"
+      },
+      {
+        "cause": "多个超声波干扰",
+        "probability": "10%",
+        "description": "多架无人机近距离飞行干扰"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "清洁传感器",
+        "criteria": "传感器清洁",
+        "solution": "用超细纤维布擦拭传感器",
+        "tools": [
+          "超细纤维布"
+        ],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "选择合适地面",
+        "criteria": "地面反射良好",
+        "solution": "避免在吸音材料或水面附近低空飞行",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "保持无人机间距",
+        "criteria": "间距>5米",
+        "solution": "避免多架无人机近距离飞行",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试传感器功能",
+        "criteria": "传感器正常",
+        "solution": "在安全环境下测试定高功能",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      }
+    ],
+    "requiredTools": [
+      "超细纤维布"
+    ],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "DJI官方维修手册 V2.3",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-04-20",
+    "reviewStatus": "approved",
+    "tags": [
+      "传感器相关",
+      "环境相关"
+    ],
+    "relatedCases": [
+      "F008",
+      "F027"
+    ]
+  },
+  {
+    "id": "F038",
+    "faultType": "导航系统",
+    "symptom": "航点飞行偏离",
+    "keywords": [
+      "航点偏离",
+      "航线错误",
+      "航点飞行不准"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "GPS精度不足",
+        "probability": "35%",
+        "description": "GPS信号弱或精度不够"
+      },
+      {
+        "cause": "航点设置错误",
+        "probability": "25%",
+        "description": "航点坐标或高度设置不当"
+      },
+      {
+        "cause": "风力影响",
+        "probability": "20%",
+        "description": "强风导致飞行偏离"
+      },
+      {
+        "cause": "指南针异常",
+        "probability": "15%",
+        "description": "指南针数据偏差"
+      },
+      {
+        "cause": "固件版本问题",
+        "probability": "5%",
+        "description": "固件版本过旧或有bug"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查GPS信号",
+        "criteria": "卫星数≥10颗",
+        "solution": "等待GPS精度提高",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 2,
+        "operation": "重新规划航线",
+        "criteria": "航线正确",
+        "solution": "检查航点坐标和高度设置",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查风力",
+        "criteria": "风力<5级",
+        "solution": "避免在强风环境飞行",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "校准指南针",
+        "criteria": "校准成功",
+        "solution": "按App提示完成校准",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "用户ID:U12346反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-04-22",
+    "reviewStatus": "approved",
+    "tags": [
+      "导航相关",
+      "需排查"
+    ],
+    "relatedCases": [
+      "F002",
+      "F014"
+    ]
+  },
+  {
+    "id": "F039",
+    "faultType": "喷洒系统",
+    "symptom": "喷洒不均匀",
+    "keywords": [
+      "喷洒不均匀",
+      "喷洒效果差",
+      "喷洒遗漏"
+    ],
+    "applicableModels": [
+      "T30",
+      "T40",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "喷头堵塞",
+        "probability": "40%",
+        "description": "部分喷头被农药残留堵塞"
+      },
+      {
+        "cause": "喷头压力不一致",
+        "probability": "25%",
+        "description": "液泵压力不稳定或管路问题"
+      },
+      {
+        "cause": "飞行速度不当",
+        "probability": "20%",
+        "description": "飞行速度过快或过慢"
+      },
+      {
+        "cause": "喷洒高度不当",
+        "probability": "15%",
+        "description": "喷洒高度过高或过低"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查并清洗喷头",
+        "criteria": "所有喷头畅通",
+        "solution": "清洗堵塞的喷头",
+        "tools": [
+          "清洗工具"
+        ],
+        "estimatedTime": "10分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查液泵压力",
+        "criteria": "压力稳定",
+        "solution": "检查液泵和管路状态",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "调整飞行参数",
+        "criteria": "参数合适",
+        "solution": "根据作物调整飞行速度和高度",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试喷洒效果",
+        "criteria": "喷洒均匀",
+        "solution": "进行小面积测试",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      }
+    ],
+    "requiredTools": [
+      "清洗工具"
+    ],
+    "totalEstimatedTime": "25分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "植保机维修技师王工(工号:DJ003)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-04-25",
+    "reviewStatus": "approved",
+    "tags": [
+      "植保机专用",
+      "日常维护"
+    ],
+    "relatedCases": [
+      "F009",
+      "F010"
+    ]
+  },
+  {
+    "id": "F040",
+    "faultType": "雷达系统",
+    "symptom": "仿地雷达异常",
+    "keywords": [
+      "仿地雷达异常",
+      "地形跟随失效",
+      "仿地飞行错误"
+    ],
+    "applicableModels": [
+      "T30",
+      "T40",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "雷达传感器被遮挡",
+        "probability": "40%",
+        "description": "雷达镜头被农药残留或灰尘遮挡"
+      },
+      {
+        "cause": "地形复杂",
+        "probability": "25%",
+        "description": "地形起伏过大或树木遮挡"
+      },
+      {
+        "cause": "雷达校准数据异常",
+        "probability": "20%",
+        "description": "雷达校准数据偏差"
+      },
+      {
+        "cause": "雷达模块故障",
+        "probability": "15%",
+        "description": "雷达模块损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "清洁雷达传感器",
+        "criteria": "传感器镜头清洁",
+        "solution": "用超细纤维布擦拭雷达镜头",
+        "tools": [
+          "超细纤维布"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查地形条件",
+        "criteria": "地形适合仿地飞行",
+        "solution": "避免在复杂地形使用仿地功能",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "雷达校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成雷达校准",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试仿地功能",
+        "criteria": "仿地正常",
+        "solution": "在安全环境下测试仿地飞行",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      }
+    ],
+    "requiredTools": [
+      "超细纤维布"
+    ],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "植保机维修技师王工(工号:DJ003)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-04-28",
+    "reviewStatus": "approved",
+    "tags": [
+      "植保机专用",
+      "雷达相关"
+    ],
+    "relatedCases": [
+      "F021",
+      "F030"
+    ]
+  },
+  {
+    "id": "F041",
+    "faultType": "遥控器系统",
+    "symptom": "遥控器摇杆漂移",
+    "keywords": [
+      "摇杆漂移",
+      "摇杆不准",
+      "摇杆自动偏移"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列",
+      "Phantom系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "摇杆校准数据异常",
+        "probability": "45%",
+        "description": "摇杆校准数据偏差"
+      },
+      {
+        "cause": "摇杆电位器磨损",
+        "probability": "25%",
+        "description": "摇杆电位器老化磨损"
+      },
+      {
+        "cause": "摇杆机械损坏",
+        "probability": "20%",
+        "description": "摇杆弹簧或回中机构损坏"
+      },
+      {
+        "cause": "固件版本问题",
+        "probability": "10%",
+        "description": "固件版本过旧或有bug"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "摇杆校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成摇杆校准",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查摇杆回中",
+        "criteria": "摇杆回中准确",
+        "solution": "检查摇杆是否能准确回中",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "更新固件",
+        "criteria": "固件为最新",
+        "solution": "通过App更新遥控器固件",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试摇杆响应",
+        "criteria": "摇杆响应准确",
+        "solution": "在App中测试摇杆响应曲线",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "高级维修技师李工(工号:DJ002)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-05-01",
+    "reviewStatus": "approved",
+    "tags": [
+      "遥控器相关",
+      "常见故障"
+    ],
+    "relatedCases": [
+      "F022",
+      "F031"
+    ]
+  },
+  {
+    "id": "F042",
+    "faultType": "动力系统",
+    "symptom": "电调故障",
+    "keywords": [
+      "电调故障",
+      "电调损坏",
+      "电调异常"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电调过热损坏",
+        "probability": "35%",
+        "description": "长时间大功率飞行导致电调过热"
+      },
+      {
+        "cause": "电调进水",
+        "probability": "25%",
+        "description": "电调进水导致短路"
+      },
+      {
+        "cause": "电调固件问题",
+        "probability": "20%",
+        "description": "电调固件损坏或版本不匹配"
+      },
+      {
+        "cause": "电调硬件故障",
+        "probability": "20%",
+        "description": "电调元器件老化或损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查电调外观",
+        "criteria": "无烧毁痕迹",
+        "solution": "检查电调是否有烧焦痕迹",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查电调连接线",
+        "criteria": "连接线牢固",
+        "solution": "检查电机和电源连接线",
+        "tools": [
+          "螺丝刀"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "重新烧录电调固件",
+        "criteria": "固件正常",
+        "solution": "通过App重新烧录电调固件",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试电机响应",
+        "criteria": "电机响应正常",
+        "solution": "测试每个电机是否正常响应",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      }
+    ],
+    "requiredTools": [
+      "螺丝刀"
+    ],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "维修技师",
+    "sourceDetail": "高级维修技师张工(工号:DJ001)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-05-03",
+    "reviewStatus": "approved",
+    "tags": [
+      "硬件故障",
+      "需专业维修"
+    ],
+    "relatedCases": [
+      "F003",
+      "F016"
+    ]
+  },
+  {
+    "id": "F043",
+    "faultType": "其他",
+    "symptom": "固件升级失败",
+    "keywords": [
+      "固件升级失败",
+      "升级错误",
+      "固件更新失败"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列",
+      "Phantom系列",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "网络连接不稳定",
+        "probability": "35%",
+        "description": "下载过程中网络中断"
+      },
+      {
+        "cause": "电量不足",
+        "probability": "25%",
+        "description": "升级过程中电量耗尽"
+      },
+      {
+        "cause": "存储卡问题",
+        "probability": "20%",
+        "description": "存储卡损坏或空间不足"
+      },
+      {
+        "cause": "固件文件损坏",
+        "probability": "15%",
+        "description": "下载的固件文件不完整"
+      },
+      {
+        "cause": "系统版本不兼容",
+        "probability": "5%",
+        "description": "跨版本升级导致不兼容"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查电量和网络",
+        "criteria": "电量>50%，网络稳定",
+        "solution": "确保升级条件满足",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "更换存储卡",
+        "criteria": "存储卡正常",
+        "solution": "更换高速存储卡",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "重新下载固件",
+        "criteria": "固件下载完整",
+        "solution": "删除旧固件重新下载",
+        "tools": [],
+        "estimatedTime": "15分钟"
+      },
+      {
+        "step": 4,
+        "operation": "使用DJI Assistant 2",
+        "criteria": "升级成功",
+        "solution": "通过电脑端DJI Assistant 2升级",
+        "tools": [
+          "电脑"
+        ],
+        "estimatedTime": "20分钟"
+      }
+    ],
+    "requiredTools": [
+      "电脑"
+    ],
+    "totalEstimatedTime": "40分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "DJI固件升级指南",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-05-05",
+    "reviewStatus": "approved",
+    "tags": [
+      "系统相关",
+      "需耐心操作"
+    ],
+    "relatedCases": []
+  },
+  {
+    "id": "F044",
+    "faultType": "图传系统",
+    "symptom": "图传雪花干扰",
+    "keywords": [
+      "图传雪花",
+      "画面噪点",
+      "图传干扰"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电磁干扰",
+        "probability": "45%",
+        "description": "高压线、基站、雷达等强电磁干扰"
+      },
+      {
+        "cause": "图传频段拥堵",
+        "probability": "25%",
+        "description": "同频段设备过多"
+      },
+      {
+        "cause": "图传天线接触不良",
+        "probability": "20%",
+        "description": "天线连接线松动或氧化"
+      },
+      {
+        "cause": "图传模块故障",
+        "probability": "10%",
+        "description": "图传发射或接收模块损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "远离干扰源",
+        "criteria": "干扰减少",
+        "solution": "远离高压线、基站等干扰源",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "切换图传频段",
+        "criteria": "画面清晰",
+        "solution": "切换至干扰少的频段",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查天线连接",
+        "criteria": "天线连接牢固",
+        "solution": "检查并插紧天线连接线",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "降低飞行高度",
+        "criteria": "画面清晰",
+        "solution": "降低高度避开干扰",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "5分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "用户ID:U23457反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-05-08",
+    "reviewStatus": "approved",
+    "tags": [
+      "图传相关",
+      "环境相关"
+    ],
+    "relatedCases": [
+      "F004",
+      "F012",
+      "F017"
+    ]
+  },
+  {
+    "id": "F045",
+    "faultType": "云台系统",
+    "symptom": "云台限位异常",
+    "keywords": [
+      "云台限位异常",
+      "云台角度受限",
+      "云台转不动"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "云台限位设置错误",
+        "probability": "40%",
+        "description": "云台限位参数设置不当"
+      },
+      {
+        "cause": "云台电机故障",
+        "probability": "25%",
+        "description": "云台电机性能下降"
+      },
+      {
+        "cause": "云台机械卡滞",
+        "probability": "20%",
+        "description": "云台机械结构卡滞"
+      },
+      {
+        "cause": "云台连接线问题",
+        "probability": "15%",
+        "description": "连接线接触不良"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查云台限位设置",
+        "criteria": "限位设置正确",
+        "solution": "在App中调整云台限位参数",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "云台自动校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成云台校准",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "手动检查云台转动",
+        "criteria": "云台转动顺滑",
+        "solution": "手动转动检查是否有卡滞",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查云台连接线",
+        "criteria": "连接线牢固",
+        "solution": "检查并插紧连接线",
+        "tools": [
+          "螺丝刀"
+        ],
+        "estimatedTime": "5分钟"
+      }
+    ],
+    "requiredTools": [
+      "螺丝刀"
+    ],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "高级维修技师李工(工号:DJ002)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-05-10",
+    "reviewStatus": "approved",
+    "tags": [
+      "云台相关",
+      "需排查"
+    ],
+    "relatedCases": [
+      "F005",
+      "F013",
+      "F035"
+    ]
+  },
+  {
+    "id": "F046",
+    "faultType": "电源系统",
+    "symptom": "电池循环次数异常",
+    "keywords": [
+      "电池循环次数异常",
+      "循环次数不准",
+      "电池寿命异常"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电池数据记录错误",
+        "probability": "40%",
+        "description": "电池芯片数据记录异常"
+      },
+      {
+        "cause": "电池固件问题",
+        "probability": "30%",
+        "description": "电池固件版本过旧或有bug"
+      },
+      {
+        "cause": "非正常充放电",
+        "probability": "20%",
+        "description": "频繁短时间充放电导致计数异常"
+      },
+      {
+        "cause": "电池芯片故障",
+        "probability": "10%",
+        "description": "电池通信芯片损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "更新电池固件",
+        "criteria": "固件为最新",
+        "solution": "通过App更新电池固件",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      },
+      {
+        "step": 2,
+        "operation": "完全充放电循环",
+        "criteria": "循环次数正常",
+        "solution": "完全充电后使用至自动关机，再充满",
+        "tools": [],
+        "estimatedTime": "120分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查电池健康度",
+        "criteria": "健康度正常",
+        "solution": "在App中查看电池健康度",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "联系售后服务",
+        "criteria": "问题解决",
+        "solution": "若问题持续，联系DJI售后",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "140分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "用户ID:U34568反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-05-12",
+    "reviewStatus": "approved",
+    "tags": [
+      "电池相关",
+      "需耐心操作"
+    ],
+    "relatedCases": [
+      "F006",
+      "F026"
+    ]
+  },
+  {
+    "id": "F047",
+    "faultType": "传感器系统",
+    "symptom": "光流传感器异常",
+    "keywords": [
+      "光流传感器异常",
+      "光流定位失效",
+      "室内定位错误"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "传感器被遮挡",
+        "probability": "45%",
+        "description": "传感器镜头被灰尘或污渍遮挡"
+      },
+      {
+        "cause": "地面纹理不足",
+        "probability": "25%",
+        "description": "纯色或重复纹理地面无法识别"
+      },
+      {
+        "cause": "光线不足",
+        "probability": "20%",
+        "description": "弱光环境下光流定位受限"
+      },
+      {
+        "cause": "传感器硬件故障",
+        "probability": "10%",
+        "description": "传感器损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "清洁传感器",
+        "criteria": "传感器镜头清洁",
+        "solution": "用超细纤维布擦拭传感器",
+        "tools": [
+          "超细纤维布"
+        ],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "选择合适地面",
+        "criteria": "地面有纹理",
+        "solution": "避免在纯色或重复纹理地面飞行",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查环境光线",
+        "criteria": "光线充足",
+        "solution": "避免在弱光环境飞行",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "传感器校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成传感器校准",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      }
+    ],
+    "requiredTools": [
+      "超细纤维布"
+    ],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "DJI官方维修手册 V2.3",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-05-15",
+    "reviewStatus": "approved",
+    "tags": [
+      "传感器相关",
+      "室内飞行"
+    ],
+    "relatedCases": [
+      "F008",
+      "F027"
+    ]
+  },
+  {
+    "id": "F048",
+    "faultType": "导航系统",
+    "symptom": "智能跟随失效",
+    "keywords": [
+      "智能跟随失效",
+      "跟随失败",
+      "无法识别目标"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "目标识别失败",
+        "probability": "35%",
+        "description": "目标被遮挡或光线不足"
+      },
+      {
+        "cause": "目标移动过快",
+        "probability": "25%",
+        "description": "目标移动速度超过跟随能力"
+      },
+      {
+        "cause": "GPS信号弱",
+        "probability": "20%",
+        "description": "GPS精度不足影响跟随"
+      },
+      {
+        "cause": "避障功能限制",
+        "probability": "15%",
+        "description": "避障功能导致跟随中断"
+      },
+      {
+        "cause": "固件版本问题",
+        "probability": "5%",
+        "description": "固件版本过旧或有bug"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "选择明显目标",
+        "criteria": "目标可识别",
+        "solution": "选择对比度高、无遮挡的目标",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查环境光线",
+        "criteria": "光线充足",
+        "solution": "避免在弱光环境使用跟随",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "控制目标速度",
+        "criteria": "速度适中",
+        "solution": "目标移动速度不超过10m/s",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查GPS信号",
+        "criteria": "卫星数≥10颗",
+        "solution": "等待GPS精度提高",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "5分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "用户ID:U45679反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-05-18",
+    "reviewStatus": "approved",
+    "tags": [
+      "智能功能",
+      "环境相关"
+    ],
+    "relatedCases": [
+      "F002",
+      "F008"
+    ]
+  },
+  {
+    "id": "F049",
+    "faultType": "喷洒系统",
+    "symptom": "药箱漏液",
+    "keywords": [
+      "药箱漏液",
+      "药液泄漏",
+      "药箱渗漏"
+    ],
+    "applicableModels": [
+      "T30",
+      "T40",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "药箱密封圈老化",
+        "probability": "40%",
+        "description": "密封圈老化失去弹性"
+      },
+      {
+        "cause": "药箱接口松动",
+        "probability": "25%",
+        "description": "药箱接口未拧紧或损坏"
+      },
+      {
+        "cause": "药箱破裂",
+        "probability": "20%",
+        "description": "药箱外壳破裂"
+      },
+      {
+        "cause": "管路连接处漏液",
+        "probability": "15%",
+        "description": "管路连接处松动或老化"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查药箱外观",
+        "criteria": "药箱无破裂",
+        "solution": "若破裂，更换药箱",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查密封圈",
+        "criteria": "密封圈完好",
+        "solution": "若老化，更换密封圈",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查接口和管路",
+        "criteria": "连接处无漏液",
+        "solution": "拧紧接口或更换管路",
+        "tools": [
+          "扳手"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试密封性",
+        "criteria": "无漏液",
+        "solution": "加水测试密封性",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      }
+    ],
+    "requiredTools": [
+      "扳手"
+    ],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "植保机维修技师王工(工号:DJ003)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-05-20",
+    "reviewStatus": "approved",
+    "tags": [
+      "植保机专用",
+      "日常维护"
+    ],
+    "relatedCases": [
+      "F009",
+      "F010"
+    ]
+  },
+  {
+    "id": "F050",
+    "faultType": "雷达系统",
+    "symptom": "避障雷达误报",
+    "keywords": [
+      "避障雷达误报",
+      "雷达误报警",
+      "虚假障碍物"
+    ],
+    "applicableModels": [
+      "T30",
+      "T40",
+      "植保机"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "雷达传感器脏污",
+        "probability": "40%",
+        "description": "雷达镜头被农药残留或灰尘污染"
+      },
+      {
+        "cause": "雷达校准数据异常",
+        "probability": "30%",
+        "description": "雷达校准数据偏差"
+      },
+      {
+        "cause": "环境反射干扰",
+        "probability": "20%",
+        "description": "水面或金属表面反射干扰"
+      },
+      {
+        "cause": "雷达固件问题",
+        "probability": "10%",
+        "description": "固件版本过旧或有bug"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "清洁雷达传感器",
+        "criteria": "传感器镜头清洁",
+        "solution": "用超细纤维布擦拭雷达镜头",
+        "tools": [
+          "超细纤维布"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 2,
+        "operation": "雷达校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成雷达校准",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查飞行环境",
+        "criteria": "环境无干扰",
+        "solution": "避免在水面或金属表面附近飞行",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "更新雷达固件",
+        "criteria": "固件为最新",
+        "solution": "通过App更新固件",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      }
+    ],
+    "requiredTools": [
+      "超细纤维布"
+    ],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "植保机维修技师王工(工号:DJ003)实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-05-22",
+    "reviewStatus": "approved",
+    "tags": [
+      "植保机专用",
+      "雷达相关"
+    ],
+    "relatedCases": [
+      "F021",
+      "F030",
+      "F040"
+    ]
+  },
+  {
+    "id": "F051",
+    "faultType": "动力系统",
+    "symptom": "电机温度过高",
+    "keywords": [
+      "电机过热",
+      "电机发烫",
+      "温度高"
+    ],
+    "applicableModels": [
+      "Mavic系列",
+      "Air系列",
+      "Mini系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "长时间高功率飞行",
+        "probability": "40%",
+        "description": "长时间满载飞行导致电机过热"
+      },
+      {
+        "cause": "电机散热不良",
+        "probability": "30%",
+        "description": "散热片堵塞或环境温度过高"
+      },
+      {
+        "cause": "电机轴承磨损",
+        "probability": "20%",
+        "description": "轴承磨损导致摩擦增大"
+      },
+      {
+        "cause": "电机线圈短路",
+        "probability": "10%",
+        "description": "线圈部分短路导致电流增大"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "停止飞行并降温",
+        "criteria": "电机温度在正常范围内",
+        "solution": "关闭设备并等待降温时间",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "清洁散热片",
+        "criteria": "散热片畅通",
+        "solution": "用压缩空气清洁散热片",
+        "tools": [
+          "压缩空气罐"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查环境温度",
+        "criteria": "温度<35°C",
+        "solution": "避免在高温环境飞行",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查电机转动",
+        "criteria": "转动顺滑无异响",
+        "solution": "手动检查电机状态",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [
+      "压缩空气罐"
+    ],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "用户提交，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2026-05-23",
+    "reviewStatus": "approved",
+    "tags": [
+      "动力系统",
+      "常见故障"
+    ],
+    "relatedCases": [
+      "F016",
+      "F032"
+    ]
+  },
+  {
+    "id": "F052",
+    "faultType": "图传系统",
+    "symptom": "道通无人机图传信号弱",
+    "keywords": [
+      "图传信号弱",
+      "图传距离短",
+      "Autel图传问题"
+    ],
+    "applicableModels": [
+      "EVO II系列",
+      "EVO Nano系列",
+      "EVO Lite系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "图传频段干扰",
+        "probability": "35%",
+        "description": "2.4G/5.8G频段被WiFi或其他设备占用"
+      },
+      {
+        "cause": "图传天线角度不当",
+        "probability": "25%",
+        "description": "遥控器天线未对准无人机方向"
+      },
+      {
+        "cause": "图传天线接触不良",
+        "probability": "20%",
+        "description": "无人机或遥控器天线连接松动"
+      },
+      {
+        "cause": "图传模块故障",
+        "probability": "15%",
+        "description": "图传发射或接收模块性能下降"
+      },
+      {
+        "cause": "环境遮挡严重",
+        "probability": "5%",
+        "description": "建筑物或地形遮挡信号传输"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "切换图传频段",
+        "criteria": "信号增强",
+        "solution": "在Autel Explorer App中切换频段",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "调整天线角度",
+        "criteria": "天线对准无人机",
+        "solution": "将遥控器天线平面朝向无人机",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查天线连接",
+        "criteria": "天线连接牢固",
+        "solution": "检查无人机和遥控器天线是否拧紧",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "重启图传系统",
+        "criteria": "图传恢复",
+        "solution": "重启无人机和遥控器",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "道通授权维修中心技师实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-06-01",
+    "reviewStatus": "approved",
+    "tags": [
+      "道通",
+      "图传系统"
+    ],
+    "relatedCases": []
+  },
+  {
+    "id": "F053",
+    "faultType": "电源系统",
+    "symptom": "道通电池续航明显下降",
+    "keywords": [
+      "续航下降",
+      "电池不耐用",
+      "飞行时间短"
+    ],
+    "applicableModels": [
+      "EVO II系列",
+      "EVO Nano系列",
+      "EVO Lite系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电池老化",
+        "probability": "45%",
+        "description": "电池循环次数过多，容量衰减"
+      },
+      {
+        "cause": "低温环境影响",
+        "probability": "25%",
+        "description": "低温环境下电池放电效率降低"
+      },
+      {
+        "cause": "电池校准数据异常",
+        "probability": "15%",
+        "description": "电池电量计校准数据偏差"
+      },
+      {
+        "cause": "电池固件版本过旧",
+        "probability": "10%",
+        "description": "电池固件需要更新"
+      },
+      {
+        "cause": "电池触点氧化",
+        "probability": "5%",
+        "description": "电池或飞机触点氧化导致接触不良"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查电池健康度",
+        "criteria": "健康度>80%",
+        "solution": "在App中查看电池健康度和循环次数",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查环境温度",
+        "criteria": "温度>10°C",
+        "solution": "低温环境需预热电池至20°C以上",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "完全充放电循环",
+        "criteria": "电量显示准确",
+        "solution": "完全充电后使用至低电量再充满",
+        "tools": [],
+        "estimatedTime": "120分钟"
+      },
+      {
+        "step": 4,
+        "operation": "清洁电池触点",
+        "criteria": "触点清洁",
+        "solution": "用酒精棉签清洁电池和飞机触点",
+        "tools": [
+          "酒精",
+          "棉签"
+        ],
+        "estimatedTime": "3分钟"
+      }
+    ],
+    "requiredTools": [
+      "酒精",
+      "棉签"
+    ],
+    "totalEstimatedTime": "130分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "道通官方电池使用指南",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-06-03",
+    "reviewStatus": "approved",
+    "tags": [
+      "道通",
+      "电池相关"
+    ],
+    "relatedCases": [
+      "F052"
+    ]
+  },
+  {
+    "id": "F054",
+    "faultType": "传感器系统",
+    "symptom": "道通避障传感器误报",
+    "keywords": [
+      "避障误报",
+      "传感器异常",
+      "虚假障碍物"
+    ],
+    "applicableModels": [
+      "EVO II系列",
+      "EVO Nano系列",
+      "EVO Lite系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "传感器镜头脏污",
+        "probability": "40%",
+        "description": "传感器镜头被灰尘、污渍遮挡"
+      },
+      {
+        "cause": "光线不足",
+        "probability": "25%",
+        "description": "弱光环境下避障功能受限"
+      },
+      {
+        "cause": "传感器校准数据异常",
+        "probability": "20%",
+        "description": "传感器校准数据偏差"
+      },
+      {
+        "cause": "环境反射干扰",
+        "probability": "10%",
+        "description": "水面、玻璃或金属表面反射干扰"
+      },
+      {
+        "cause": "传感器硬件故障",
+        "probability": "5%",
+        "description": "传感器损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "清洁传感器",
+        "criteria": "传感器镜头清洁",
+        "solution": "用超细纤维布擦拭所有避障传感器",
+        "tools": [
+          "超细纤维布"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查环境光线",
+        "criteria": "光线充足",
+        "solution": "避免在弱光环境使用避障功能",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "传感器校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成传感器校准",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试避障功能",
+        "criteria": "避障正常",
+        "solution": "在安全环境下测试避障响应",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      }
+    ],
+    "requiredTools": [
+      "超细纤维布"
+    ],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "道通授权维修中心技师实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-06-05",
+    "reviewStatus": "approved",
+    "tags": [
+      "道通",
+      "传感器系统"
+    ],
+    "relatedCases": []
+  },
+  {
+    "id": "F055",
+    "faultType": "动力系统",
+    "symptom": "道通电机异响",
+    "keywords": [
+      "电机异响",
+      "电机噪音",
+      "电机声音异常"
+    ],
+    "applicableModels": [
+      "EVO II系列",
+      "EVO Nano系列",
+      "EVO Lite系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电机轴承磨损",
+        "probability": "40%",
+        "description": "电机轴承老化磨损"
+      },
+      {
+        "cause": "电机进水锈蚀",
+        "probability": "25%",
+        "description": "电机进水导致内部锈蚀"
+      },
+      {
+        "cause": "电机线圈烧毁",
+        "probability": "20%",
+        "description": "电机线圈部分烧毁"
+      },
+      {
+        "cause": "桨叶不平衡",
+        "probability": "15%",
+        "description": "桨叶质量不均匀或损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查桨叶",
+        "criteria": "桨叶完好平衡",
+        "solution": "更换或平衡桨叶",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "手动转动电机",
+        "criteria": "转动顺滑无杂音",
+        "solution": "若有异响，检查轴承状态",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查电机外观",
+        "criteria": "无进水锈蚀痕迹",
+        "solution": "若有进水痕迹，更换电机",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测量电机电阻",
+        "criteria": "电阻值正常",
+        "solution": "用万用表测量电机电阻",
+        "tools": [
+          "万用表"
+        ],
+        "estimatedTime": "3分钟"
+      }
+    ],
+    "requiredTools": [
+      "万用表"
+    ],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "维修技师",
+    "sourceDetail": "道通授权维修中心技师实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-06-08",
+    "reviewStatus": "approved",
+    "tags": [
+      "道通",
+      "需专业维修"
+    ],
+    "relatedCases": [
+      "F052",
+      "F053"
+    ]
+  },
+  {
+    "id": "F056",
+    "faultType": "云台系统",
+    "symptom": "道通云台抖动",
+    "keywords": [
+      "云台抖动",
+      "画面不稳",
+      "云台震动"
+    ],
+    "applicableModels": [
+      "EVO II系列",
+      "EVO Nano系列",
+      "EVO Lite系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "云台未校准",
+        "probability": "35%",
+        "description": "云台校准数据异常"
+      },
+      {
+        "cause": "云台电机故障",
+        "probability": "25%",
+        "description": "云台电机性能下降"
+      },
+      {
+        "cause": "云台连接线松动",
+        "probability": "20%",
+        "description": "连接线接触不良"
+      },
+      {
+        "cause": "云台减震球老化",
+        "probability": "15%",
+        "description": "减震球老化失去弹性"
+      },
+      {
+        "cause": "相机过重",
+        "probability": "5%",
+        "description": "挂载相机超出云台负载"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "云台自动校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成云台校准",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查云台连接线",
+        "criteria": "连接线牢固",
+        "solution": "检查并插紧连接线",
+        "tools": [
+          "螺丝刀"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查减震球",
+        "criteria": "减震球弹性良好",
+        "solution": "若老化，更换减震球",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试云台稳定性",
+        "criteria": "画面稳定",
+        "solution": "在悬停状态下测试",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [
+      "螺丝刀"
+    ],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "道通用户社区反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-06-10",
+    "reviewStatus": "approved",
+    "tags": [
+      "道通",
+      "云台系统"
+    ],
+    "relatedCases": [
+      "F054",
+      "F055"
+    ]
+  },
+  {
+    "id": "F057",
+    "faultType": "喷洒系统",
+    "symptom": "极飞喷头堵塞",
+    "keywords": [
+      "喷头堵塞",
+      "喷洒不均匀",
+      "喷头不出水"
+    ],
+    "applicableModels": [
+      "P系列植保机",
+      "V系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "农药残留结晶",
+        "probability": "45%",
+        "description": "农药未清洗干净导致结晶堵塞"
+      },
+      {
+        "cause": "过滤器堵塞",
+        "probability": "25%",
+        "description": "过滤器被杂质堵塞"
+      },
+      {
+        "cause": "喷头损坏",
+        "probability": "15%",
+        "description": "喷头磨损或损坏"
+      },
+      {
+        "cause": "药液配比不当",
+        "probability": "10%",
+        "description": "药液浓度过高或杂质过多"
+      },
+      {
+        "cause": "管路堵塞",
+        "probability": "5%",
+        "description": "管路被异物堵塞"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查过滤器",
+        "criteria": "过滤器畅通",
+        "solution": "清洗或更换过滤器",
+        "tools": [
+          "清洗工具"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 2,
+        "operation": "清洗喷头",
+        "criteria": "喷头畅通",
+        "solution": "用清水反向冲洗喷头",
+        "tools": [
+          "清洗工具"
+        ],
+        "estimatedTime": "10分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查喷头状态",
+        "criteria": "喷头完好",
+        "solution": "若损坏，更换喷头",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查药液配比",
+        "criteria": "配比正确",
+        "solution": "按说明书正确配比药液",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [
+      "清洗工具"
+    ],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "极飞授权维修中心技师实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-06-12",
+    "reviewStatus": "approved",
+    "tags": [
+      "极飞",
+      "植保机专用",
+      "喷洒系统"
+    ],
+    "relatedCases": []
+  },
+  {
+    "id": "F058",
+    "faultType": "导航系统",
+    "symptom": "极飞RTK信号丢失",
+    "keywords": [
+      "RTK信号丢失",
+      "RTK无信号",
+      "定位精度下降"
+    ],
+    "applicableModels": [
+      "P系列植保机",
+      "V系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "RTK基站信号弱",
+        "probability": "35%",
+        "description": "RTK基站位置不当或信号遮挡"
+      },
+      {
+        "cause": "RTK天线连接问题",
+        "probability": "25%",
+        "description": "RTK天线连接线松动或损坏"
+      },
+      {
+        "cause": "电磁干扰",
+        "probability": "20%",
+        "description": "高压线、基站等电磁干扰"
+      },
+      {
+        "cause": "RTK模块故障",
+        "probability": "15%",
+        "description": "RTK模块损坏或固件问题"
+      },
+      {
+        "cause": "网络信号差",
+        "probability": "5%",
+        "description": "网络RTK模式下网络信号差"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查RTK基站位置",
+        "criteria": "基站位置开阔",
+        "solution": "将基站移至开阔无遮挡位置",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查RTK天线连接",
+        "criteria": "天线连接牢固",
+        "solution": "检查并插紧天线连接线",
+        "tools": [
+          "螺丝刀"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 3,
+        "operation": "远离干扰源",
+        "criteria": "干扰减少",
+        "solution": "远离高压线、基站等干扰源",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "重启RTK模块",
+        "criteria": "RTK信号恢复",
+        "solution": "重启无人机和RTK基站",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      }
+    ],
+    "requiredTools": [
+      "螺丝刀"
+    ],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "极飞官方RTK使用指南",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-06-15",
+    "reviewStatus": "approved",
+    "tags": [
+      "极飞",
+      "植保机专用",
+      "导航系统"
+    ],
+    "relatedCases": [
+      "F057"
+    ]
+  },
+  {
+    "id": "F059",
+    "faultType": "电源系统",
+    "symptom": "极飞智能电池无法充电",
+    "keywords": [
+      "电池无法充电",
+      "充电失败",
+      "电池不充电"
+    ],
+    "applicableModels": [
+      "P系列植保机",
+      "V系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "充电器故障",
+        "probability": "30%",
+        "description": "充电器损坏或输出异常"
+      },
+      {
+        "cause": "电池过放保护",
+        "probability": "25%",
+        "description": "电池电压过低触发保护"
+      },
+      {
+        "cause": "充电接口问题",
+        "probability": "20%",
+        "description": "充电接口氧化或松动"
+      },
+      {
+        "cause": "电池温度异常",
+        "probability": "15%",
+        "description": "电池温度过高或过低"
+      },
+      {
+        "cause": "电池管理系统故障",
+        "probability": "10%",
+        "description": "BMS电池管理系统异常"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查充电器",
+        "criteria": "充电器指示灯正常",
+        "solution": "尝试更换充电器",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查充电接口",
+        "criteria": "接口清洁无氧化",
+        "solution": "清洁充电接口",
+        "tools": [
+          "酒精",
+          "棉签"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查电池温度",
+        "criteria": "温度在5-40°C",
+        "solution": "等待电池温度恢复正常",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 4,
+        "operation": "激活过放电池",
+        "criteria": "电池开始充电",
+        "solution": "长时间连接充电器激活",
+        "tools": [],
+        "estimatedTime": "30分钟"
+      }
+    ],
+    "requiredTools": [
+      "酒精",
+      "棉签"
+    ],
+    "totalEstimatedTime": "40分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "极飞授权维修中心技师实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-06-18",
+    "reviewStatus": "approved",
+    "tags": [
+      "极飞",
+      "植保机专用",
+      "电池相关"
+    ],
+    "relatedCases": [
+      "F057",
+      "F058"
+    ]
+  },
+  {
+    "id": "F060",
+    "faultType": "雷达系统",
+    "symptom": "极飞避障雷达失效",
+    "keywords": [
+      "避障雷达失效",
+      "雷达不工作",
+      "雷达报警"
+    ],
+    "applicableModels": [
+      "P系列植保机",
+      "V系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "雷达传感器被遮挡",
+        "probability": "40%",
+        "description": "雷达镜头被农药残留或灰尘遮挡"
+      },
+      {
+        "cause": "雷达连接线松动",
+        "probability": "25%",
+        "description": "雷达连接线插头松动或氧化"
+      },
+      {
+        "cause": "雷达模块故障",
+        "probability": "20%",
+        "description": "雷达模块损坏"
+      },
+      {
+        "cause": "固件版本问题",
+        "probability": "15%",
+        "description": "固件版本过旧或有bug"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "清洁雷达传感器",
+        "criteria": "传感器镜头清洁",
+        "solution": "用超细纤维布擦拭雷达镜头",
+        "tools": [
+          "超细纤维布"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查雷达连接线",
+        "criteria": "连接线插紧",
+        "solution": "检查并插紧连接线",
+        "tools": [
+          "螺丝刀"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查固件版本",
+        "criteria": "固件为最新",
+        "solution": "通过App更新固件",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试雷达功能",
+        "criteria": "雷达正常工作",
+        "solution": "在安全环境下测试避障",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      }
+    ],
+    "requiredTools": [
+      "超细纤维布",
+      "螺丝刀"
+    ],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "极飞授权维修中心技师实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-06-20",
+    "reviewStatus": "approved",
+    "tags": [
+      "极飞",
+      "植保机专用",
+      "雷达系统"
+    ],
+    "relatedCases": [
+      "F057",
+      "F058"
+    ]
+  },
+  {
+    "id": "F061",
+    "faultType": "喷洒系统",
+    "symptom": "极飞液泵故障",
+    "keywords": [
+      "液泵故障",
+      "喷洒泵不工作",
+      "液泵异常"
+    ],
+    "applicableModels": [
+      "P系列植保机",
+      "V系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "液泵电机烧毁",
+        "probability": "35%",
+        "description": "液泵电机线圈烧毁"
+      },
+      {
+        "cause": "液泵连接线松动",
+        "probability": "30%",
+        "description": "液泵连接线插头松动或氧化"
+      },
+      {
+        "cause": "液泵堵塞",
+        "probability": "20%",
+        "description": "液泵被农药残留堵塞"
+      },
+      {
+        "cause": "控制板故障",
+        "probability": "15%",
+        "description": "喷洒控制板损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查液泵连接线",
+        "criteria": "连接线插紧",
+        "solution": "检查并插紧连接线",
+        "tools": [
+          "螺丝刀"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 2,
+        "operation": "清洗液泵",
+        "criteria": "液泵畅通",
+        "solution": "用清水冲洗液泵",
+        "tools": [
+          "清洗工具"
+        ],
+        "estimatedTime": "10分钟"
+      },
+      {
+        "step": 3,
+        "operation": "测试液泵电机",
+        "criteria": "电机正常转动",
+        "solution": "手动测试电机",
+        "tools": [
+          "万用表"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查控制板",
+        "criteria": "控制板正常",
+        "solution": "用万用表检测控制板输出",
+        "tools": [
+          "万用表"
+        ],
+        "estimatedTime": "5分钟"
+      }
+    ],
+    "requiredTools": [
+      "螺丝刀",
+      "清洗工具",
+      "万用表"
+    ],
+    "totalEstimatedTime": "25分钟",
+    "difficulty": "⭐⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "维修技师",
+    "sourceDetail": "极飞授权维修中心技师实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-06-22",
+    "reviewStatus": "approved",
+    "tags": [
+      "极飞",
+      "植保机专用",
+      "需专业维修"
+    ],
+    "relatedCases": [
+      "F057",
+      "F060"
+    ]
+  },
+  {
+    "id": "F062",
+    "faultType": "动力系统",
+    "symptom": "零零科技折叠机构卡滞",
+    "keywords": [
+      "折叠卡滞",
+      "机臂无法展开",
+      "折叠机构故障"
+    ],
+    "applicableModels": [
+      "Hover Camera系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "折叠机构积灰",
+        "probability": "40%",
+        "description": "折叠机构被灰尘或异物堵塞"
+      },
+      {
+        "cause": "折叠机构润滑不足",
+        "probability": "25%",
+        "description": "折叠机构缺乏润滑"
+      },
+      {
+        "cause": "折叠机构变形",
+        "probability": "20%",
+        "description": "折叠机构受外力变形"
+      },
+      {
+        "cause": "折叠机构弹簧失效",
+        "probability": "15%",
+        "description": "折叠机构弹簧老化或断裂"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "清洁折叠机构",
+        "criteria": "机构无异物",
+        "solution": "用压缩空气清洁折叠机构",
+        "tools": [
+          "压缩空气罐"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 2,
+        "operation": "润滑折叠机构",
+        "criteria": "机构转动顺滑",
+        "solution": "在折叠机构涂抹适量润滑油",
+        "tools": [
+          "润滑油"
+        ],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查机构变形",
+        "criteria": "机构无变形",
+        "solution": "若变形，更换折叠机构",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试折叠功能",
+        "criteria": "折叠顺畅",
+        "solution": "反复测试折叠展开功能",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [
+      "压缩空气罐",
+      "润滑油"
+    ],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "零零科技用户社区反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-06-25",
+    "reviewStatus": "approved",
+    "tags": [
+      "零零科技",
+      "折叠机构"
+    ],
+    "relatedCases": []
+  },
+  {
+    "id": "F063",
+    "faultType": "电源系统",
+    "symptom": "零零科技电池接触不良",
+    "keywords": [
+      "电池接触不良",
+      "电池断电",
+      "电池连接异常"
+    ],
+    "applicableModels": [
+      "Hover Camera系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电池触点氧化",
+        "probability": "45%",
+        "description": "电池或飞机触点氧化导致接触不良"
+      },
+      {
+        "cause": "电池卡扣松动",
+        "probability": "25%",
+        "description": "电池卡扣磨损导致固定不牢"
+      },
+      {
+        "cause": "电池变形",
+        "probability": "15%",
+        "description": "电池外壳变形导致接触不良"
+      },
+      {
+        "cause": "飞机电池槽异物",
+        "probability": "15%",
+        "description": "电池槽内有异物影响接触"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "清洁电池触点",
+        "criteria": "触点清洁",
+        "solution": "用酒精棉签清洁电池和飞机触点",
+        "tools": [
+          "酒精",
+          "棉签"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查电池卡扣",
+        "criteria": "卡扣完好",
+        "solution": "若磨损，更换电池卡扣",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查电池外观",
+        "criteria": "电池无变形",
+        "solution": "若变形，更换电池",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "清洁电池槽",
+        "criteria": "电池槽无异物",
+        "solution": "用压缩空气清洁电池槽",
+        "tools": [
+          "压缩空气罐"
+        ],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [
+      "酒精",
+      "棉签",
+      "压缩空气罐"
+    ],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "零零科技授权维修中心技师实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-06-28",
+    "reviewStatus": "approved",
+    "tags": [
+      "零零科技",
+      "电池相关"
+    ],
+    "relatedCases": [
+      "F062"
+    ]
+  },
+  {
+    "id": "F064",
+    "faultType": "动力系统",
+    "symptom": "零零科技电机不转",
+    "keywords": [
+      "电机不转",
+      "电机停转",
+      "电机故障"
+    ],
+    "applicableModels": [
+      "Hover Camera系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电机连接线松动",
+        "probability": "35%",
+        "description": "电机连接线插头松动或氧化"
+      },
+      {
+        "cause": "电机烧毁",
+        "probability": "30%",
+        "description": "电机线圈烧毁或轴承损坏"
+      },
+      {
+        "cause": "电调故障",
+        "probability": "20%",
+        "description": "电调损坏或信号异常"
+      },
+      {
+        "cause": "螺旋桨卡滞",
+        "probability": "15%",
+        "description": "螺旋桨被异物卡住"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查螺旋桨",
+        "criteria": "螺旋桨无异物",
+        "solution": "清除异物",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查电机连接线",
+        "criteria": "连接线插紧",
+        "solution": "重新插紧连接线",
+        "tools": [
+          "螺丝刀",
+          "砂纸"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "手动转动电机",
+        "criteria": "电机转动顺滑",
+        "solution": "若有虚位，更换电机",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测量电机电阻",
+        "criteria": "电阻值正常",
+        "solution": "若异常，更换电机",
+        "tools": [
+          "万用表"
+        ],
+        "estimatedTime": "3分钟"
+      }
+    ],
+    "requiredTools": [
+      "螺丝刀",
+      "砂纸",
+      "万用表"
+    ],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "维修技师",
+    "sourceDetail": "零零科技授权维修中心技师实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-07-01",
+    "reviewStatus": "approved",
+    "tags": [
+      "零零科技",
+      "需专业维修"
+    ],
+    "relatedCases": [
+      "F062",
+      "F063"
+    ]
+  },
+  {
+    "id": "F065",
+    "faultType": "传感器系统",
+    "symptom": "零零科技悬停不稳",
+    "keywords": [
+      "悬停不稳",
+      "定位漂移",
+      "悬停抖动"
+    ],
+    "applicableModels": [
+      "Hover Camera系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "光流传感器异常",
+        "probability": "35%",
+        "description": "光流传感器被遮挡或故障"
+      },
+      {
+        "cause": "超声波传感器异常",
+        "probability": "25%",
+        "description": "超声波传感器被遮挡或故障"
+      },
+      {
+        "cause": "IMU未校准",
+        "probability": "20%",
+        "description": "IMU校准数据异常"
+      },
+      {
+        "cause": "地面纹理不足",
+        "probability": "15%",
+        "description": "纯色或重复纹理地面影响定位"
+      },
+      {
+        "cause": "风力影响",
+        "probability": "5%",
+        "description": "风力过大影响悬停稳定性"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "清洁传感器",
+        "criteria": "传感器清洁",
+        "solution": "用超细纤维布擦拭光流和超声波传感器",
+        "tools": [
+          "超细纤维布"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 2,
+        "operation": "IMU校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成IMU校准",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "选择合适地面",
+        "criteria": "地面有纹理",
+        "solution": "避免在纯色或重复纹理地面飞行",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试悬停功能",
+        "criteria": "悬停稳定",
+        "solution": "在安全环境下测试悬停",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [
+      "超细纤维布"
+    ],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "零零科技用户社区反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-07-03",
+    "reviewStatus": "approved",
+    "tags": [
+      "零零科技",
+      "传感器系统"
+    ],
+    "relatedCases": [
+      "F062",
+      "F064"
+    ]
+  },
+  {
+    "id": "F066",
+    "faultType": "动力系统",
+    "symptom": "普宙机臂折叠异常",
+    "keywords": [
+      "机臂折叠异常",
+      "机臂无法展开",
+      "折叠机臂故障"
+    ],
+    "applicableModels": [
+      "Byrd系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "机臂折叠机构积灰",
+        "probability": "35%",
+        "description": "折叠机构被灰尘或异物堵塞"
+      },
+      {
+        "cause": "机臂折叠机构变形",
+        "probability": "30%",
+        "description": "机臂受外力变形"
+      },
+      {
+        "cause": "机臂折叠机构润滑不足",
+        "probability": "20%",
+        "description": "折叠机构缺乏润滑"
+      },
+      {
+        "cause": "机臂折叠机构锁扣损坏",
+        "probability": "15%",
+        "description": "锁扣磨损或断裂"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "清洁折叠机构",
+        "criteria": "机构无异物",
+        "solution": "用压缩空气清洁折叠机构",
+        "tools": [
+          "压缩空气罐"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查机臂变形",
+        "criteria": "机臂无变形",
+        "solution": "若变形，更换机臂",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "润滑折叠机构",
+        "criteria": "机构转动顺滑",
+        "solution": "在折叠机构涂抹适量润滑油",
+        "tools": [
+          "润滑油"
+        ],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查锁扣状态",
+        "criteria": "锁扣完好",
+        "solution": "若损坏，更换锁扣",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [
+      "压缩空气罐",
+      "润滑油"
+    ],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "普宙授权维修中心技师实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-07-05",
+    "reviewStatus": "approved",
+    "tags": [
+      "普宙",
+      "折叠机构"
+    ],
+    "relatedCases": []
+  },
+  {
+    "id": "F067",
+    "faultType": "图传系统",
+    "symptom": "普宙图传信号中断",
+    "keywords": [
+      "图传中断",
+      "信号丢失",
+      "图传断连"
+    ],
+    "applicableModels": [
+      "Byrd系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "超出图传距离",
+        "probability": "35%",
+        "description": "飞行距离超出图传范围"
+      },
+      {
+        "cause": "障碍物遮挡",
+        "probability": "30%",
+        "description": "建筑物、山体遮挡信号"
+      },
+      {
+        "cause": "图传频段干扰",
+        "probability": "20%",
+        "description": "同频段设备干扰"
+      },
+      {
+        "cause": "图传天线故障",
+        "probability": "15%",
+        "description": "天线损坏或连接问题"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "降低飞行高度",
+        "criteria": "信号恢复",
+        "solution": "降低高度避开遮挡",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "缩短飞行距离",
+        "criteria": "信号恢复",
+        "solution": "控制在图传距离内",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "切换图传频段",
+        "criteria": "信号稳定",
+        "solution": "切换至干扰少的频段",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查天线状态",
+        "criteria": "天线完好",
+        "solution": "检查天线连接和角度",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "5分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "普宙用户社区反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-07-08",
+    "reviewStatus": "approved",
+    "tags": [
+      "普宙",
+      "图传系统"
+    ],
+    "relatedCases": [
+      "F066"
+    ]
+  },
+  {
+    "id": "F068",
+    "faultType": "动力系统",
+    "symptom": "普宙电机过热",
+    "keywords": [
+      "电机过热",
+      "电机发烫",
+      "电机温度高"
+    ],
+    "applicableModels": [
+      "Byrd系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "长时间满载飞行",
+        "probability": "40%",
+        "description": "长时间满载飞行导致电机过热"
+      },
+      {
+        "cause": "电机轴承磨损",
+        "probability": "25%",
+        "description": "电机轴承磨损导致效率下降发热"
+      },
+      {
+        "cause": "环境温度过高",
+        "probability": "20%",
+        "description": "高温环境作业"
+      },
+      {
+        "cause": "电机散热不良",
+        "probability": "15%",
+        "description": "电机散热片堵塞或损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "停止飞行并降温",
+        "criteria": "电机温度正常",
+        "solution": "关闭电源等待10-15分钟",
+        "tools": [],
+        "estimatedTime": "15分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查电机转动",
+        "criteria": "电机转动顺滑",
+        "solution": "手动转动检查是否有阻力",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "清洁电机散热片",
+        "criteria": "散热片清洁",
+        "solution": "用压缩空气清洁散热片",
+        "tools": [
+          "压缩空气罐"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 4,
+        "operation": "减少连续作业时间",
+        "criteria": "不过热",
+        "solution": "每飞行15分钟休息5分钟",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      }
+    ],
+    "requiredTools": [
+      "压缩空气罐"
+    ],
+    "totalEstimatedTime": "25分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "普宙授权维修中心技师实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-07-10",
+    "reviewStatus": "approved",
+    "tags": [
+      "普宙",
+      "动力系统"
+    ],
+    "relatedCases": [
+      "F066",
+      "F067"
+    ]
+  },
+  {
+    "id": "F069",
+    "faultType": "云台系统",
+    "symptom": "普宙云台卡住",
+    "keywords": [
+      "云台卡住",
+      "云台不转",
+      "云台电机过载"
+    ],
+    "applicableModels": [
+      "Byrd系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "云台电机卡滞",
+        "probability": "40%",
+        "description": "电机轴承磨损或异物卡住"
+      },
+      {
+        "cause": "云台连接线松动",
+        "probability": "30%",
+        "description": "连接线插头松动或氧化"
+      },
+      {
+        "cause": "云台电机烧毁",
+        "probability": "20%",
+        "description": "电机线圈烧毁"
+      },
+      {
+        "cause": "云台校准异常",
+        "probability": "10%",
+        "description": "云台校准数据异常"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "云台自动校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成云台校准",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "手动转动云台",
+        "criteria": "云台转动顺滑",
+        "solution": "检查是否有异物",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查云台连接线",
+        "criteria": "连接线插紧",
+        "solution": "拆开云台外壳检查",
+        "tools": [
+          "螺丝刀",
+          "砂纸"
+        ],
+        "estimatedTime": "10分钟"
+      }
+    ],
+    "requiredTools": [
+      "螺丝刀",
+      "砂纸"
+    ],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "维修技师",
+    "sourceDetail": "普宙授权维修中心技师实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-07-12",
+    "reviewStatus": "approved",
+    "tags": [
+      "普宙",
+      "需专业维修"
+    ],
+    "relatedCases": [
+      "F066",
+      "F068"
+    ]
+  },
+  {
+    "id": "F070",
+    "faultType": "图传系统",
+    "symptom": "哈博森图传延迟严重",
+    "keywords": [
+      "图传延迟",
+      "画面卡顿",
+      "图传慢"
+    ],
+    "applicableModels": [
+      "Zino系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "图传频段拥堵",
+        "probability": "40%",
+        "description": "2.4G频段设备过多"
+      },
+      {
+        "cause": "距离过远",
+        "probability": "30%",
+        "description": "超出图传距离限制"
+      },
+      {
+        "cause": "手机性能不足",
+        "probability": "20%",
+        "description": "手机CPU/GPU性能不足"
+      },
+      {
+        "cause": "图传天线问题",
+        "probability": "10%",
+        "description": "天线角度或连接问题"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "切换图传频段",
+        "criteria": "延迟降低",
+        "solution": "切换至5.8G频段",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "降低飞行距离",
+        "criteria": "延迟降低",
+        "solution": "控制在图传距离内",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "关闭后台应用",
+        "criteria": "手机流畅",
+        "solution": "关闭手机后台应用",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "调整天线角度",
+        "criteria": "信号增强",
+        "solution": "调整遥控器天线角度",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "5分钟",
+    "difficulty": "⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "哈博森用户社区反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-07-15",
+    "reviewStatus": "approved",
+    "tags": [
+      "哈博森",
+      "图传系统"
+    ],
+    "relatedCases": []
+  },
+  {
+    "id": "F071",
+    "faultType": "电源系统",
+    "symptom": "哈博森电池续航短",
+    "keywords": [
+      "续航短",
+      "飞行时间短",
+      "电池不耐用"
+    ],
+    "applicableModels": [
+      "Zino系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电池老化",
+        "probability": "50%",
+        "description": "电池循环次数过多，容量衰减"
+      },
+      {
+        "cause": "低温环境",
+        "probability": "25%",
+        "description": "低温环境下电池放电效率降低"
+      },
+      {
+        "cause": "电机效率下降",
+        "probability": "15%",
+        "description": "电机轴承磨损，效率降低"
+      },
+      {
+        "cause": "飞行负载过重",
+        "probability": "10%",
+        "description": "挂载设备过重"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查电池健康度",
+        "criteria": "健康度>80%",
+        "solution": "在App中查看电池健康度",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查电池循环次数",
+        "criteria": "循环次数<200次",
+        "solution": "若>200次，建议更换电池",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查环境温度",
+        "criteria": "温度>10°C",
+        "solution": "低温环境需预热电池",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查电机转动",
+        "criteria": "电机转动顺滑",
+        "solution": "若有异响，检查电机轴承",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "哈博森官方电池使用指南",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-07-18",
+    "reviewStatus": "approved",
+    "tags": [
+      "哈博森",
+      "电池相关"
+    ],
+    "relatedCases": [
+      "F070"
+    ]
+  },
+  {
+    "id": "F072",
+    "faultType": "动力系统",
+    "symptom": "哈博森电机异响",
+    "keywords": [
+      "电机异响",
+      "电机噪音",
+      "电机声音异常"
+    ],
+    "applicableModels": [
+      "Zino系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电机轴承磨损",
+        "probability": "40%",
+        "description": "电机轴承老化磨损"
+      },
+      {
+        "cause": "电机进水",
+        "probability": "25%",
+        "description": "电机进水导致锈蚀"
+      },
+      {
+        "cause": "电机线圈烧毁",
+        "probability": "20%",
+        "description": "电机线圈部分烧毁"
+      },
+      {
+        "cause": "桨叶不平衡",
+        "probability": "15%",
+        "description": "桨叶质量不均匀"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查桨叶",
+        "criteria": "桨叶完好平衡",
+        "solution": "更换或平衡桨叶",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "手动转动电机",
+        "criteria": "转动顺滑无杂音",
+        "solution": "若有异响，检查轴承",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查电机外观",
+        "criteria": "无进水锈蚀痕迹",
+        "solution": "若有进水痕迹，更换电机",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测量电机电阻",
+        "criteria": "电阻值正常",
+        "solution": "若异常，更换电机",
+        "tools": [
+          "万用表"
+        ],
+        "estimatedTime": "3分钟"
+      }
+    ],
+    "requiredTools": [
+      "万用表"
+    ],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "维修技师",
+    "sourceDetail": "哈博森授权维修中心技师实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-07-20",
+    "reviewStatus": "approved",
+    "tags": [
+      "哈博森",
+      "需专业维修"
+    ],
+    "relatedCases": [
+      "F070",
+      "F071"
+    ]
+  },
+  {
+    "id": "F073",
+    "faultType": "云台系统",
+    "symptom": "哈博森云台抖动",
+    "keywords": [
+      "云台抖动",
+      "画面不稳",
+      "云台震动"
+    ],
+    "applicableModels": [
+      "Zino系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "云台未校准",
+        "probability": "40%",
+        "description": "云台校准数据异常"
+      },
+      {
+        "cause": "云台电机故障",
+        "probability": "25%",
+        "description": "云台电机性能下降"
+      },
+      {
+        "cause": "云台连接线松动",
+        "probability": "20%",
+        "description": "连接线接触不良"
+      },
+      {
+        "cause": "云台减震球老化",
+        "probability": "15%",
+        "description": "减震球老化失去弹性"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "云台自动校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成云台校准",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查云台连接线",
+        "criteria": "连接线牢固",
+        "solution": "检查并插紧连接线",
+        "tools": [
+          "螺丝刀"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查减震球",
+        "criteria": "减震球弹性良好",
+        "solution": "若老化，更换减震球",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试云台稳定性",
+        "criteria": "画面稳定",
+        "solution": "在悬停状态下测试",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [
+      "螺丝刀"
+    ],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "哈博森用户社区反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-07-22",
+    "reviewStatus": "approved",
+    "tags": [
+      "哈博森",
+      "云台系统"
+    ],
+    "relatedCases": [
+      "F070",
+      "F072"
+    ]
+  },
+  {
+    "id": "F074",
+    "faultType": "传感器系统",
+    "symptom": "哈博森GPS信号弱",
+    "keywords": [
+      "GPS信号弱",
+      "GPS无信号",
+      "卫星少"
+    ],
+    "applicableModels": [
+      "Zino系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "环境遮挡",
+        "probability": "40%",
+        "description": "高楼、树木、山体遮挡GPS信号"
+      },
+      {
+        "cause": "电磁干扰",
+        "probability": "30%",
+        "description": "高压线、基站、金属建筑干扰"
+      },
+      {
+        "cause": "GPS模块故障",
+        "probability": "20%",
+        "description": "GPS模块损坏或连接线松动"
+      },
+      {
+        "cause": "固件版本过低",
+        "probability": "10%",
+        "description": "固件版本过旧"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "移至开阔地带",
+        "criteria": "远离遮挡物",
+        "solution": "选择空旷场地",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "远离干扰源",
+        "criteria": "距离干扰源>50米",
+        "solution": "远离高压线、基站",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "等待GPS冷启动",
+        "criteria": "卫星数≥6颗",
+        "solution": "开机后等待2-5分钟",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查固件版本",
+        "criteria": "固件为最新",
+        "solution": "通过App更新固件",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "哈博森官方维修手册",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-07-25",
+    "reviewStatus": "approved",
+    "tags": [
+      "哈博森",
+      "传感器系统"
+    ],
+    "relatedCases": [
+      "F070",
+      "F073"
+    ]
+  },
+  {
+    "id": "F075",
+    "faultType": "安全系统",
+    "symptom": "亿航载人无人机冗余系统报警",
+    "keywords": [
+      "冗余系统报警",
+      "安全系统异常",
+      "备份系统故障"
+    ],
+    "applicableModels": [
+      "EHang载人无人机系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "冗余系统自检异常",
+        "probability": "35%",
+        "description": "系统自检发现备份系统异常"
+      },
+      {
+        "cause": "冗余传感器数据不一致",
+        "probability": "25%",
+        "description": "主系统和备份系统传感器数据偏差过大"
+      },
+      {
+        "cause": "冗余电源系统异常",
+        "probability": "20%",
+        "description": "备份电池或电源管理系统异常"
+      },
+      {
+        "cause": "冗余控制系统通信异常",
+        "probability": "15%",
+        "description": "主控和备份控制系统通信中断"
+      },
+      {
+        "cause": "固件版本问题",
+        "probability": "5%",
+        "description": "固件版本过旧或有bug"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "停止飞行并检查系统状态",
+        "criteria": "系统状态正常",
+        "solution": "在地面控制站查看详细报警信息",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 2,
+        "operation": "重启系统进行自检",
+        "criteria": "自检通过",
+        "solution": "重启无人机和地面控制站",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查冗余传感器",
+        "criteria": "传感器数据一致",
+        "solution": "对比主系统和备份系统传感器数据",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 4,
+        "operation": "联系技术支持",
+        "criteria": "问题解决",
+        "solution": "若报警持续，联系亿航技术支持",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "25分钟",
+    "difficulty": "⭐⭐⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "官方文档",
+    "sourceDetail": "亿航载人无人机安全操作手册",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-07-28",
+    "reviewStatus": "approved",
+    "tags": [
+      "亿航",
+      "载人无人机",
+      "安全系统",
+      "需专业维修"
+    ],
+    "relatedCases": []
+  },
+  {
+    "id": "F076",
+    "faultType": "动力系统",
+    "symptom": "亿航载人无人机电机故障",
+    "keywords": [
+      "电机故障",
+      "电机不转",
+      "电机异常"
+    ],
+    "applicableModels": [
+      "EHang载人无人机系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电机连接线松动",
+        "probability": "30%",
+        "description": "电机连接线插头松动或氧化"
+      },
+      {
+        "cause": "电机烧毁",
+        "probability": "25%",
+        "description": "电机线圈烧毁或轴承损坏"
+      },
+      {
+        "cause": "电调故障",
+        "probability": "20%",
+        "description": "电调损坏或信号异常"
+      },
+      {
+        "cause": "电机过热保护",
+        "probability": "15%",
+        "description": "电机温度过高触发保护"
+      },
+      {
+        "cause": "电机控制器故障",
+        "probability": "10%",
+        "description": "电机控制器损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查电机连接线",
+        "criteria": "连接线插紧",
+        "solution": "检查并插紧连接线",
+        "tools": [
+          "螺丝刀"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查电机温度",
+        "criteria": "温度正常",
+        "solution": "等待电机降温",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      },
+      {
+        "step": 3,
+        "operation": "手动转动电机",
+        "criteria": "电机转动顺滑",
+        "solution": "若有阻力，检查轴承",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "联系技术支持",
+        "criteria": "问题解决",
+        "solution": "若故障持续，联系亿航技术支持",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      }
+    ],
+    "requiredTools": [
+      "螺丝刀"
+    ],
+    "totalEstimatedTime": "30分钟",
+    "difficulty": "⭐⭐⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "维修技师",
+    "sourceDetail": "亿航授权维修中心技师实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-08-01",
+    "reviewStatus": "approved",
+    "tags": [
+      "亿航",
+      "载人无人机",
+      "需专业维修"
+    ],
+    "relatedCases": [
+      "F075"
+    ]
+  },
+  {
+    "id": "F077",
+    "faultType": "电源系统",
+    "symptom": "亿航载人无人机电池管理系统异常",
+    "keywords": [
+      "BMS异常",
+      "电池管理系统故障",
+      "电池报警"
+    ],
+    "applicableModels": [
+      "EHang载人无人机系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电池单体电压不一致",
+        "probability": "30%",
+        "description": "电池组内单体电压偏差过大"
+      },
+      {
+        "cause": "电池温度异常",
+        "probability": "25%",
+        "description": "电池温度过高或过低"
+      },
+      {
+        "cause": "BMS通信异常",
+        "probability": "20%",
+        "description": "BMS与主控系统通信中断"
+      },
+      {
+        "cause": "电池老化",
+        "probability": "15%",
+        "description": "电池容量衰减或内阻增大"
+      },
+      {
+        "cause": "BMS硬件故障",
+        "probability": "10%",
+        "description": "BMS电路板损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查电池单体电压",
+        "criteria": "电压偏差<0.1V",
+        "solution": "在地面控制站查看电池单体电压",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查电池温度",
+        "criteria": "温度在正常范围",
+        "solution": "等待电池温度恢复正常",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查电池健康度",
+        "criteria": "健康度>80%",
+        "solution": "查看电池循环次数和健康度",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "联系技术支持",
+        "criteria": "问题解决",
+        "solution": "若异常持续，联系亿航技术支持",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "官方文档",
+    "sourceDetail": "亿航载人无人机电池管理手册",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-08-03",
+    "reviewStatus": "approved",
+    "tags": [
+      "亿航",
+      "载人无人机",
+      "电池相关",
+      "需专业维修"
+    ],
+    "relatedCases": [
+      "F075",
+      "F076"
+    ]
+  },
+  {
+    "id": "F078",
+    "faultType": "导航系统",
+    "symptom": "亿航载人无人机GPS信号丢失",
+    "keywords": [
+      "GPS信号丢失",
+      "GPS无信号",
+      "定位失效"
+    ],
+    "applicableModels": [
+      "EHang载人无人机系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "环境遮挡",
+        "probability": "35%",
+        "description": "高楼、山体遮挡GPS信号"
+      },
+      {
+        "cause": "电磁干扰",
+        "probability": "25%",
+        "description": "高压线、基站等电磁干扰"
+      },
+      {
+        "cause": "GPS天线故障",
+        "probability": "20%",
+        "description": "GPS天线损坏或连接问题"
+      },
+      {
+        "cause": "GPS模块故障",
+        "probability": "15%",
+        "description": "GPS模块损坏"
+      },
+      {
+        "cause": "冗余GPS系统异常",
+        "probability": "5%",
+        "description": "主备GPS系统同时异常"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "移至开阔地带",
+        "criteria": "远离遮挡物",
+        "solution": "选择空旷场地",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 2,
+        "operation": "远离干扰源",
+        "criteria": "距离干扰源>100米",
+        "solution": "远离高压线、基站",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查GPS天线",
+        "criteria": "天线完好",
+        "solution": "检查天线连接和外观",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 4,
+        "operation": "联系技术支持",
+        "criteria": "问题解决",
+        "solution": "若GPS持续丢失，联系亿航技术支持",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "亿航载人无人机操作手册",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-08-05",
+    "reviewStatus": "approved",
+    "tags": [
+      "亿航",
+      "载人无人机",
+      "导航系统"
+    ],
+    "relatedCases": [
+      "F075",
+      "F077"
+    ]
+  },
+  {
+    "id": "F079",
+    "faultType": "通信系统",
+    "symptom": "亿航载人无人机通信链路中断",
+    "keywords": [
+      "通信中断",
+      "链路丢失",
+      "控制信号断连"
+    ],
+    "applicableModels": [
+      "EHang载人无人机系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "超出通信距离",
+        "probability": "30%",
+        "description": "飞行距离超出通信范围"
+      },
+      {
+        "cause": "障碍物遮挡",
+        "probability": "25%",
+        "description": "建筑物、山体遮挡信号"
+      },
+      {
+        "cause": "通信频段干扰",
+        "probability": "20%",
+        "description": "同频段设备干扰"
+      },
+      {
+        "cause": "通信天线故障",
+        "probability": "15%",
+        "description": "天线损坏或连接问题"
+      },
+      {
+        "cause": "通信模块故障",
+        "probability": "10%",
+        "description": "通信模块损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "降低飞行高度",
+        "criteria": "通信恢复",
+        "solution": "降低高度避开遮挡",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "缩短飞行距离",
+        "criteria": "通信恢复",
+        "solution": "控制在通信距离内",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查通信天线",
+        "criteria": "天线完好",
+        "solution": "检查天线连接和角度",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 4,
+        "operation": "启动应急返航",
+        "criteria": "无人机安全返航",
+        "solution": "若通信持续中断，启动应急返航程序",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "亿航载人无人机通信手册",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-08-08",
+    "reviewStatus": "approved",
+    "tags": [
+      "亿航",
+      "载人无人机",
+      "通信系统"
+    ],
+    "relatedCases": [
+      "F075",
+      "F078"
+    ]
+  },
+  {
+    "id": "F080",
+    "faultType": "安全系统",
+    "symptom": "亿航载人无人机应急降落系统异常",
+    "keywords": [
+      "应急降落异常",
+      "降落伞系统故障",
+      "安全系统报警"
+    ],
+    "applicableModels": [
+      "EHang载人无人机系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "应急降落系统自检异常",
+        "probability": "35%",
+        "description": "系统自检发现应急降落系统异常"
+      },
+      {
+        "cause": "降落伞部署机构故障",
+        "probability": "25%",
+        "description": "降落伞部署机构卡滞或损坏"
+      },
+      {
+        "cause": "降落伞包状态异常",
+        "probability": "20%",
+        "description": "降落伞未正确安装或已使用"
+      },
+      {
+        "cause": "应急降落传感器异常",
+        "probability": "15%",
+        "description": "传感器数据异常"
+      },
+      {
+        "cause": "应急降落系统电池电量不足",
+        "probability": "5%",
+        "description": "独立电池电量不足"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查应急降落系统状态",
+        "criteria": "系统状态正常",
+        "solution": "在地面控制站查看详细状态",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查降落伞包",
+        "criteria": "降落伞正确安装",
+        "solution": "确认降落伞包已正确安装且未使用",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查独立电池电量",
+        "criteria": "电量>90%",
+        "solution": "充电或更换电池",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "联系技术支持",
+        "criteria": "问题解决",
+        "solution": "若异常持续，联系亿航技术支持",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "官方文档",
+    "sourceDetail": "亿航载人无人机安全手册",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-08-10",
+    "reviewStatus": "approved",
+    "tags": [
+      "亿航",
+      "载人无人机",
+      "安全系统",
+      "需专业维修"
+    ],
+    "relatedCases": [
+      "F075",
+      "F079"
+    ]
+  },
+  {
+    "id": "F081",
+    "faultType": "图传系统",
+    "symptom": "道通无人机图传黑屏",
+    "keywords": [
+      "图传黑屏",
+      "图传无画面",
+      "画面丢失"
+    ],
+    "applicableModels": [
+      "EVO II系列",
+      "EVO Nano系列",
+      "EVO Lite系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "图传频段干扰",
+        "probability": "45%",
+        "description": "附近WiFi、基站干扰"
+      },
+      {
+        "cause": "图传天线连接线松动",
+        "probability": "30%",
+        "description": "天线连接线松动"
+      },
+      {
+        "cause": "相机过热保护",
+        "probability": "15%",
+        "description": "长时间悬停或高温环境"
+      },
+      {
+        "cause": "图传模块故障",
+        "probability": "10%",
+        "description": "图传发射或接收模块损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "切换图传频段",
+        "criteria": "图传恢复",
+        "solution": "在App中切换频段",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查天线连接",
+        "criteria": "天线连接牢固",
+        "solution": "检查并插紧天线",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "降低飞行高度",
+        "criteria": "图传恢复",
+        "solution": "降低高度至100米以下",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "重启图传系统",
+        "criteria": "图传恢复",
+        "solution": "在App中关闭并重新开启图传",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "5分钟",
+    "difficulty": "⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "道通用户社区反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-08-12",
+    "reviewStatus": "approved",
+    "tags": [
+      "道通",
+      "图传系统"
+    ],
+    "relatedCases": [
+      "F052"
+    ]
+  },
+  {
+    "id": "F082",
+    "faultType": "导航系统",
+    "symptom": "道通无人机GPS信号弱",
+    "keywords": [
+      "GPS信号弱",
+      "GPS无信号",
+      "卫星少"
+    ],
+    "applicableModels": [
+      "EVO II系列",
+      "EVO Nano系列",
+      "EVO Lite系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "环境遮挡",
+        "probability": "40%",
+        "description": "高楼、树木、山体遮挡GPS信号"
+      },
+      {
+        "cause": "电磁干扰",
+        "probability": "30%",
+        "description": "高压线、基站、金属建筑干扰"
+      },
+      {
+        "cause": "GPS模块故障",
+        "probability": "20%",
+        "description": "GPS模块损坏或连接线松动"
+      },
+      {
+        "cause": "固件版本过低",
+        "probability": "10%",
+        "description": "固件版本过旧"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "移至开阔地带",
+        "criteria": "远离遮挡物",
+        "solution": "选择空旷场地",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "远离干扰源",
+        "criteria": "距离干扰源>50米",
+        "solution": "远离高压线、基站",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "等待GPS冷启动",
+        "criteria": "卫星数≥6颗",
+        "solution": "开机后等待2-5分钟",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查固件版本",
+        "criteria": "固件为最新",
+        "solution": "通过App更新固件",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "道通官方维修手册",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-08-15",
+    "reviewStatus": "approved",
+    "tags": [
+      "道通",
+      "导航系统"
+    ],
+    "relatedCases": [
+      "F052",
+      "F081"
+    ]
+  },
+  {
+    "id": "F083",
+    "faultType": "喷洒系统",
+    "symptom": "极飞喷洒不均匀",
+    "keywords": [
+      "喷洒不均匀",
+      "喷洒效果差",
+      "喷洒遗漏"
+    ],
+    "applicableModels": [
+      "P系列植保机",
+      "V系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "喷头堵塞",
+        "probability": "40%",
+        "description": "部分喷头被农药残留堵塞"
+      },
+      {
+        "cause": "喷头压力不一致",
+        "probability": "25%",
+        "description": "液泵压力不稳定或管路问题"
+      },
+      {
+        "cause": "飞行速度不当",
+        "probability": "20%",
+        "description": "飞行速度过快或过慢"
+      },
+      {
+        "cause": "喷洒高度不当",
+        "probability": "15%",
+        "description": "喷洒高度过高或过低"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查并清洗喷头",
+        "criteria": "所有喷头畅通",
+        "solution": "清洗堵塞的喷头",
+        "tools": [
+          "清洗工具"
+        ],
+        "estimatedTime": "10分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查液泵压力",
+        "criteria": "压力稳定",
+        "solution": "检查液泵和管路状态",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "调整飞行参数",
+        "criteria": "参数合适",
+        "solution": "根据作物调整飞行速度和高度",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试喷洒效果",
+        "criteria": "喷洒均匀",
+        "solution": "进行小面积测试",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      }
+    ],
+    "requiredTools": [
+      "清洗工具"
+    ],
+    "totalEstimatedTime": "25分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "极飞授权维修中心技师实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-08-18",
+    "reviewStatus": "approved",
+    "tags": [
+      "极飞",
+      "植保机专用",
+      "喷洒系统"
+    ],
+    "relatedCases": [
+      "F057",
+      "F061"
+    ]
+  },
+  {
+    "id": "F084",
+    "faultType": "电源系统",
+    "symptom": "极飞电池鼓包",
+    "keywords": [
+      "电池鼓包",
+      "电池膨胀",
+      "电池变形"
+    ],
+    "applicableModels": [
+      "P系列植保机",
+      "V系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "过充过放",
+        "probability": "40%",
+        "description": "长期过充或过放导致电池老化"
+      },
+      {
+        "cause": "高温环境使用",
+        "probability": "30%",
+        "description": "高温环境下长时间飞行"
+      },
+      {
+        "cause": "电池质量问题",
+        "probability": "20%",
+        "description": "电池本身质量问题"
+      },
+      {
+        "cause": "长期存放未使用",
+        "probability": "10%",
+        "description": "电池长期存放未充电维护"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查电池外观",
+        "criteria": "电池平整无鼓包",
+        "solution": "若鼓包，立即停止使用",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查电池电压",
+        "criteria": "电压在正常范围",
+        "solution": "用万用表测量电压",
+        "tools": [
+          "万用表"
+        ],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查电池循环次数",
+        "criteria": "循环次数<200次",
+        "solution": "在App中查看电池健康度",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "安全处理",
+        "criteria": "电池安全处理",
+        "solution": "鼓包电池需专业回收处理",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      }
+    ],
+    "requiredTools": [
+      "万用表"
+    ],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "官方文档",
+    "sourceDetail": "极飞电池安全使用指南",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-08-20",
+    "reviewStatus": "approved",
+    "tags": [
+      "极飞",
+      "植保机专用",
+      "电池相关",
+      "需专业维修"
+    ],
+    "relatedCases": [
+      "F059",
+      "F083"
+    ]
+  },
+  {
+    "id": "F085",
+    "faultType": "图传系统",
+    "symptom": "零零科技图传信号弱",
+    "keywords": [
+      "图传信号弱",
+      "图传距离短",
+      "画面卡顿"
+    ],
+    "applicableModels": [
+      "Hover Camera系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "WiFi频段干扰",
+        "probability": "40%",
+        "description": "WiFi信号干扰图传"
+      },
+      {
+        "cause": "距离过远",
+        "probability": "30%",
+        "description": "超出图传距离限制"
+      },
+      {
+        "cause": "手机WiFi性能不足",
+        "probability": "20%",
+        "description": "手机WiFi模块性能不足"
+      },
+      {
+        "cause": "图传天线问题",
+        "probability": "10%",
+        "description": "天线损坏或连接问题"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "切换WiFi频段",
+        "criteria": "信号增强",
+        "solution": "切换至5G WiFi频段",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "降低飞行距离",
+        "criteria": "信号恢复",
+        "solution": "控制在图传距离内",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "关闭其他WiFi设备",
+        "criteria": "干扰减少",
+        "solution": "关闭附近其他WiFi设备",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "重启WiFi连接",
+        "criteria": "连接稳定",
+        "solution": "重启手机WiFi和无人机",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "5分钟",
+    "difficulty": "⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "零零科技用户社区反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-08-22",
+    "reviewStatus": "approved",
+    "tags": [
+      "零零科技",
+      "图传系统"
+    ],
+    "relatedCases": [
+      "F062",
+      "F065"
+    ]
+  },
+  {
+    "id": "F086",
+    "faultType": "遥控器系统",
+    "symptom": "普宙遥控器无法连接",
+    "keywords": [
+      "遥控器无法连接",
+      "遥控器断连",
+      "遥控器配对失败"
+    ],
+    "applicableModels": [
+      "Byrd系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "遥控器未对频",
+        "probability": "35%",
+        "description": "遥控器与无人机未完成对频"
+      },
+      {
+        "cause": "遥控器电量不足",
+        "probability": "25%",
+        "description": "遥控器电量低于20%"
+      },
+      {
+        "cause": "频段干扰",
+        "probability": "20%",
+        "description": "同频段设备干扰"
+      },
+      {
+        "cause": "遥控器硬件故障",
+        "probability": "15%",
+        "description": "遥控器主板或天线损坏"
+      },
+      {
+        "cause": "固件版本不匹配",
+        "probability": "5%",
+        "description": "遥控器与无人机固件版本不一致"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查遥控器电量",
+        "criteria": "电量>50%",
+        "solution": "充电至50%以上",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "重新对频",
+        "criteria": "对频成功",
+        "solution": "按说明书完成对频操作",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 3,
+        "operation": "切换频段",
+        "criteria": "连接成功",
+        "solution": "切换至干扰少的频段",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查固件版本",
+        "criteria": "版本一致",
+        "solution": "更新遥控器和无人机固件",
+        "tools": [],
+        "estimatedTime": "15分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "普宙官方维修手册",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-08-25",
+    "reviewStatus": "approved",
+    "tags": [
+      "普宙",
+      "遥控器系统"
+    ],
+    "relatedCases": [
+      "F066",
+      "F067"
+    ]
+  },
+  {
+    "id": "F087",
+    "faultType": "传感器系统",
+    "symptom": "哈博森避障功能异常",
+    "keywords": [
+      "避障异常",
+      "避障失效",
+      "传感器报警"
+    ],
+    "applicableModels": [
+      "Zino系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "传感器被遮挡",
+        "probability": "45%",
+        "description": "传感器镜头被灰尘、污渍遮挡"
+      },
+      {
+        "cause": "光线不足",
+        "probability": "25%",
+        "description": "弱光环境下避障功能受限"
+      },
+      {
+        "cause": "传感器校准异常",
+        "probability": "20%",
+        "description": "传感器校准数据异常"
+      },
+      {
+        "cause": "传感器硬件故障",
+        "probability": "10%",
+        "description": "传感器损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "清洁传感器",
+        "criteria": "传感器镜头清洁",
+        "solution": "用超细纤维布擦拭传感器",
+        "tools": [
+          "超细纤维布"
+        ],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查环境光线",
+        "criteria": "光线充足",
+        "solution": "避免在弱光环境飞行",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "传感器校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成传感器校准",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试避障功能",
+        "criteria": "避障正常",
+        "solution": "在安全环境下测试避障",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      }
+    ],
+    "requiredTools": [
+      "超细纤维布"
+    ],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "官方文档",
+    "sourceDetail": "哈博森官方维修手册",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-08-28",
+    "reviewStatus": "approved",
+    "tags": [
+      "哈博森",
+      "传感器系统"
+    ],
+    "relatedCases": [
+      "F070",
+      "F074"
+    ]
+  },
+  {
+    "id": "F088",
+    "faultType": "动力系统",
+    "symptom": "亿航载人无人机动力系统冗余切换",
+    "keywords": [
+      "动力冗余切换",
+      "备份动力启用",
+      "动力系统报警"
+    ],
+    "applicableModels": [
+      "EHang载人无人机系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "主动力系统故障",
+        "probability": "35%",
+        "description": "主动力系统检测到故障自动切换"
+      },
+      {
+        "cause": "电机性能下降",
+        "probability": "25%",
+        "description": "电机效率低于阈值触发切换"
+      },
+      {
+        "cause": "电调异常",
+        "probability": "20%",
+        "description": "电调检测到异常触发切换"
+      },
+      {
+        "cause": "电源系统异常",
+        "probability": "15%",
+        "description": "电源电压或电流异常触发切换"
+      },
+      {
+        "cause": "传感器误报",
+        "probability": "5%",
+        "description": "传感器数据异常导致误切换"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "安全降落",
+        "criteria": "无人机安全降落",
+        "solution": "立即执行安全降落程序",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查动力系统日志",
+        "criteria": "日志无异常",
+        "solution": "在地面控制站查看详细日志",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查电机和电调",
+        "criteria": "电机电调正常",
+        "solution": "检查所有电机和电调状态",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      },
+      {
+        "step": 4,
+        "operation": "联系技术支持",
+        "criteria": "问题解决",
+        "solution": "联系亿航技术支持进行详细检测",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "30分钟",
+    "difficulty": "⭐⭐⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "官方文档",
+    "sourceDetail": "亿航载人无人机动力系统手册",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-09-01",
+    "reviewStatus": "approved",
+    "tags": [
+      "亿航",
+      "载人无人机",
+      "动力系统",
+      "需专业维修"
+    ],
+    "relatedCases": [
+      "F075",
+      "F076"
+    ]
+  },
+  {
+    "id": "F089",
+    "faultType": "云台系统",
+    "symptom": "道通云台自动旋转",
+    "keywords": [
+      "云台自动旋转",
+      "云台漂移",
+      "云台自动偏转"
+    ],
+    "applicableModels": [
+      "EVO II系列",
+      "EVO Nano系列",
+      "EVO Lite系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "云台校准数据异常",
+        "probability": "40%",
+        "description": "云台校准数据偏差"
+      },
+      {
+        "cause": "云台电机故障",
+        "probability": "25%",
+        "description": "云台电机性能不稳定"
+      },
+      {
+        "cause": "云台连接线接触不良",
+        "probability": "20%",
+        "description": "连接线松动或氧化"
+      },
+      {
+        "cause": "固件版本问题",
+        "probability": "15%",
+        "description": "固件版本过旧或有bug"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "云台自动校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成云台校准",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查云台连接线",
+        "criteria": "连接线牢固",
+        "solution": "检查并插紧连接线",
+        "tools": [
+          "螺丝刀"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "更新固件",
+        "criteria": "固件为最新",
+        "solution": "通过App更新固件",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试云台稳定性",
+        "criteria": "云台稳定",
+        "solution": "在悬停状态下测试",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [
+      "螺丝刀"
+    ],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "道通授权维修中心技师实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-09-03",
+    "reviewStatus": "approved",
+    "tags": [
+      "道通",
+      "云台系统"
+    ],
+    "relatedCases": [
+      "F052",
+      "F056"
+    ]
+  },
+  {
+    "id": "F090",
+    "faultType": "雷达系统",
+    "symptom": "极飞仿地雷达异常",
+    "keywords": [
+      "仿地雷达异常",
+      "地形跟随失效",
+      "仿地飞行错误"
+    ],
+    "applicableModels": [
+      "P系列植保机",
+      "V系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "雷达传感器被遮挡",
+        "probability": "40%",
+        "description": "雷达镜头被农药残留或灰尘遮挡"
+      },
+      {
+        "cause": "地形复杂",
+        "probability": "25%",
+        "description": "地形起伏过大或树木遮挡"
+      },
+      {
+        "cause": "雷达校准数据异常",
+        "probability": "20%",
+        "description": "雷达校准数据偏差"
+      },
+      {
+        "cause": "雷达模块故障",
+        "probability": "15%",
+        "description": "雷达模块损坏"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "清洁雷达传感器",
+        "criteria": "传感器镜头清洁",
+        "solution": "用超细纤维布擦拭雷达镜头",
+        "tools": [
+          "超细纤维布"
+        ],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查地形条件",
+        "criteria": "地形适合仿地飞行",
+        "solution": "避免在复杂地形使用仿地功能",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 3,
+        "operation": "雷达校准",
+        "criteria": "校准成功",
+        "solution": "在App中完成雷达校准",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试仿地功能",
+        "criteria": "仿地正常",
+        "solution": "在安全环境下测试仿地飞行",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      }
+    ],
+    "requiredTools": [
+      "超细纤维布"
+    ],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "极飞授权维修中心技师实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-09-05",
+    "reviewStatus": "approved",
+    "tags": [
+      "极飞",
+      "植保机专用",
+      "雷达系统"
+    ],
+    "relatedCases": [
+      "F060",
+      "F083"
+    ]
+  },
+  {
+    "id": "F091",
+    "faultType": "电源系统",
+    "symptom": "零零科技电池续航短",
+    "keywords": [
+      "续航短",
+      "飞行时间短",
+      "电池不耐用"
+    ],
+    "applicableModels": [
+      "Hover Camera系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "电池老化",
+        "probability": "50%",
+        "description": "电池循环次数过多，容量衰减"
+      },
+      {
+        "cause": "低温环境",
+        "probability": "25%",
+        "description": "低温环境下电池放电效率降低"
+      },
+      {
+        "cause": "电机效率下降",
+        "probability": "15%",
+        "description": "电机轴承磨损，效率降低"
+      },
+      {
+        "cause": "飞行负载过重",
+        "probability": "10%",
+        "description": "挂载设备过重"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查电池健康度",
+        "criteria": "健康度>80%",
+        "solution": "在App中查看电池健康度",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查电池循环次数",
+        "criteria": "循环次数<150次",
+        "solution": "若>150次，建议更换电池",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查环境温度",
+        "criteria": "温度>10°C",
+        "solution": "低温环境需预热电池",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "检查电机转动",
+        "criteria": "电机转动顺滑",
+        "solution": "若有异响，检查电机轴承",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "零零科技用户社区反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-09-08",
+    "reviewStatus": "approved",
+    "tags": [
+      "零零科技",
+      "电池相关"
+    ],
+    "relatedCases": [
+      "F063",
+      "F085"
+    ]
+  },
+  {
+    "id": "F092",
+    "faultType": "图传系统",
+    "symptom": "普宙图传延迟严重",
+    "keywords": [
+      "图传延迟",
+      "画面卡顿",
+      "图传慢"
+    ],
+    "applicableModels": [
+      "Byrd系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "图传频段拥堵",
+        "probability": "40%",
+        "description": "2.4G频段设备过多"
+      },
+      {
+        "cause": "距离过远",
+        "probability": "30%",
+        "description": "超出图传距离限制"
+      },
+      {
+        "cause": "手机性能不足",
+        "probability": "20%",
+        "description": "手机CPU/GPU性能不足"
+      },
+      {
+        "cause": "图传天线问题",
+        "probability": "10%",
+        "description": "天线角度或连接问题"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "切换图传频段",
+        "criteria": "延迟降低",
+        "solution": "切换至5.8G频段",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 2,
+        "operation": "降低飞行距离",
+        "criteria": "延迟降低",
+        "solution": "控制在图传距离内",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "关闭后台应用",
+        "criteria": "手机流畅",
+        "solution": "关闭手机后台应用",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "调整天线角度",
+        "criteria": "信号增强",
+        "solution": "调整遥控器天线角度",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "5分钟",
+    "difficulty": "⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "普宙用户社区反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-09-10",
+    "reviewStatus": "approved",
+    "tags": [
+      "普宙",
+      "图传系统"
+    ],
+    "relatedCases": [
+      "F067",
+      "F086"
+    ]
+  },
+  {
+    "id": "F093",
+    "faultType": "动力系统",
+    "symptom": "哈博森螺旋桨脱落",
+    "keywords": [
+      "螺旋桨脱落",
+      "桨叶飞出",
+      "桨叶脱落"
+    ],
+    "applicableModels": [
+      "Zino系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "螺旋桨未安装到位",
+        "probability": "50%",
+        "description": "螺旋桨未完全卡入电机轴"
+      },
+      {
+        "cause": "螺旋桨卡扣损坏",
+        "probability": "25%",
+        "description": "螺旋桨卡扣磨损或断裂"
+      },
+      {
+        "cause": "电机轴磨损",
+        "probability": "15%",
+        "description": "电机轴磨损导致无法固定螺旋桨"
+      },
+      {
+        "cause": "使用非原装螺旋桨",
+        "probability": "10%",
+        "description": "非原装螺旋桨尺寸不匹配"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查螺旋桨安装",
+        "criteria": "螺旋桨安装牢固",
+        "solution": "重新安装并确认卡入到位",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查螺旋桨卡扣",
+        "criteria": "卡扣完好",
+        "solution": "若损坏，更换螺旋桨",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查电机轴",
+        "criteria": "电机轴无磨损",
+        "solution": "若磨损，更换电机",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 4,
+        "operation": "使用原装螺旋桨",
+        "criteria": "螺旋桨匹配",
+        "solution": "更换为原装螺旋桨",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "哈博森用户社区反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-09-12",
+    "reviewStatus": "approved",
+    "tags": [
+      "哈博森",
+      "安全相关"
+    ],
+    "relatedCases": [
+      "F070",
+      "F087"
+    ]
+  },
+  {
+    "id": "F094",
+    "faultType": "安全系统",
+    "symptom": "亿航载人无人机座舱压力异常",
+    "keywords": [
+      "座舱压力异常",
+      "舱内压力报警",
+      "环境控制系统故障"
+    ],
+    "applicableModels": [
+      "EHang载人无人机系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "座舱密封不良",
+        "probability": "35%",
+        "description": "座舱密封圈老化或损坏"
+      },
+      {
+        "cause": "环境控制系统故障",
+        "probability": "25%",
+        "description": "环境控制系统传感器或执行器异常"
+      },
+      {
+        "cause": "压力传感器异常",
+        "probability": "20%",
+        "description": "压力传感器数据偏差"
+      },
+      {
+        "cause": "舱门未正确关闭",
+        "probability": "15%",
+        "description": "舱门锁扣未完全锁紧"
+      },
+      {
+        "cause": "高度变化过快",
+        "probability": "5%",
+        "description": "快速爬升或下降导致压力变化"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查舱门状态",
+        "criteria": "舱门正确关闭",
+        "solution": "确认舱门锁扣完全锁紧",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查座舱密封",
+        "criteria": "密封完好",
+        "solution": "检查密封圈状态",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查压力传感器",
+        "criteria": "传感器数据正常",
+        "solution": "在地面控制站查看传感器数据",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 4,
+        "operation": "联系技术支持",
+        "criteria": "问题解决",
+        "solution": "若异常持续，联系亿航技术支持",
+        "tools": [],
+        "estimatedTime": "10分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "20分钟",
+    "difficulty": "⭐⭐⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "官方文档",
+    "sourceDetail": "亿航载人无人机座舱手册",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-09-15",
+    "reviewStatus": "approved",
+    "tags": [
+      "亿航",
+      "载人无人机",
+      "安全系统",
+      "需专业维修"
+    ],
+    "relatedCases": [
+      "F075",
+      "F080"
+    ]
+  },
+  {
+    "id": "F095",
+    "faultType": "导航系统",
+    "symptom": "道通无人机返航点刷新失败",
+    "keywords": [
+      "返航点失败",
+      "返航点错误",
+      "无法设置返航点"
+    ],
+    "applicableModels": [
+      "EVO II系列",
+      "EVO Nano系列",
+      "EVO Lite系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "GPS信号弱",
+        "probability": "50%",
+        "description": "卫星数不足"
+      },
+      {
+        "cause": "位置服务未开启",
+        "probability": "25%",
+        "description": "手机GPS未开启"
+      },
+      {
+        "cause": "App权限不足",
+        "probability": "15%",
+        "description": "App未获取位置权限"
+      },
+      {
+        "cause": "系统时间错误",
+        "probability": "10%",
+        "description": "手机系统时间不准确"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查GPS信号",
+        "criteria": "卫星数≥6颗",
+        "solution": "移至开阔地带",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "开启位置服务",
+        "criteria": "位置服务已开启",
+        "solution": "在手机设置中开启GPS",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查App权限",
+        "criteria": "权限已授予",
+        "solution": "授予App位置权限",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      },
+      {
+        "step": 4,
+        "operation": "校准系统时间",
+        "criteria": "时间准确",
+        "solution": "开启自动校准时间",
+        "tools": [],
+        "estimatedTime": "1分钟"
+      }
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "5分钟",
+    "difficulty": "⭐",
+    "needProfessionalRepair": false,
+    "source": "用户反馈",
+    "sourceDetail": "道通用户社区反馈，经技术团队验证",
+    "credibility": "B",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-09-18",
+    "reviewStatus": "approved",
+    "tags": [
+      "道通",
+      "导航系统"
+    ],
+    "relatedCases": [
+      "F082"
+    ]
+  },
+  {
+    "id": "F096",
+    "faultType": "喷洒系统",
+    "symptom": "极飞药箱漏液",
+    "keywords": [
+      "药箱漏液",
+      "药液泄漏",
+      "药箱渗漏"
+    ],
+    "applicableModels": [
+      "P系列植保机",
+      "V系列"
+    ],
+    "possibleCauses": [
+      {
+        "cause": "药箱密封圈老化",
+        "probability": "40%",
+        "description": "密封圈老化失去弹性"
+      },
+      {
+        "cause": "药箱接口松动",
+        "probability": "25%",
+        "description": "药箱接口未拧紧或损坏"
+      },
+      {
+        "cause": "药箱破裂",
+        "probability": "20%",
+        "description": "药箱外壳破裂"
+      },
+      {
+        "cause": "管路连接处漏液",
+        "probability": "15%",
+        "description": "管路连接处松动或老化"
+      }
+    ],
+    "troubleshootingSteps": [
+      {
+        "step": 1,
+        "operation": "检查药箱外观",
+        "criteria": "药箱无破裂",
+        "solution": "若破裂，更换药箱",
+        "tools": [],
+        "estimatedTime": "2分钟"
+      },
+      {
+        "step": 2,
+        "operation": "检查密封圈",
+        "criteria": "密封圈完好",
+        "solution": "若老化，更换密封圈",
+        "tools": [],
+        "estimatedTime": "3分钟"
+      },
+      {
+        "step": 3,
+        "operation": "检查接口和管路",
+        "criteria": "连接处无漏液",
+        "solution": "拧紧接口或更换管路",
+        "tools": [
+          "扳手"
+        ],
+        "estimatedTime": "5分钟"
+      },
+      {
+        "step": 4,
+        "operation": "测试密封性",
+        "criteria": "无漏液",
+        "solution": "加水测试密封性",
+        "tools": [],
+        "estimatedTime": "5分钟"
+      }
+    ],
+    "requiredTools": [
+      "扳手"
+    ],
+    "totalEstimatedTime": "15分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "维修技师",
+    "sourceDetail": "极飞授权维修中心技师实际维修案例",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-09-20",
+    "reviewStatus": "approved",
+    "tags": [
+      "极飞",
+      "植保机专用",
+      "喷洒系统"
+    ],
+    "relatedCases": [
+      "F057",
+      "F083"
+    ]
+  }
+]

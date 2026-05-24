@@ -1,0 +1,117 @@
+[
+  {
+    "id": "F001",
+    "faultType": "动力系统",
+    "symptom": "无人机无法起飞",
+    "keywords": ["无法起飞", "起飞失败", "不升空"],
+    "applicableModels": ["Mavic系列", "Air系列", "Mini系列"],
+    "possibleCauses": [
+      {"cause": "电池电量不足", "probability": "30%", "description": "电池电量低于20%"},
+      {"cause": "GPS信号弱", "probability": "25%", "description": "卫星数少于6颗"},
+      {"cause": "下视传感器异常", "probability": "20%", "description": "起飞面反光或传感器被遮挡"},
+      {"cause": "IMU未校准", "probability": "15%", "description": "IMU温漂未校准"},
+      {"cause": "螺旋桨损坏", "probability": "10%", "description": "螺旋桨损坏或安装错误"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "检查电池电量", "criteria": "电量>80%", "solution": "充电至80%以上", "tools": [], "estimatedTime": "1分钟"},
+      {"step": 2, "operation": "检查GPS信号", "criteria": "卫星数≥6颗", "solution": "移至开阔地带", "tools": [], "estimatedTime": "2分钟"},
+      {"step": 3, "operation": "检查起飞面", "criteria": "平整、哑光地面", "solution": "移至水泥地或草地", "tools": [], "estimatedTime": "1分钟"},
+      {"step": 4, "operation": "清洁下视传感器", "criteria": "传感器无灰尘", "solution": "用超细纤维布擦拭", "tools": ["超细纤维布"], "estimatedTime": "2分钟"},
+      {"step": 5, "operation": "IMU校准", "criteria": "校准成功", "solution": "在App中完成IMU校准", "tools": [], "estimatedTime": "5分钟"}
+    ],
+    "requiredTools": ["超细纤维布"],
+    "totalEstimatedTime": "15-20分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false
+  },
+  {
+    "id": "F002",
+    "faultType": "导航系统",
+    "symptom": "GPS信号弱",
+    "keywords": ["GPS信号弱", "GPS无信号", "卫星少"],
+    "applicableModels": ["Mavic系列", "Air系列", "Mini系列", "植保机"],
+    "possibleCauses": [
+      {"cause": "环境遮挡", "probability": "40%", "description": "高楼、树木、山体遮挡GPS信号"},
+      {"cause": "电磁干扰", "probability": "30%", "description": "高压线、基站、金属建筑干扰"},
+      {"cause": "GPS模块故障", "probability": "20%", "description": "GPS模块损坏或连接线松动"},
+      {"cause": "固件版本过低", "probability": "10%", "description": "固件版本过旧"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "移至开阔地带", "criteria": "远离遮挡物", "solution": "选择空旷场地", "tools": [], "estimatedTime": "2分钟"},
+      {"step": 2, "operation": "远离干扰源", "criteria": "距离干扰源>50米", "solution": "远离高压线、基站", "tools": [], "estimatedTime": "1分钟"},
+      {"step": 3, "operation": "等待GPS冷启动", "criteria": "卫星数≥6颗", "solution": "开机后等待2-5分钟", "tools": [], "estimatedTime": "5分钟"},
+      {"step": 4, "operation": "检查固件版本", "criteria": "固件为最新", "solution": "通过App更新固件", "tools": [], "estimatedTime": "10分钟"}
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "15-20分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false
+  },
+  {
+    "id": "F003",
+    "faultType": "动力系统",
+    "symptom": "电机不转",
+    "keywords": ["电机不转", "电机停转", "电机故障"],
+    "applicableModels": ["Mavic系列", "Air系列", "Mini系列", "植保机"],
+    "possibleCauses": [
+      {"cause": "电机连接线松动", "probability": "35%", "description": "电机连接线插头松动或氧化"},
+      {"cause": "电机烧毁", "probability": "25%", "description": "电机线圈烧毁或轴承损坏"},
+      {"cause": "电调故障", "probability": "20%", "description": "电调损坏或信号异常"},
+      {"cause": "螺旋桨卡滞", "probability": "20%", "description": "螺旋桨被异物卡住"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "检查螺旋桨", "criteria": "螺旋桨无异物", "solution": "清除异物", "tools": [], "estimatedTime": "2分钟"},
+      {"step": 2, "operation": "检查电机连接线", "criteria": "连接线插紧", "solution": "重新插紧连接线", "tools": ["螺丝刀", "砂纸"], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "手动转动电机", "criteria": "电机转动顺滑", "solution": "若有虚位，更换电机", "tools": [], "estimatedTime": "1分钟"},
+      {"step": 4, "operation": "测量电机电阻", "criteria": "电阻值正常(5-15Ω)", "solution": "若异常，更换电机", "tools": ["万用表"], "estimatedTime": "3分钟"}
+    ],
+    "requiredTools": ["螺丝刀", "砂纸", "万用表"],
+    "totalEstimatedTime": "15-20分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true
+  },
+  {
+    "id": "F004",
+    "faultType": "图传系统",
+    "symptom": "图传黑屏",
+    "keywords": ["图传黑屏", "图传无画面", "画面丢失"],
+    "applicableModels": ["Mavic系列", "Air系列", "Mini系列"],
+    "possibleCauses": [
+      {"cause": "图传频段干扰", "probability": "50%", "description": "附近WiFi、基站干扰"},
+      {"cause": "图传天线连接线松动", "probability": "30%", "description": "天线连接线松动"},
+      {"cause": "相机过热保护", "probability": "20%", "description": "长时间悬停或高温环境"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "切换图传频段", "criteria": "图传恢复", "solution": "在App中切换频段(2.4G/5.8G)", "tools": [], "estimatedTime": "1分钟"},
+      {"step": 2, "operation": "检查天线连接", "criteria": "天线连接牢固", "solution": "检查并插紧天线", "tools": [], "estimatedTime": "2分钟"},
+      {"step": 3, "operation": "降低飞行高度", "criteria": "图传恢复", "solution": "降低高度至100米以下", "tools": [], "estimatedTime": "1分钟"},
+      {"step": 4, "operation": "重启图传系统", "criteria": "图传恢复", "solution": "在App中关闭并重新开启图传", "tools": [], "estimatedTime": "1分钟"}
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "5分钟",
+    "difficulty": "⭐",
+    "needProfessionalRepair": false
+  },
+  {
+    "id": "F005",
+    "faultType": "云台系统",
+    "symptom": "云台卡住",
+    "keywords": ["云台卡住", "云台不转", "云台电机过载"],
+    "applicableModels": ["Mavic系列", "Air系列", "Mini系列"],
+    "possibleCauses": [
+      {"cause": "云台电机卡滞", "probability": "40%", "description": "电机轴承磨损或异物卡住"},
+      {"cause": "云台连接线松动", "probability": "30%", "description": "连接线插头松动或氧化"},
+      {"cause": "云台电机烧毁", "probability": "20%", "description": "电机线圈烧毁"},
+      {"cause": "云台校准异常", "probability": "10%", "description": "云台校准数据异常"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "云台自动校准", "criteria": "校准成功", "solution": "在App中完成云台校准", "tools": [], "estimatedTime": "2分钟"},
+      {"step": 2, "operation": "手动转动云台", "criteria": "云台转动顺滑", "solution": "检查是否有异物", "tools": [], "estimatedTime": "1分钟"},
+      {"step": 3, "operation": "检查云台连接线", "criteria": "连接线插紧", "solution": "拆开云台外壳检查", "tools": ["螺丝刀", "砂纸"], "estimatedTime": "10分钟"}
+    ],
+    "requiredTools": ["螺丝刀", "砂纸"],
+    "totalEstimatedTime": "15-40分钟",
+    "difficulty": "⭐⭐⭐⭐",
+    "needProfessionalRepair": true
+  }
+]
