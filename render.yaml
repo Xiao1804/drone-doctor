@@ -1,5 +1,5 @@
 services:
-  # 后端 API 服务
+  # Backend API Service
   - type: web
     name: drone-doctor-api
     runtime: node
@@ -25,19 +25,15 @@ services:
         value: "*"
     healthCheckPath: /health
 
-  # 前端静态站点
+  # Frontend Static Site
   - type: static
     name: drone-doctor-web
-    runtime: static
     plan: free
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: ./frontend/dist
     envVars:
       - key: VITE_API_BASE_URL
-        fromService:
-          type: web
-          name: drone-doctor-api
-          property: url
+        sync: false
 
 databases:
   - name: drone-doctor-db
