@@ -18,7 +18,7 @@ const authMiddleware = (req, res, next) => {
     }
 
     req.user = user;
-    req.userId = user.id;
+    req.userId = user.userId;
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);
@@ -47,7 +47,7 @@ const optionalAuthMiddleware = (req, res, next) => {
       const user = userService.verifyToken(token);
       if (user) {
         req.user = user;
-        req.userId = user.id;
+        req.userId = user.userId;
       }
     }
     

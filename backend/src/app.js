@@ -3,6 +3,8 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+const { initDatabase } = require('./db');
+
 const diagnosisRoutes = require('./routes/diagnosis');
 const knowledgeRoutes = require('./routes/knowledge');
 const caacRoutes = require('./routes/caac');
@@ -14,7 +16,14 @@ const historyRoutes = require('./routes/history');
 const app = express();
 
 // 中间件
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    /^https://.*\.vercel\.app$/
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 // 限流
@@ -45,8 +54,19 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`DroneDoctor API running on port ${PORT}`);
-});
+
+async function startServer() {
+  try {
+    await initDatabase();
+    app.listen(PORT, () => {
+      console.log(`DroneDoctor API running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+startServer();
 
 module.exports = app;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { apiUrl } from '../config/api'
 
 function HomePage() {
   const [symptom, setSymptom] = useState('')
@@ -21,7 +22,7 @@ function HomePage() {
 
     setLoading(true)
     try {
-      const response = await axios.post('/api/diagnosis', {
+      const response = await axios.post(apiUrl('/api/diagnosis'), {
         symptom: symptom
       })
       

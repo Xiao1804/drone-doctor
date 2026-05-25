@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { apiUrl } from '../config/api'
 
 function HistoryPage() {
   const [history, setHistory] = useState([])
@@ -21,7 +22,7 @@ function HistoryPage() {
         return
       }
 
-      const response = await axios.get('/api/history', {
+      const response = await axios.get(apiUrl('/api/history'), {
         headers: { Authorization: `Bearer ${token}` }
       })
 
@@ -44,7 +45,7 @@ function HistoryPage() {
 
     try {
       const token = localStorage.getItem('token')
-      await axios.delete(`/api/history/${id}`, {
+      await axios.delete(apiUrl(`/api/history/${id}`), {
         headers: { Authorization: `Bearer ${token}` }
       })
 
@@ -59,7 +60,7 @@ function HistoryPage() {
   const handleToggleFavorite = async (id) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.put(`/api/history/${id}/favorite`, {}, {
+      const response = await axios.put(apiUrl(`/api/history/${id}/favorite`), {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
 

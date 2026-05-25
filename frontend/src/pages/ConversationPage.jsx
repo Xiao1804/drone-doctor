@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { apiUrl } from '../config/api'
 
 function ConversationPage() {
   const [messages, setMessages] = useState([])
@@ -22,7 +23,7 @@ function ConversationPage() {
   const startConversation = async (symptom) => {
     setLoading(true)
     try {
-      const response = await axios.post('/api/diagnosis/conversation/start', {
+      const response = await axios.post(apiUrl('/api/diagnosis/conversation/start'), {
         symptom: symptom
       })
 
@@ -67,7 +68,7 @@ function ConversationPage() {
 
     setLoading(true)
     try {
-      const response = await axios.post('/api/diagnosis/conversation/continue', {
+      const response = await axios.post(apiUrl('/api/diagnosis/conversation/continue'), {
         sessionId: sessionId,
         answer: answer
       })

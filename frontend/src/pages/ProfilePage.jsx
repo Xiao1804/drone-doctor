@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { apiUrl } from '../config/api'
 
 function ProfilePage() {
   const [user, setUser] = useState(null)
@@ -41,7 +42,7 @@ function ProfilePage() {
 
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.put('/api/user/me', {
+      const response = await axios.put(apiUrl('/api/user/me'), {
         email: formData.email
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -77,7 +78,7 @@ function ProfilePage() {
 
     try {
       const token = localStorage.getItem('token')
-      await axios.post('/api/user/change-password', {
+      await axios.post(apiUrl('/api/user/change-password'), {
         oldPassword: formData.currentPassword,
         newPassword: formData.newPassword
       }, {

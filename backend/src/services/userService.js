@@ -1,126 +1,72 @@
-const fs = require('fs').promises;
-const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { query, run } = require('../db');
 
-const USERS_FILE = path.join(__dirname, '../../../data/users.json');
 const JWT_SECRET = process.env.JWT_SECRET || 'drone-doctor-secret-key-2024';
 const JWT_EXPIRES_IN = '7d';
 
 /**
- * 用户服务
+ * 用户服务（SQLite 版本）
  */
 class UserService {
-  constructor() {
-    this.users = [];
-    this.loadUsers();
-  }
-
-  /**
-   * 加载用户数据
-   */
-  async loadUsers() {
-    try {
-      const data = await fs.readFile(USERS_FILE, 'utf-8');
-      this.users = JSON.parse(data);
-      console.log(`Loaded ${this.users.length} users`);
-    } catch (error) {
-      console.log('No users file found, creating new one');
-      this.users = [];
-      await this.saveUsers();
-    }
-  }
-
-  /**
-   * 保存用户数据
-   */
-  async saveUsers() {
-    try {
-      await fs.writeFile(USERS_FILE, JSON.stringify(this.users, null, 2), 'utf-8');
-    } catch (error) {
-      console.error('Save users error:', error);
-      throw error;
-    }
-  }
-
   /**
    * 注册用户
    */
   async register(username, email, password) {
-    // 检查用户名是否已存在
-    if (this.users.find(u => u.username === username)) {
+    const existingUser = await query('SELECT id FROM users WHERE username = ?', [username]);
+    if (existingUser.rows.length > 0) {
       throw new Error('用户名已存在');
     }
 
-    // 检查邮箱是否已存在
-    if (this.users.find(u => u.email === email)) {
+    const existingEmail = await query('SELECT id FROM users WHERE email = ?', [email]);
+    if (existingEmail.rows.length > 0) {
       throw new Error('邮箱已被注册');
     }
 
-    // 加密密码
     const hashedPassword = await bcrypt.hash(password, 10);
+    const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const userCount = await query('SELECT COUNT(*) as count FROM users');
+    const role = userCount.rows[0].count === 0 ? 'admin' : 'user';
 
-    // 创建用户
-    const user = {
-      id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      username,
-      email,
-      password: hashedPassword,
-      role: this.users.length === 0 ? 'admin' : 'user', // 第一个用户为管理员
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      lastLoginAt: null,
-      diagnosisCount: 0,
-      favoriteCount: 0,
-      isActive: true
-    };
+    await run(
+      `INSERT INTO users (id, username, email, password, role, created_at, updated_at, diagnosis_count, favorite_count, is_active)
+       VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'), 0, 0, 1)`,
+      [userId, username, email, hashedPassword, role]
+    );
 
-    this.users.push(user);
-    await this.saveUsers();
-
-    // 生成token
+    const result = await query('SELECT * FROM users WHERE id = ?', [userId]);
+    const user = this.formatUser(result.rows[0]);
     const token = this.generateToken(user);
 
-    return {
-      user: this.sanitizeUser(user),
-      token
-    };
+    return { user: this.sanitizeUser(user), token };
   }
 
   /**
    * 登录
    */
   async login(usernameOrEmail, password) {
-    // 查找用户
-    const user = this.users.find(
-      u => u.username === usernameOrEmail || u.email === usernameOrEmail
+    const result = await query(
+      'SELECT * FROM users WHERE (username = ? OR email = ?) AND is_active = 1',
+      [usernameOrEmail, usernameOrEmail]
     );
 
-    if (!user) {
+    if (result.rows.length === 0) {
       throw new Error('用户名或密码错误');
     }
 
-    if (!user.isActive) {
-      throw new Error('账号已被禁用');
-    }
-
-    // 验证密码
+    const user = this.formatUser(result.rows[0]);
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
       throw new Error('用户名或密码错误');
     }
 
-    // 更新最后登录时间
-    user.lastLoginAt = new Date().toISOString();
-    await this.saveUsers();
+    await run(
+      'UPDATE users SET last_login_at = datetime("now") WHERE id = ?',
+      [user.id]
+    );
 
-    // 生成token
     const token = this.generateToken(user);
-
-    return {
-      user: this.sanitizeUser(user),
-      token
-    };
+    return { user: this.sanitizeUser(user), token };
   }
 
   /**
@@ -128,14 +74,24 @@ class UserService {
    */
   verifyToken(token) {
     try {
-      const decoded = jwt.verify(token, JWT_SECRET);
-      const user = this.users.find(u => u.id === decoded.userId);
-      
-      if (!user || !user.isActive) {
-        return null;
-      }
+      return jwt.verify(token, JWT_SECRET);
+    } catch (error) {
+      return null;
+    }
+  }
 
-      return this.sanitizeUser(user);
+  /**
+   * 通过Token获取用户
+   */
+  async getUserByToken(token) {
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      const result = await query(
+        'SELECT * FROM users WHERE id = ? AND is_active = 1',
+        [decoded.userId]
+      );
+      if (result.rows.length === 0) return null;
+      return this.sanitizeUser(this.formatUser(result.rows[0]));
     } catch (error) {
       return null;
     }
@@ -146,11 +102,7 @@ class UserService {
    */
   generateToken(user) {
     return jwt.sign(
-      { 
-        userId: user.id,
-        username: user.username,
-        role: user.role
-      },
+      { userId: user.id, username: user.username, role: user.role },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
     );
@@ -159,59 +111,67 @@ class UserService {
   /**
    * 获取用户信息
    */
-  getUser(userId) {
-    const user = this.users.find(u => u.id === userId);
-    return user ? this.sanitizeUser(user) : null;
+  async getUser(userId) {
+    const result = await query('SELECT * FROM users WHERE id = ?', [userId]);
+    if (result.rows.length === 0) return null;
+    return this.sanitizeUser(this.formatUser(result.rows[0]));
   }
 
   /**
    * 更新用户信息
    */
   async updateUser(userId, updates) {
-    const index = this.users.findIndex(u => u.id === userId);
-    
-    if (index === -1) {
+    const protectedFields = ['id', 'password', 'role', 'created_at'];
+    const fields = [];
+    const values = [];
+
+    for (const [key, value] of Object.entries(updates)) {
+      if (protectedFields.includes(key)) continue;
+      const dbField = this.toSnakeCase(key);
+      fields.push(`${dbField} = ?`);
+      values.push(value);
+    }
+
+    if (fields.length === 0) {
+      throw new Error('没有可更新的字段');
+    }
+
+    fields.push('updated_at = datetime("now")');
+    values.push(userId);
+
+    await run(
+      `UPDATE users SET ${fields.join(', ')} WHERE id = ?`,
+      values
+    );
+
+    const result = await query('SELECT * FROM users WHERE id = ?', [userId]);
+    if (result.rows.length === 0) {
       throw new Error('用户不存在');
     }
 
-    // 不允许更新的字段
-    const protectedFields = ['id', 'password', 'role', 'createdAt'];
-    protectedFields.forEach(field => {
-      delete updates[field];
-    });
-
-    this.users[index] = {
-      ...this.users[index],
-      ...updates,
-      updatedAt: new Date().toISOString()
-    };
-
-    await this.saveUsers();
-
-    return this.sanitizeUser(this.users[index]);
+    return this.sanitizeUser(this.formatUser(result.rows[0]));
   }
 
   /**
    * 修改密码
    */
   async changePassword(userId, oldPassword, newPassword) {
-    const user = this.users.find(u => u.id === userId);
-    
-    if (!user) {
+    const result = await query('SELECT * FROM users WHERE id = ?', [userId]);
+    if (result.rows.length === 0) {
       throw new Error('用户不存在');
     }
 
-    // 验证旧密码
+    const user = this.formatUser(result.rows[0]);
     const isValid = await bcrypt.compare(oldPassword, user.password);
     if (!isValid) {
       throw new Error('旧密码错误');
     }
 
-    // 加密新密码
-    user.password = await bcrypt.hash(newPassword, 10);
-    user.updatedAt = new Date().toISOString();
-
-    await this.saveUsers();
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await run(
+      'UPDATE users SET password = ?, updated_at = datetime("now") WHERE id = ?',
+      [hashedPassword, userId]
+    );
 
     return true;
   }
@@ -220,15 +180,10 @@ class UserService {
    * 删除用户
    */
   async deleteUser(userId) {
-    const index = this.users.findIndex(u => u.id === userId);
-    
-    if (index === -1) {
+    const result = await run('DELETE FROM users WHERE id = ?', [userId]);
+    if (result.changes === 0) {
       throw new Error('用户不存在');
     }
-
-    this.users.splice(index, 1);
-    await this.saveUsers();
-
     return true;
   }
 
@@ -236,51 +191,54 @@ class UserService {
    * 增加诊断次数
    */
   async incrementDiagnosisCount(userId) {
-    const user = this.users.find(u => u.id === userId);
-    if (user) {
-      user.diagnosisCount++;
-      await this.saveUsers();
-    }
+    await run(
+      'UPDATE users SET diagnosis_count = diagnosis_count + 1 WHERE id = ?',
+      [userId]
+    );
   }
 
   /**
    * 增加收藏次数
    */
   async incrementFavoriteCount(userId) {
-    const user = this.users.find(u => u.id === userId);
-    if (user) {
-      user.favoriteCount++;
-      await this.saveUsers();
-    }
+    await run(
+      'UPDATE users SET favorite_count = favorite_count + 1 WHERE id = ?',
+      [userId]
+    );
   }
 
   /**
    * 减少收藏次数
    */
   async decrementFavoriteCount(userId) {
-    const user = this.users.find(u => u.id === userId);
-    if (user && user.favoriteCount > 0) {
-      user.favoriteCount--;
-      await this.saveUsers();
-    }
+    await run(
+      'UPDATE users SET favorite_count = MAX(favorite_count - 1, 0) WHERE id = ?',
+      [userId]
+    );
   }
 
   /**
    * 获取所有用户（管理员）
    */
-  getAllUsers() {
-    return this.users.map(u => this.sanitizeUser(u));
+  async getAllUsers() {
+    const result = await query('SELECT * FROM users ORDER BY created_at DESC');
+    return result.rows.map(user => this.sanitizeUser(this.formatUser(user)));
   }
 
   /**
    * 获取统计信息
    */
-  getStats() {
+  async getStats() {
+    const totalResult = await query('SELECT COUNT(*) as count FROM users');
+    const activeResult = await query('SELECT COUNT(*) as count FROM users WHERE is_active = 1');
+    const adminResult = await query('SELECT COUNT(*) as count FROM users WHERE role = ?', ['admin']);
+    const diagnosisResult = await query('SELECT COALESCE(SUM(diagnosis_count), 0) as count FROM users');
+
     return {
-      total: this.users.length,
-      active: this.users.filter(u => u.isActive).length,
-      admins: this.users.filter(u => u.role === 'admin').length,
-      totalDiagnoses: this.users.reduce((sum, u) => sum + u.diagnosisCount, 0)
+      total: parseInt(totalResult.rows[0].count),
+      active: parseInt(activeResult.rows[0].count),
+      admins: parseInt(adminResult.rows[0].count),
+      totalDiagnoses: parseInt(diagnosisResult.rows[0].count)
     };
   }
 
@@ -291,9 +249,32 @@ class UserService {
     const { password, ...sanitized } = user;
     return sanitized;
   }
+
+  /**
+   * 格式化用户数据
+   */
+  formatUser(row) {
+    return {
+      id: row.id,
+      username: row.username,
+      email: row.email,
+      password: row.password,
+      role: row.role,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      lastLoginAt: row.last_login_at,
+      diagnosisCount: row.diagnosis_count,
+      favoriteCount: row.favorite_count,
+      isActive: row.is_active === 1
+    };
+  }
+
+  /**
+   * camelCase 转 snake_case
+   */
+  toSnakeCase(str) {
+    return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+  }
 }
 
-// 单例模式
-const userService = new UserService();
-
-module.exports = userService;
+module.exports = new UserService();

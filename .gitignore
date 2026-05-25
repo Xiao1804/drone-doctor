@@ -39,3 +39,11 @@ coverage/
 *.tmp
 *.temp
 .cache/
+
+# WorkBuddy
+.workbuddy/
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3

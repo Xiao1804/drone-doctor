@@ -6,7 +6,7 @@ const historyService = require('../services/historyService');
 exports.getHistory = async (req, res) => {
   try {
     const { limit = 50, offset = 0 } = req.query;
-    const history = historyService.getUserHistory(req.userId, parseInt(limit), parseInt(offset));
+    const history = await historyService.getUserHistory(req.userId, parseInt(limit), parseInt(offset));
 
     res.json({
       success: true,

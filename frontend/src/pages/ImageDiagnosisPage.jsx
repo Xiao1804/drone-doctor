@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { apiUrl } from '../config/api'
 
 function ImageDiagnosisPage() {
   const [uploading, setUploading] = useState(false)
@@ -43,7 +44,7 @@ function ImageDiagnosisPage() {
       formData.append('image', file)
       formData.append('scenario', scenario)
 
-      const response = await axios.post('/api/image/recognize', formData, {
+      const response = await axios.post(apiUrl('/api/image/recognize'), formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },

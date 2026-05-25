@@ -74,8 +74,8 @@ exports.login = async (req, res) => {
  */
 exports.getCurrentUser = async (req, res) => {
   try {
-    const user = userService.getUser(req.userId);
-    
+    const user = await userService.getUser(req.userId);
+
     if (!user) {
       return res.status(404).json({ error: '用户不存在' });
     }
@@ -165,7 +165,7 @@ exports.deleteUser = async (req, res) => {
  */
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = userService.getAllUsers();
+    const users = await userService.getAllUsers();
 
     res.json({
       success: true,
@@ -184,7 +184,7 @@ exports.getAllUsers = async (req, res) => {
  */
 exports.getStats = async (req, res) => {
   try {
-    const stats = userService.getStats();
+    const stats = await userService.getStats();
 
     res.json({
       success: true,
@@ -202,8 +202,8 @@ exports.getStats = async (req, res) => {
  */
 exports.verifyToken = async (req, res) => {
   try {
-    const user = userService.getUser(req.userId);
-    
+    const user = await userService.getUser(req.userId);
+
     if (!user) {
       return res.status(404).json({ error: '用户不存在' });
     }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { apiUrl } from '../config/api'
 
 function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
@@ -25,7 +26,7 @@ function AuthPage() {
     setLoading(true)
 
     try {
-      const response = await axios.post('/api/user/login', {
+      const response = await axios.post(apiUrl('/api/user/login'), {
         usernameOrEmail: formData.username || formData.email,
         password: formData.password
       })
@@ -56,7 +57,7 @@ function AuthPage() {
     setLoading(true)
 
     try {
-      const response = await axios.post('/api/user/register', {
+      const response = await axios.post(apiUrl('/api/user/register'), {
         username: formData.username,
         email: formData.email,
         password: formData.password
