@@ -27,7 +27,7 @@ class HistoryService {
 
     await run(
       `INSERT INTO history (id, user_id, type, content, result, is_favorite, created_at)
-       VALUES (?, ?, ?, ?, ?, 0, datetime('now'))`,
+       VALUES (?, ?, ?, ?, ?, 0, CURRENT_TIMESTAMP)`,
       [id, userId, data.type, data.content, JSON.stringify(data.result)]
     );
 

@@ -30,7 +30,7 @@ class UserService {
 
     await run(
       `INSERT INTO users (id, username, email, password, role, created_at, updated_at, diagnosis_count, favorite_count, is_active)
-       VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'), 0, 0, 1)`,
+       VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, 0, 1)`,
       [userId, username, email, hashedPassword, role]
     );
 
@@ -61,7 +61,7 @@ class UserService {
     }
 
     await run(
-      'UPDATE users SET last_login_at = datetime("now") WHERE id = ?',
+      'UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?',
       [user.id]
     );
 
@@ -136,7 +136,7 @@ class UserService {
       throw new Error('没有可更新的字段');
     }
 
-    fields.push('updated_at = datetime("now")');
+    fields.push('updated_at = CURRENT_TIMESTAMP');
     values.push(userId);
 
     await run(
@@ -169,7 +169,7 @@ class UserService {
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await run(
-      'UPDATE users SET password = ?, updated_at = datetime("now") WHERE id = ?',
+      'UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
       [hashedPassword, userId]
     );
 
