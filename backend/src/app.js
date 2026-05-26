@@ -15,25 +15,42 @@ const historyRoutes = require('./routes/history');
 
 const app = express();
 
-// 中间件
+const DEFAULT_ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+const VERCEL_APP_ORIGIN = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i;
+
+function getAllowedOrigins() {
+  const configuredOrigins = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean);
+
+  return new Set([...DEFAULT_ALLOWED_ORIGINS, ...configuredOrigins]);
+}
+
+const allowedOrigins = getAllowedOrigins();
+const allowAllOrigins = allowedOrigins.has('*');
+
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    /^https://.*\.vercel\.app$/
-  ],
+  origin(origin, callback) {
+    if (!origin || allowAllOrigins || allowedOrigins.has(origin) || VERCEL_APP_ORIGIN.test(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(null, false);
+  },
   credentials: true
 }));
 app.use(express.json());
 
-// 限流
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15分钟
-  max: 100 // 限制100次请求
+  windowMs: 15 * 60 * 1000,
+  max: 100
 });
 app.use('/api/', limiter);
 
-// 路由
 app.use('/api/diagnosis', diagnosisRoutes);
 app.use('/api/knowledge', knowledgeRoutes);
 app.use('/api/caac', caacRoutes);
@@ -42,24 +59,23 @@ app.use('/api/image', imageRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/history', historyRoutes);
 
-// 健康检查
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// 错误处理
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
 const PORT = process.env.PORT || 3000;
+const HOST = '0.0.0.0';
 
 async function startServer() {
   try {
     await initDatabase();
-    app.listen(PORT, () => {
-      console.log(`DroneDoctor API running on port ${PORT}`);
+    app.listen(PORT, HOST, () => {
+      console.log(`DroneDoctor API running on ${HOST}:${PORT}`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);

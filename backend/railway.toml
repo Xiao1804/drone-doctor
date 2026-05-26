@@ -1,6 +1,5 @@
 [build]
 builder = "nixpacks"
-buildContext = "backend"
 
 [deploy]
 startCommand = "npm start"

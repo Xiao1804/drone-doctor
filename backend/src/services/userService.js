@@ -26,7 +26,7 @@ class UserService {
     const hashedPassword = await bcrypt.hash(password, 10);
     const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const userCount = await query('SELECT COUNT(*) as count FROM users');
-    const role = userCount.rows[0].count === 0 ? 'admin' : 'user';
+    const role = Number(userCount.rows[0].count) === 0 ? 'admin' : 'user';
 
     await run(
       `INSERT INTO users (id, username, email, password, role, created_at, updated_at, diagnosis_count, favorite_count, is_active)
@@ -212,7 +212,7 @@ class UserService {
    */
   async decrementFavoriteCount(userId) {
     await run(
-      'UPDATE users SET favorite_count = MAX(favorite_count - 1, 0) WHERE id = ?',
+      'UPDATE users SET favorite_count = CASE WHEN favorite_count > 0 THEN favorite_count - 1 ELSE 0 END WHERE id = ?',
       [userId]
     );
   }

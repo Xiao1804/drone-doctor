@@ -1,186 +1,96 @@
-# DroneDoctor 部署指南
+# DroneDoctor 上线指南：Vercel + Railway
 
-## 架构
+本项目采用前后端分离部署：
 
-```
-外网用户 → Vercel（前端） → Railway（后端 + 数据库）
-```
+- 前端：Vercel，Root Directory 选择 `frontend`
+- 后端：Railway，Root Directory 选择 `backend`
+- 数据库：Railway PostgreSQL
 
----
+## 1. 部署后端到 Railway
 
-## 方案一：Railway PostgreSQL（推荐）
-
-Railway 免费计划提供 500MB PostgreSQL，数据持久化有保障。
-
-### 1. 后端部署到 Railway
-
-#### 1.1 准备工作
-
-确保代码已提交到 GitHub（Railway 从 GitHub 部署）。
-
-#### 1.2 创建 Railway 项目
-
-1. 访问 https://railway.app/
-2. 用 GitHub 登录
-3. 点击 "New Project" → "Deploy from GitHub repo"
-4. 选择你的 DroneDoctor 仓库
-
-#### 1.3 添加 PostgreSQL 数据库
-
-1. 在项目里点击 "New" → "Database" → "Add PostgreSQL"
-2. 等待数据库创建完成
-3. 点击 PostgreSQL 服务 → "Connect" 标签
-4. 复制 `DATABASE_URL`（格式：`postgresql://...`）
-
-#### 1.4 配置环境变量
-
-在后端服务（不是 PostgreSQL）里添加环境变量：
-
-```
-DATABASE_URL=postgresql://...  （从上面复制的）
-JWT_SECRET=你的随机字符串（至少32位）
-KIMI_API_KEY=sk-...
-QWEN_API_KEY=sk-...
-NODE_ENV=production
-PORT=3000
-```
-
-**注意**：`DATABASE_URL` 用 Railway 提供的，不要用本地的。
-
-#### 1.5 修改后端适配 PostgreSQL
-
-当前代码是 SQLite 版本，需要改回 PostgreSQL 语法：
-
-1. 把 `backend/src/db.js` 改回 `pg` 版本（之前备份过）
-2. 把 `backend/src/services/userService.js` 中的 `?` 占位符改为 `$1, $2...`
-3. 把 `backend/src/services/historyService.js` 同样修改
-
-或者更简单：直接切换分支 / 回滚到 PostgreSQL 版本。
-
-#### 1.6 部署
-
-1. Railway 会自动检测 `railway.toml` 并部署
-2. 等待部署完成，获得公网 URL（如 `https://drone-doctor-api.up.railway.app`）
-
----
-
-### 2. 前端部署到 Vercel
-
-#### 2.1 准备环境变量文件
-
-在前端目录创建 `.env.production`：
+1. 将代码推送到 GitHub。
+2. 在 Railway 新建项目，选择 `Deploy from GitHub repo`。
+3. 服务设置里把 `Root Directory` 设为 `backend`。
+4. 添加一个 PostgreSQL 数据库。
+5. 在后端服务里配置环境变量：
 
 ```env
-VITE_API_BASE_URL=https://你的-railway-后端地址.up.railway.app
+NODE_ENV=production
+JWT_SECRET=replace-with-a-random-string-at-least-32-chars
+DATABASE_URL=${{Postgres.DATABASE_URL}}
+ALLOWED_ORIGINS=https://your-vercel-app.vercel.app
+QWEN_API_KEY=your_qwen_api_key
+KIMI_API_KEY=your_kimi_api_key
 ```
 
-**注意**：不要把这个文件提交到 Git！添加到 `.gitignore`：
+可选变量：
 
+```env
+QWEN_API_BASE=https://dashscope.aliyuncs.com/compatible-mode/v1
+QWEN_MODEL=qwen-plus
+QWEN_VISION_MODEL=qwen-vl-plus
+KIMI_API_BASE=https://api.moonshot.cn/v1
+KIMI_MODEL=moonshot-v1-8k
+BAIDU_API_KEY=your_baidu_api_key
+BAIDU_SECRET_KEY=your_baidu_secret_key
 ```
-.env.production
+
+说明：
+
+- 不需要手动设置 `PORT`，Railway 会自动注入，后端会读取 `process.env.PORT`。
+- `backend/railway.toml` 已配置 `npm start` 和 `/health` 健康检查。
+- 部署成功后，先访问 `https://your-railway-domain/health`，看到 `status: ok` 再继续前端部署。
+
+## 2. 部署前端到 Vercel
+
+1. 在 Vercel 导入同一个 GitHub 仓库。
+2. `Root Directory` 选择 `frontend`。
+3. Framework Preset 选择 `Vite`。
+4. Build Command 使用 `npm run build`。
+5. Output Directory 使用 `dist`。
+6. 配置环境变量：
+
+```env
+VITE_API_BASE_URL=https://your-railway-domain.up.railway.app
 ```
 
-#### 2.2 Vercel 部署
+说明：
 
-1. 访问 https://vercel.com/
-2. 用 GitHub 登录
-3. 点击 "Add New Project"
-4. 选择 DroneDoctor 仓库
-5. **Root Directory** 填 `frontend`
-6. **Framework Preset** 选 `Vite`
-7. **Build Command** 保持默认 `vite build`
-8. **Output Directory** 保持默认 `dist`
-9. **Environment Variables** 添加：`VITE_API_BASE_URL=https://你的-railway-地址.up.railway.app`
-10. 点击 Deploy
+- `VITE_API_BASE_URL` 不要以 `/` 结尾，代码也会自动去掉尾部 `/`。
+- `frontend/vercel.json` 已配置 SPA 回退，刷新 `/history`、`/profile` 等页面不会 404。
 
-#### 2.3 验证
+## 3. 上线验收
 
-部署完成后获得 Vercel 域名（如 `https://drone-doctor.vercel.app`），打开测试功能。
+按顺序检查：
 
----
+- Railway 后端 `/health` 返回 `status: ok`
+- Vercel 首页可以打开
+- 直接访问或刷新 `/auth`、`/history`、`/profile` 不返回 404
+- 注册第一个用户后，该用户成为管理员
+- 登录成功后能进入个人资料页
+- AI 诊断接口可以返回结果
+- 历史记录可以保存和读取
+- 浏览器 Network 面板没有 CORS 报错
 
-## 方案二：Railway + SQLite（简单但不持久）
+## 4. 本地开发
 
-如果嫌 PostgreSQL 麻烦，可以继续用 SQLite，但要接受**数据在容器重启后会丢失**。
-
-适合：演示、测试、个人使用（用户不多）
-
-### 部署步骤
-
-1. 按上面的步骤部署后端到 Railway
-2. 环境变量里**不要**设 `DATABASE_URL`，让 SQLite 用默认路径
-3. 前端部署步骤相同
-4. **风险**：每次重新部署 / 容器重启，用户数据清零
-
-### 缓解方案
-
-- 定期导出数据库备份
-- 重要数据及时迁移到 PostgreSQL
-
----
-
-## 方案三：Render（免费 PostgreSQL + 持久化）
-
-Render 提供免费的 PostgreSQL（90天有效期，可续期），且文件系统有持久化。
-
-1. 访问 https://render.com/
-2. 创建 Web Service（后端）
-3. 创建 PostgreSQL 数据库
-4. 配置环境变量
-5. 前端仍部署到 Vercel
-
----
-
-## 环境变量清单
-
-### 后端（Railway / Render）
-
-| 变量名 | 说明 | 示例 |
-|--------|------|------|
-| `DATABASE_URL` | PostgreSQL 连接字符串 | `postgresql://user:pass@host:5432/db` |
-| `JWT_SECRET` | JWT 签名密钥 | `your-secret-key-at-least-32-chars` |
-| `KIMI_API_KEY` | Kimi AI API Key | `sk-kimi-...` |
-| `QWEN_API_KEY` | 通义千问 API Key | `sk-sp-...` |
-| `NODE_ENV` | 环境标识 | `production` |
-| `PORT` | 服务端口 | `3000` |
-
-### 前端（Vercel）
-
-| 变量名 | 说明 | 示例 |
-|--------|------|------|
-| `VITE_API_BASE_URL` | 后端 API 地址 | `https://api.example.com` |
-
----
-
-## 部署验证清单
-
-- [ ] 后端健康检查 `/health` 返回 `{"status":"ok"}`
-- [ ] 用户注册正常
-- [ ] 用户登录正常
-- [ ] AI 诊断正常
-- [ ] 历史记录保存正常
-- [ ] 前端页面加载正常
-- [ ] 跨域请求无报错（浏览器 Network 面板）
-
----
-
-## 回滚方案
-
-如果部署失败，本地代码随时可以跑：
+后端本地默认使用 SQLite，不需要配置 `DATABASE_URL`：
 
 ```bash
-cd backend && npm run dev
-cd frontend && npm run dev
+cd backend
+npm install
+npm run dev
 ```
 
----
+前端本地通过 Vite proxy 请求后端：
 
-## 费用预估
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-| 平台 | 服务 | 免费额度 | 超出后 |
-|------|------|----------|--------|
-| Vercel | 前端托管 | 100GB 带宽/月 | $0.40/GB |
-| Railway | 后端 + PostgreSQL | $5/月 免费额度 | 按用量 |
-| Render | Web Service | 750 小时/月 | $7/月起 |
+本地访问：
 
-**MVP 阶段**：Vercel + Railway 免费额度足够用。
+- 前端：`http://localhost:5173`
+- 后端健康检查：`http://localhost:3000/health`
