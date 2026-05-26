@@ -1,7 +1,7 @@
 const fs = require('fs').promises;
-const path = require('path');
+const { resolveFaultCasesFile } = require('../utils/faultCasesFile');
 
-const CASES_FILE = path.join(__dirname, '../../../data/fault-cases-enhanced.json');
+const CASES_FILE = resolveFaultCasesFile();
 
 /**
  * 获取所有案例

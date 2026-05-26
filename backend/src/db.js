@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 
 // 根据环境变量选择数据库
@@ -18,6 +19,7 @@ if (DATABASE_URL) {
   // 开发环境：SQLite
   const sqlite3 = require('sqlite3').verbose();
   const DB_PATH = process.env.SQLITE_PATH || path.join(__dirname, '../../data/dronedoctor.db');
+  fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
   db = new sqlite3.Database(DB_PATH, (err) => {
     if (err) {
       console.error('SQLite connection failed:', err);

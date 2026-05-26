@@ -1,14 +1,16 @@
 const axios = require('axios');
 const fs = require('fs').promises;
-const path = require('path');
 const sessionService = require('../services/sessionService');
+const { resolveFaultCasesFile } = require('../utils/faultCasesFile');
+
+const FAULT_CASES_FILE = resolveFaultCasesFile();
 
 // 加载故障案例库
 let faultCases = [];
 const loadFaultCases = async () => {
   try {
     const data = await fs.readFile(
-      path.join(__dirname, '../../../data/fault-cases-enhanced.json'),
+      FAULT_CASES_FILE,
       'utf-8'
     );
     const allCases = JSON.parse(data);
