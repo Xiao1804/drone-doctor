@@ -171,7 +171,7 @@ function ConversationPage() {
           {sessionId && (
             <div className="flex items-center gap-4">
               <div className="text-sm text-gray-600">
-                第 {currentRound} / 3 轮
+                第 {currentRound} 轮
               </div>
               <button
                 onClick={restart}

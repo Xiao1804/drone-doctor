@@ -24,7 +24,7 @@ class SessionService {
       lastActivityAt: Date.now(),
       conversationHistory: [], // 对话历史
       currentRound: 0, // 当前轮次
-      maxRounds: 3, // 最多3轮追问
+      maxRounds: 15, // 最多15轮追问，AI会根据信息充分性自行决定何时结束
       diagnosisResult: null, // 最终诊断结果
       status: 'active' // active | completed | expired
     };

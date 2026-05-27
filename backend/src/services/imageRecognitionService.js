@@ -12,6 +12,9 @@ class ImageRecognitionService {
     this.qwenApiKey = process.env.QWEN_API_KEY;
     this.qwenApiBase = process.env.QWEN_API_BASE || 'https://coding.dashscope.aliyuncs.com/v1';
     this.qwenVisionModel = process.env.QWEN_VISION_MODEL || 'qwen-vl-max'; // 通义千问视觉模型
+    this.kimiApiKey = process.env.KIMI_API_KEY;
+    this.kimiApiBase = process.env.KIMI_API_BASE || 'https://api.moonshot.cn/v1';
+    this.kimiVisionModel = process.env.KIMI_VISION_MODEL || 'moonshot-v1-32k-vision-preview';
   }
 
   /**
@@ -21,8 +24,8 @@ class ImageRecognitionService {
    * @returns {Object} 识别结果
    */
   async recognizeImage(imagePath, scenario = 'fault') {
-    if (!this.qwenApiKey) {
-      throw new Error('未配置通义千问API Key');
+    if (!this.qwenApiKey && !this.kimiApiKey) {
+      throw new Error('未配置图片识别API Key。请在环境变量中设置 QWEN_API_KEY 或 KIMI_API_KEY。');
     }
 
     try {
@@ -34,45 +37,83 @@ class ImageRecognitionService {
       // 根据场景构建prompt
       const prompt = this.buildPrompt(scenario);
       
-      // 调用通义千问VL API (使用原生API格式)
-      const response = await axios.post(
-        'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation',
-        {
-          model: this.qwenVisionModel,
-          input: {
-            messages: [
-              {
-                role: 'user',
-                content: [
-                  {
-                    image: `data:${mimeType};base64,${base64Image}`
-                  },
-                  {
-                    text: prompt
-                  }
-                ]
-              }
-            ]
-          }
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.qwenApiKey}`
-          },
-          timeout: 60000 // 60秒超时
-        }
-      );
-
-      const result = response.data.output.choices[0].message.content[0].text;
-      
-      // 解析识别结果
-      return this.parseResult(result, scenario);
+      // 优先使用通义千问VL API，否则使用Kimi Vision API
+      if (this.qwenApiKey) {
+        return await this.recognizeWithQwen(base64Image, mimeType, prompt, scenario);
+      } else {
+        return await this.recognizeWithKimi(base64Image, mimeType, prompt, scenario);
+      }
 
     } catch (error) {
       console.error('Image recognition error:', error.response?.data || error.message);
       throw new Error('图片识别失败: ' + (error.response?.data?.message || error.message));
     }
+  }
+
+  /**
+   * 使用通义千问VL API识别图片
+   */
+  async recognizeWithQwen(base64Image, mimeType, prompt, scenario) {
+    const response = await axios.post(
+      'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation',
+      {
+        model: this.qwenVisionModel,
+        input: {
+          messages: [
+            {
+              role: 'user',
+              content: [
+                { image: `data:${mimeType};base64,${base64Image}` },
+                { text: prompt }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.qwenApiKey}`
+        },
+        timeout: 60000
+      }
+    );
+
+    const result = response.data.output.choices[0].message.content[0].text;
+    return this.parseResult(result, scenario);
+  }
+
+  /**
+   * 使用Kimi Vision API识别图片
+   */
+  async recognizeWithKimi(base64Image, mimeType, prompt, scenario) {
+    const response = await axios.post(
+      `${this.kimiApiBase}/chat/completions`,
+      {
+        model: this.kimiVisionModel,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64Image}` } },
+              { type: 'text', text: prompt }
+            ]
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 2000
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.kimiApiKey}`
+        },
+        timeout: 60000
+      }
+    );
+
+    const result = response.data.choices[0].message.content;
+    return this.parseResult(result, scenario);
   }
 
   /**

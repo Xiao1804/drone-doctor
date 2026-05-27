@@ -574,7 +574,7 @@ exports.startConversation = async (req, res) => {
         question: inquiryResponse.followUp.question, // 再追问
         options: inquiryResponse.followUp.options,
         currentRound: 1,
-        maxRounds: 3,
+        maxRounds: 15,
         intent: 'inquiry' // 标记意图类型
       });
 
@@ -596,7 +596,7 @@ exports.startConversation = async (req, res) => {
         question: question.question,
         options: question.options,
         currentRound: 1,
-        maxRounds: 3,
+        maxRounds: 15,
         intent: 'diagnosis' // 标记意图类型
       });
     }
@@ -645,6 +645,29 @@ exports.continueConversation = async (req, res) => {
         session.conversationHistory
       );
 
+      // AI 判断信息足够，直接给出诊断
+      if (question.shouldDiagnose && question.diagnosis) {
+        const diagnosis = question.diagnosis;
+
+        sessionService.addMessage(sessionId, {
+          role: 'assistant',
+          content: JSON.stringify(diagnosis),
+          type: 'diagnosis'
+        });
+
+        sessionService.setDiagnosisResult(sessionId, diagnosis);
+
+        res.json({
+          success: true,
+          sessionId,
+          diagnosis,
+          currentRound: session.currentRound + 1,
+          maxRounds: 15,
+          status: 'completed'
+        });
+        return;
+      }
+
       sessionService.addMessage(sessionId, {
         role: 'assistant',
         content: question.question,
@@ -658,7 +681,7 @@ exports.continueConversation = async (req, res) => {
         question: question.question,
         options: question.options,
         currentRound: session.currentRound + 1,
-        maxRounds: 3,
+        maxRounds: 15,
         status: 'continue'
       });
 
@@ -679,7 +702,7 @@ exports.continueConversation = async (req, res) => {
         sessionId,
         diagnosis,
         currentRound: session.currentRound,
-        maxRounds: 3,
+        maxRounds: 15,
         status: 'completed'
       });
     }
@@ -1026,20 +1049,35 @@ async function generateFollowUpQuestion(sessionId, symptom, model, matchedCases,
     const qwenModel = process.env.QWEN_MODEL || 'qwen3.5-plus';
 
     // 构建prompt
-    let prompt = `你是一位专业的无人机故障诊断专家。用户描述了故障现象，请根据对话历史生成一个追问问题。
+    let prompt = `你是一位专业的无人机故障诊断专家。用户描述了故障现象，请根据对话历史判断：
 
 对话历史:
 ${conversationHistory.length > 0 ? conversationHistory.map(msg => `${msg.role === 'user' ? '用户' : 'AI'}: ${msg.content}`).join('\n') : `用户: ${symptom}`}
 
-请生成一个追问问题，帮助缩小故障范围。问题应该：
-1. 针对性强，能够帮助排除或确认某些故障原因
-2. 简洁明了，用户容易回答
-3. 提供2-4个预设选项，方便用户快速选择
+判断规则：
+1. 如果对话历史已经包含足够信息来做确诊（已了解品牌型号、故障现象、发生环境、用户已尝试的排查步骤等），请直接给出诊断结果，不要再追问。
+2. 如果信息还不够，请生成一个精准的追问问题，帮助排除或确认故障原因。
 
-请输出JSON格式:
+追问问题要求：
+- 针对性强，每个问题能帮助排除或确认某些故障原因
+- 简洁明了，用户容易回答
+- 提供2-4个预设选项，方便用户快速选择
+- 避免重复提问已经问过的问题
+
+输出JSON格式:
 {
-  "question": "你的问题",
-  "options": ["选项1", "选项2", "选项3"]
+  "shouldDiagnose": false, // true表示信息足够，直接给出诊断；false表示继续追问
+  "question": "追问问题（shouldDiagnose为false时必填）",
+  "options": ["选项1", "选项2", "选项3"],
+  "diagnosis": { // shouldDiagnose为true时必填，诊断结果格式
+    "faultType": "故障类型",
+    "possibleCauses": [{"cause": "原因", "probability": "概率", "description": "描述"}],
+    "steps": [{"step": 1, "operation": "操作", "criteria": "判断标准", "solution": "解决方案", "tools": [], "estimatedTime": "预计时间"}],
+    "requiredTools": ["工具列表"],
+    "totalEstimatedTime": "总预计时间",
+    "difficulty": "难度等级",
+    "needProfessionalRepair": true/false
+  }
 }`;
 
     const response = await axios.post(
