@@ -25,6 +25,7 @@ services:
       NODE_ENV: production
       PORT: 3000
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      PGSSLMODE: disable
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env.tencent}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
       UPLOAD_DIR: /app/uploads

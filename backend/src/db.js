@@ -9,9 +9,11 @@ let isPostgres = false;
 if (DATABASE_URL) {
   // 生产环境：PostgreSQL
   const { Pool } = require('pg');
+  const pgSslMode = (process.env.PGSSLMODE || '').toLowerCase();
+  const usePostgresSsl = !['disable', 'false', '0', 'no'].includes(pgSslMode);
   db = new Pool({
     connectionString: DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
+    ssl: usePostgresSsl ? { rejectUnauthorized: false } : false
   });
   isPostgres = true;
   console.log('Using PostgreSQL database');
