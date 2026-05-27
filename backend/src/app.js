@@ -20,6 +20,7 @@ const DEFAULT_ALLOWED_ORIGINS = [
   'http://localhost:3000'
 ];
 const VERCEL_APP_ORIGIN = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i;
+const RENDER_APP_ORIGIN = /^https:\/\/[a-z0-9-]+\.onrender\.com$/i;
 
 function getAllowedOrigins() {
   const configuredOrigins = (process.env.ALLOWED_ORIGINS || '')
@@ -35,7 +36,7 @@ const allowAllOrigins = allowedOrigins.has('*');
 
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || allowAllOrigins || allowedOrigins.has(origin) || VERCEL_APP_ORIGIN.test(origin)) {
+    if (!origin || allowAllOrigins || allowedOrigins.has(origin) || VERCEL_APP_ORIGIN.test(origin) || RENDER_APP_ORIGIN.test(origin)) {
       return callback(null, true);
     }
 
