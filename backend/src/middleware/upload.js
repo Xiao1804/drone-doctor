@@ -5,7 +5,9 @@ const fs = require('fs').promises;
 // 配置multer存储
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '../../../uploads');
+    const uploadDir = process.env.UPLOAD_DIR
+      ? path.resolve(process.env.UPLOAD_DIR)
+      : path.join(__dirname, '../../../uploads');
     // 确保上传目录存在
     fs.mkdir(uploadDir, { recursive: true })
       .then(() => cb(null, uploadDir))

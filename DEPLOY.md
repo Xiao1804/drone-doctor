@@ -1,5 +1,7 @@
 # DroneDoctor 上线指南：Vercel + Railway
 
+> 国内手机稳定访问建议改用腾讯云单服务器部署，见 [TENCENT_DEPLOY.md](./TENCENT_DEPLOY.md)。
+
 本项目采用前后端分离部署：
 
 - 前端：Vercel，Root Directory 选择 `frontend`
