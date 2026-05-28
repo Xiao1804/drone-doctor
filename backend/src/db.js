@@ -131,6 +131,14 @@ async function initDatabase() {
     await db.query(`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`);
     await db.query(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
 
+    // 初始化向量表（Phase 1 新增）
+    try {
+      const { initVectorTables } = require('./services/vectorService');
+      await initVectorTables();
+    } catch (err) {
+      console.warn('[Init] Vector tables init skipped:', err.message);
+    }
+
     console.log('PostgreSQL database initialized successfully');
   } else {
     // SQLite 初始化

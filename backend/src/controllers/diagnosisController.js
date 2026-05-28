@@ -2,6 +2,8 @@ const axios = require('axios');
 const fs = require('fs').promises;
 const sessionService = require('../services/sessionService');
 const { resolveFaultCasesFile } = require('../utils/faultCasesFile');
+const { generateEmbedding } = require('../services/embeddingService');
+const { searchSimilarCases } = require('../services/vectorService');
 
 const FAULT_CASES_FILE = resolveFaultCasesFile();
 
@@ -38,7 +40,7 @@ const loadFaultCases = async () => {
 // 初始化时加载
 loadFaultCases();
 
-// AI诊断
+// AI诊断（Phase 1: 语义检索增强版）
 exports.diagnose = async (req, res) => {
   try {
     const { symptom, model, context } = req.body;
@@ -52,14 +54,47 @@ exports.diagnose = async (req, res) => {
       await loadFaultCases();
     }
 
-    // 1. 智能案例匹配（含同义词扩展和模糊匹配）
     console.log('Input symptom:', symptom);
-    
-    const matchedResults = matchCasesSmart(symptom, faultCases);
-    const matchedCases = matchedResults.map(r => r.case);
-    
+
+    // ========== 1. 语义检索（Phase 1 新增）==========
+    let semanticMatches = [];
+    let matchedResults = [];
+    let useSemanticSearch = false;
+
+    try {
+      // 生成用户输入的 embedding
+      const queryEmbedding = await generateEmbedding(symptom);
+      // 语义检索
+      semanticMatches = await searchSimilarCases(queryEmbedding, 5);
+
+      if (semanticMatches.length > 0) {
+        useSemanticSearch = true;
+        console.log(`[Semantic] Found ${semanticMatches.length} matches:`);
+        semanticMatches.forEach(m => {
+          console.log(`  [${(m.similarity * 100).toFixed(0)}%] ${m.case_id}: ${m.content.substring(0, 50)}...`);
+        });
+
+        // 将语义检索结果转为 matchedResults 格式（兼容原有逻辑）
+        matchedResults = semanticMatches.map(m => {
+          const caseData = faultCases.find(c => c.id === m.case_id);
+          return {
+            case: caseData || { id: m.case_id, symptom: m.content, faultType: m.metadata?.faultType || '未知' },
+            score: m.similarity,
+            reason: `语义相似度: ${(m.similarity * 100).toFixed(0)}%`
+          };
+        }).filter(r => r.case); // 过滤掉找不到的案例
+      }
+    } catch (semanticErr) {
+      console.warn('[Semantic] Semantic search failed, falling back to keyword:', semanticErr.message);
+    }
+
+    // ========== 2. 关键词匹配 Fallback ==========
+    if (matchedResults.length === 0) {
+      matchedResults = matchCasesSmart(symptom, faultCases);
+      console.log(`[Keyword] Smart matched ${matchedResults.length} cases`);
+    }
+
     if (matchedResults.length > 0) {
-      console.log(`Smart matched ${matchedResults.length} cases:`);
       matchedResults.slice(0, 5).forEach(r => {
         console.log(`  [${(r.score * 100).toFixed(0)}%] ${r.case.id}: ${r.case.symptom} (${r.reason})`);
       });
@@ -67,15 +102,26 @@ exports.diagnose = async (req, res) => {
       console.log('No cases matched');
     }
 
-    // 2. 调用AI API（优先Kimi，带重试机制）
+    // ========== 3. 调用AI API（带推理链 CoT）==========
     const aiResponse = await callBaiduAI(symptom, model, context, matchedResults);
 
-    // 3. 返回诊断结果
+    // ========== 4. 计算置信度 ==========
+    const confidence = calculateConfidence(symptom, matchedResults, aiResponse);
+
+    // ========== 5. 返回诊断结果 ==========
     res.json({
       success: true,
       diagnosis: aiResponse,
       matchedCasesCount: matchedResults.length,
       topMatchScore: matchedResults[0]?.score || 0,
+      semanticMatches: semanticMatches.map(m => ({
+        caseId: m.case_id,
+        content: m.content.substring(0, 100),
+        similarity: Math.round(m.similarity * 100) / 100,
+        metadata: m.metadata
+      })),
+      confidence: Math.round(confidence * 100) / 100,
+      searchMethod: useSemanticSearch ? 'semantic' : 'keyword',
       timestamp: new Date().toISOString()
     });
 
@@ -84,6 +130,37 @@ exports.diagnose = async (req, res) => {
     res.status(500).json({ error: '诊断失败，请稍后重试' });
   }
 };
+
+/**
+ * 计算诊断置信度
+ * 基于：案例匹配质量 + AI输出完整性 + 症状描述丰富度
+ */
+function calculateConfidence(symptom, matchedResults, aiResponse) {
+  let score = 0.5; // 基础分
+
+  // 1. 案例匹配质量（最高+0.3）
+  if (matchedResults.length > 0) {
+    const topScore = matchedResults[0].score;
+    if (topScore >= 0.9) score += 0.3;
+    else if (topScore >= 0.7) score += 0.2;
+    else if (topScore >= 0.5) score += 0.1;
+  }
+
+  // 2. AI输出完整性（最高+0.1）
+  if (aiResponse.possibleCauses && aiResponse.possibleCauses.length >= 3) {
+    score += 0.05;
+  }
+  if (aiResponse.steps && aiResponse.steps.length >= 3) {
+    score += 0.05;
+  }
+
+  // 3. 症状描述丰富度（最高+0.1）
+  const symptomLen = symptom.length;
+  if (symptomLen >= 20) score += 0.1;
+  else if (symptomLen >= 10) score += 0.05;
+
+  return Math.min(score, 1.0);
+}
 
 // ========== 同义词映射表 ==========
 const SYNONYM_MAP = {
@@ -471,17 +548,16 @@ ${brandInfo ? `- 品牌识别: ${brandInfo.brand}（${brandInfo.description}）`
   return prompt;
 }
 
-// 构建Prompt V2（优化版：分离system/user，添加CoT，结构化参考案例）
+// 构建Prompt V2（Phase 1增强版：分离system/user，添加CoT推理链，结构化参考案例）
 function buildPromptV2(symptom, model, context, matchedCases) {
   const brandInfo = identifyBrand(symptom, model);
   
   // 构建参考案例文本（带匹配分数排序）
   let casesText = '';
   if (matchedCases.length > 0) {
-    // matchedCases 现在可能是 {case, score, reason} 对象或原始 case 对象
     const topCases = matchedCases.slice(0, 3);
     casesText = topCases.map((item, index) => {
-      const c = item.case || item; // 兼容新旧格式
+      const c = item.case || item;
       const score = item.score ? `（匹配度${(item.score * 100).toFixed(0)}%）` : '';
       return `
 案例${index + 1}${score}:
@@ -507,7 +583,8 @@ function buildPromptV2(symptom, model, context, matchedCases) {
 - 概率用百分比表示（如"80%"）
 - 排查步骤中的estimatedTime用"X分钟"格式
 - difficulty用数字1-5表示
-- needProfessionalRepair用布尔值true/false`;
+- needProfessionalRepair用布尔值true/false
+- thinking字段必须包含你的推理过程（3-5句话）`;
 
   const userPrompt = `请对以下无人机故障进行专业诊断。
 
@@ -520,14 +597,20 @@ ${brandInfo ? `- 品牌识别: ${brandInfo.brand}（${brandInfo.description}）`
 ${casesText ? `【参考案例库】\n${casesText}\n` : ''}
 
 【诊断流程】
-请先在心里分析：
+请先在心里分析（这些分析要写在 thinking 字段中）：
 1. 这是什么品牌/型号的无人机？该品牌有什么常见故障模式？
 2. 这个故障现象最可能涉及哪个系统？
-3. 参考案例中的故障与用户描述是否相似？
-4. 用户可能的动手能力和工具有哪些？
+3. 参考案例中的故障与用户描述是否相似？相似度如何？
+4. 如果参考案例和用户描述有差异，差异点是什么？
+5. 综合判断：最可能的故障原因是什么？置信度如何？
 
 然后输出以下JSON格式的诊断结果：
 {
+  "thinking": [
+    "推理步骤1：...",
+    "推理步骤2：...",
+    "推理步骤3：..."
+  ],
   "brand": "识别出的品牌（如不确定填\"未知\"）",
   "model": "识别出的型号（如不确定填\"未知\"）",
   "faultType": "故障类型（动力系统/导航系统/图传系统/云台系统/电源系统/传感器系统/遥控器系统/其他）",
@@ -659,6 +742,7 @@ function parseAIResponse(aiResult) {
 // 创建默认响应结构
 function createDefaultResponse(rawResponse) {
   return {
+    thinking: ['无法解析AI返回内容，使用默认响应'],
     brand: '未知',
     model: '未知',
     faultType: '未知',
@@ -678,11 +762,12 @@ function createDefaultResponse(rawResponse) {
   };
 }
 
-// 规范化诊断响应（补全缺失字段）
+// 规范化诊断响应（补全缺失字段，保留thinking）
 function normalizeDiagnosisResponse(parsed, rawResponse) {
   const defaults = createDefaultResponse(rawResponse);
   
   const normalized = {
+    thinking: Array.isArray(parsed.thinking) ? parsed.thinking : (parsed.thinking ? [parsed.thinking] : ['根据案例库和用户描述进行分析']),
     brand: parsed.brand || parsed.品牌 || defaults.brand,
     model: parsed.model || parsed.型号 || defaults.model,
     faultType: parsed.faultType || parsed.fault_type || parsed.故障类型 || defaults.faultType,
