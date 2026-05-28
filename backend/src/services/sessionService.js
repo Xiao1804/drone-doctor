@@ -24,9 +24,17 @@ class SessionService {
       lastActivityAt: Date.now(),
       conversationHistory: [], // 对话历史
       currentRound: 0, // 当前轮次
-      maxRounds: 15, // 最多15轮追问，AI会根据信息充分性自行决定何时结束
+      maxRounds: 10, // 最多10轮追问（优化后缩短，防止废话过多）
       diagnosisResult: null, // 最终诊断结果
-      status: 'active' // active | completed | expired
+      status: 'active', // active | completed | expired
+      // 新增：结构化信息收集清单
+      infoChecklist: {
+        brand: { collected: false, value: null, question: '请问您的无人机品牌是什么？', options: ['大疆(DJI)', '道通(Autel)', '极飞(XAG)', '其他品牌'] },
+        model: { collected: false, value: null, question: '请问具体型号是什么？', options: [] }, // 选项根据品牌动态填充
+        symptom: { collected: false, value: null, question: '请描述故障现象', options: [] },
+        environment: { collected: false, value: null, question: '故障是在什么环境下出现的？', options: ['室内', '空旷户外', '高楼密集区', '山区/树林', '其他'] },
+        attempted: { collected: false, value: null, question: '您已经尝试过哪些排查步骤？', options: ['重启设备', '重新校准', '更换电池', '更新固件', '未尝试'] }
+      }
     };
     
     this.sessions.set(sessionId, session);
@@ -53,6 +61,89 @@ class SessionService {
     }
     
     return session;
+  }
+
+  /**
+   * 更新信息收集清单
+   * @param {string} sessionId 
+   * @param {string} field 字段名
+   * @param {any} value 值
+   */
+  updateInfoChecklist(sessionId, field, value) {
+    const session = this.getSession(sessionId);
+    if (!session || !session.infoChecklist[field]) return null;
+    
+    session.infoChecklist[field].collected = true;
+    session.infoChecklist[field].value = value;
+    session.lastActivityAt = Date.now();
+    
+    // 如果品牌已收集，更新型号选项
+    if (field === 'brand') {
+      const brandModelMap = {
+        '大疆(DJI)': ['Mavic 3', 'Air 3', 'Mini 4 Pro', 'Phantom 4', 'Inspire 3', 'T40', '其他型号'],
+        '道通(Autel)': ['EVO II', 'EVO Nano', 'EVO Lite', '其他型号'],
+        '极飞(XAG)': ['P100', 'P80', 'V40', '其他型号'],
+        '其他品牌': ['请手动输入']
+      };
+      session.infoChecklist.model.options = brandModelMap[value] || ['请手动输入'];
+    }
+    
+    return session;
+  }
+
+  /**
+   * 获取下一个需要收集的信息
+   * @param {string} sessionId 
+   * @returns {Object|null} {field, question, options} 或 null表示已收集完毕
+   */
+  getNextMissingInfo(sessionId) {
+    const session = this.getSession(sessionId);
+    if (!session) return null;
+    
+    const checklist = session.infoChecklist;
+    const order = ['brand', 'model', 'symptom', 'environment', 'attempted'];
+    
+    for (const field of order) {
+      if (!checklist[field].collected) {
+        return {
+          field,
+          question: checklist[field].question,
+          options: checklist[field].options
+        };
+      }
+    }
+    
+    return null; // 所有信息已收集完毕
+  }
+
+  /**
+   * 检查信息是否收集完毕
+   * @param {string} sessionId 
+   * @returns {boolean}
+   */
+  isInfoComplete(sessionId) {
+    const session = this.getSession(sessionId);
+    if (!session) return false;
+    
+    return Object.values(session.infoChecklist).every(item => item.collected);
+  }
+
+  /**
+   * 获取已收集的信息摘要
+   * @param {string} sessionId 
+   * @returns {Object}
+   */
+  getCollectedInfo(sessionId) {
+    const session = this.getSession(sessionId);
+    if (!session) return {};
+    
+    const info = {};
+    for (const [field, item] of Object.entries(session.infoChecklist)) {
+      if (item.collected) {
+        info[field] = item.value;
+      }
+    }
+    return info;
   }
 
   /**
@@ -128,9 +219,26 @@ class SessionService {
       return '';
     }
     
-    return session.conversationHistory
+    // 优先使用结构化的已收集信息
+    const collectedInfo = this.getCollectedInfo(sessionId);
+    let context = '';
+    
+    if (Object.keys(collectedInfo).length > 0) {
+      context += '【已收集信息】\n';
+      if (collectedInfo.brand) context += `- 品牌: ${collectedInfo.brand}\n`;
+      if (collectedInfo.model) context += `- 型号: ${collectedInfo.model}\n`;
+      if (collectedInfo.symptom) context += `- 故障现象: ${collectedInfo.symptom}\n`;
+      if (collectedInfo.environment) context += `- 发生环境: ${collectedInfo.environment}\n`;
+      if (collectedInfo.attempted) context += `- 已尝试排查: ${collectedInfo.attempted}\n`;
+      context += '\n';
+    }
+    
+    context += '【对话历史】\n';
+    context += session.conversationHistory
       .map(msg => `${msg.role === 'user' ? '用户' : 'AI'}: ${msg.content}`)
       .join('\n');
+    
+    return context;
   }
 
   /**
