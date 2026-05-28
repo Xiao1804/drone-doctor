@@ -45,6 +45,11 @@ coverage/
 # WorkBuddy
 .workbuddy/
 
+# Server fix scripts
+fix-server*.sh
+update-server.sh
+one-click-fix.sh
+
 # SQLite databases
 *.db
 *.sqlite
