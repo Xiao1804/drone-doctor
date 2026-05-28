@@ -7,20 +7,32 @@ const FAULT_CASES_FILE = resolveFaultCasesFile();
 
 // 加载故障案例库
 let faultCases = [];
+let faultCasesLoading = null;
 const loadFaultCases = async () => {
-  try {
-    const data = await fs.readFile(
-      FAULT_CASES_FILE,
-      'utf-8'
-    );
-    const allCases = JSON.parse(data);
-    // 只加载已审核通过的案例
-    faultCases = allCases.filter(c => c.reviewStatus === 'approved');
-    console.log(`Loaded ${faultCases.length} approved fault cases (total: ${allCases.length})`);
-  } catch (error) {
-    console.error('Error loading fault cases:', error);
-    faultCases = [];
-  }
+  // 如果正在加载，返回同一个 Promise
+  if (faultCasesLoading) return faultCasesLoading;
+  
+  faultCasesLoading = (async () => {
+    try {
+      const data = await fs.readFile(
+        FAULT_CASES_FILE,
+        'utf-8'
+      );
+      const allCases = JSON.parse(data);
+      // 只加载已审核通过的案例
+      faultCases = allCases.filter(c => c.reviewStatus === 'approved');
+      console.log(`Loaded ${faultCases.length} approved fault cases (total: ${allCases.length})`);
+      return faultCases;
+    } catch (error) {
+      console.error('Error loading fault cases:', error);
+      faultCases = [];
+      return [];
+    } finally {
+      faultCasesLoading = null;
+    }
+  })();
+  
+  return faultCasesLoading;
 };
 
 // 初始化时加载
@@ -33,6 +45,11 @@ exports.diagnose = async (req, res) => {
 
     if (!symptom) {
       return res.status(400).json({ error: '请输入故障现象' });
+    }
+
+    // 确保案例库已加载
+    if (faultCases.length === 0) {
+      await loadFaultCases();
     }
 
     // 1. 智能案例匹配（含同义词扩展和模糊匹配）
@@ -184,11 +201,15 @@ function matchCasesSmart(symptom, cases) {
 
 // ========== 模型配置（从环境变量读取，不再硬编码） ==========
 function getModelConfig() {
+  const kimiModel = process.env.KIMI_MODEL || 'moonshot-v1-8k';
+  // kimi-for-coding 是代码专用模型，不适合故障诊断对话，回退到通用模型
+  const effectiveKimiModel = kimiModel === 'kimi-for-coding' ? 'moonshot-v1-8k' : kimiModel;
+  
   return {
     kimi: {
       apiKey: process.env.KIMI_API_KEY,
       apiBase: process.env.KIMI_API_BASE || 'https://api.moonshot.cn/v1',
-      model: process.env.KIMI_MODEL || 'moonshot-v1-8k',
+      model: effectiveKimiModel,
       visionModel: process.env.KIMI_VISION_MODEL || 'moonshot-v1-8k'
     },
     qwen: {
@@ -803,6 +824,11 @@ exports.testMatch = async (req, res) => {
   try {
     const { symptom } = req.query;
     
+    // 确保案例库已加载
+    if (faultCases.length === 0) {
+      await loadFaultCases();
+    }
+    
     if (!symptom) {
       return res.json({
         faultCasesCount: faultCases.length,
@@ -839,6 +865,11 @@ exports.startConversation = async (req, res) => {
 
     if (!symptom) {
       return res.status(400).json({ error: '请输入故障现象' });
+    }
+
+    // 确保案例库已加载
+    if (faultCases.length === 0) {
+      await loadFaultCases();
     }
 
     // 创建会话
