@@ -15,6 +15,11 @@ class ImageRecognitionService {
     this.kimiApiKey = process.env.KIMI_API_KEY;
     this.kimiApiBase = process.env.KIMI_API_BASE || 'https://api.moonshot.cn/v1';
     this.kimiVisionModel = process.env.KIMI_VISION_MODEL || 'moonshot-v1-32k-vision-preview';
+    // Xiaomi mimo 中转平台
+    this.xiaomiApiKey = process.env.XIAOMI_API_KEY;
+    this.xiaomiApiBase = process.env.XIAOMI_API_BASE || 'https://token-plan-cn.xiaomimimo.com';
+    this.xiaomiVisionModel = process.env.XIAOMI_VISION_MODEL || 'gpt-4o';
+    this.xiaomiClaudeModel = process.env.XIAOMI_CLAUDE_MODEL || 'claude-3-5-sonnet-20241022';
   }
 
   /**
@@ -24,8 +29,8 @@ class ImageRecognitionService {
    * @returns {Object} 识别结果
    */
   async recognizeImage(imagePath, scenario = 'fault') {
-    if (!this.qwenApiKey && !this.kimiApiKey) {
-      throw new Error('未配置图片识别API Key。请在环境变量中设置 QWEN_API_KEY 或 KIMI_API_KEY。');
+    if (!this.qwenApiKey && !this.kimiApiKey && !this.xiaomiApiKey) {
+      throw new Error('未配置图片识别API Key。请在环境变量中设置 QWEN_API_KEY、KIMI_API_KEY 或 XIAOMI_API_KEY。');
     }
 
     try {
@@ -37,12 +42,32 @@ class ImageRecognitionService {
       // 根据场景构建prompt
       const prompt = this.buildPrompt(scenario);
       
-      // 优先使用通义千问VL API，否则使用Kimi Vision API
-      if (this.qwenApiKey) {
-        return await this.recognizeWithQwen(base64Image, mimeType, prompt, scenario);
-      } else {
-        return await this.recognizeWithKimi(base64Image, mimeType, prompt, scenario);
+      // Fallback 链：Qwen → Kimi → Xiaomi(OpenAI兼容) → Xiaomi(Anthropic)
+      const providers = [
+        { key: this.qwenApiKey, fn: () => this.recognizeWithQwen(base64Image, mimeType, prompt, scenario) },
+        { key: this.kimiApiKey, fn: () => this.recognizeWithKimi(base64Image, mimeType, prompt, scenario) },
+        { key: this.xiaomiApiKey, fn: async () => {
+          try {
+            return await this.recognizeWithOpenAICompatible(base64Image, mimeType, prompt, scenario);
+          } catch (openAiErr) {
+            console.warn('Xiaomi OpenAI format failed, trying Anthropic format:', openAiErr.message);
+            return await this.recognizeWithAnthropic(base64Image, mimeType, prompt, scenario);
+          }
+        }}
+      ];
+
+      for (const provider of providers) {
+        if (provider.key) {
+          try {
+            return await provider.fn();
+          } catch (err) {
+            console.warn(`Provider failed, trying next:`, err.message);
+            // 继续尝试下一个 provider
+          }
+        }
       }
+
+      throw new Error('所有图片识别服务均不可用');
 
     } catch (error) {
       console.error('Image recognition error:', error.response?.data || error.message);
@@ -113,6 +138,82 @@ class ImageRecognitionService {
     );
 
     const result = response.data.choices[0].message.content;
+    return this.parseResult(result, scenario);
+  }
+
+  /**
+   * 使用 OpenAI 兼容格式识别图片 (xiaomimimo /v1)
+   */
+  async recognizeWithOpenAICompatible(base64Image, mimeType, prompt, scenario) {
+    const response = await axios.post(
+      `${this.xiaomiApiBase}/v1/chat/completions`,
+      {
+        model: this.xiaomiVisionModel,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64Image}` } },
+              { type: 'text', text: prompt }
+            ]
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 2000
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.xiaomiApiKey}`
+        },
+        timeout: 60000
+      }
+    );
+
+    const result = response.data.choices[0].message.content;
+    return this.parseResult(result, scenario);
+  }
+
+  /**
+   * 使用 Anthropic 格式识别图片 (xiaomimimo /anthropic)
+   */
+  async recognizeWithAnthropic(base64Image, mimeType, prompt, scenario) {
+    const response = await axios.post(
+      `${this.xiaomiApiBase}/anthropic/v1/messages`,
+      {
+        model: this.xiaomiClaudeModel,
+        max_tokens: 2000,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'image',
+                source: {
+                  type: 'base64',
+                  media_type: mimeType,
+                  data: base64Image
+                }
+              },
+              {
+                type: 'text',
+                text: prompt
+              }
+            ]
+          }
+        ]
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': this.xiaomiApiKey,
+          'anthropic-version': '2023-06-01'
+        },
+        timeout: 60000
+      }
+    );
+
+    const result = response.data.content[0].text;
     return this.parseResult(result, scenario);
   }
 
