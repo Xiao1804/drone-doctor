@@ -6,6 +6,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV LOCAL_MODEL_PATH=/app/models
+ENV npm_config_sharp_libvips_binary_host_mirror=https://npmmirror.com/mirrors/sharp-libvips
 
 COPY package*.json ./
 RUN npm install --omit=dev
