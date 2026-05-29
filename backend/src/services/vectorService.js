@@ -57,36 +57,10 @@ async function batchInsertEmbeddings(items) {
   if (!isPostgres) return;
   if (!items || items.length === 0) return;
 
-  const values = [];
-  const params = [];
-  let paramIndex = 1;
-
-  for (const item of items) {
-    values.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}::vector, $${paramIndex++})`);
-    params.push(
-      item.caseId,
-      item.content,
-      vectorToSql(item.embedding),
-      JSON.stringify(item.metadata || {})
-    );
-  }
-
-  const sql = `
-    INSERT INTO fault_case_embeddings (case_id, content, embedding, metadata)
-    VALUES ${values.join(', ')}
-    ON CONFLICT (case_id) DO UPDATE SET
-      content = EXCLUDED.content,
-      embedding = EXCLUDED.embedding,
-      metadata = EXCLUDED.metadata,
-      created_at = NOW()
-  `;
-
   // 注意：pgvector 的向量字面量需要在 SQL 中直接写，不能作为参数
-  // 所以我们需要拼接 SQL，但要小心 SQL 注入
-  // 更安全的做法是用 to_sql 转换
-
-  // 重新构造，使用字符串拼接向量
-  const safeValues = items.map((item, i) => {
+  // 所以我们拼接向量字符串，其他字段仍用参数化查询防注入
+  let paramIndex = 1;
+  const safeValues = items.map((item) => {
     const vecStr = vectorToSql(item.embedding);
     return `($${paramIndex++}, $${paramIndex++}, '${vecStr}'::vector, $${paramIndex++})`;
   });

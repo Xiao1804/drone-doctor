@@ -1,0 +1,1008 @@
+[
+  {
+    "id": "F097",
+    "faultType": "定损流程",
+    "symptom": "定损前通用检查",
+    "keywords": ["定损", "外观检查", "通用检查", "SN确认", "防水标签", "防拆胶"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "机身外观损伤", "probability": "常见", "description": "裂缝、凹陷、烧焦痕迹"},
+      {"cause": "进水痕迹", "probability": "常见", "description": "防水标签变色"},
+      {"cause": "私自拆修", "probability": "常见", "description": "防拆胶不完整"},
+      {"cause": "部件缺失", "probability": "常见", "description": "桨叶、天线罩、传感器罩不齐全"},
+      {"cause": "SN不符", "probability": "少见", "description": "电池仓贴纸前3位非68Y"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "目视机身外观", "criteria": "检查是否有裂缝、凹陷、烧焦痕迹", "solution": "记录并拍照存档", "tools": [], "estimatedTime": "1分钟"},
+      {"step": 2, "operation": "检查防水标签", "criteria": "电调板/GPS板/TOF/相机镜头/核心板标签是否变色", "solution": "记录变色位置并拍照", "tools": [], "estimatedTime": "2分钟"},
+      {"step": 3, "operation": "检查防拆胶", "criteria": "防拆胶是否完整", "solution": "记录防拆胶状态", "tools": [], "estimatedTime": "1分钟"},
+      {"step": 4, "operation": "检查部件完整性", "criteria": "桨叶×4、天线罩、传感器罩是否齐全", "solution": "记录缺失部件", "tools": [], "estimatedTime": "1分钟"},
+      {"step": 5, "operation": "确认SN", "criteria": "电池仓贴纸前3位应为68Y", "solution": "核对SN并记录", "tools": [], "estimatedTime": "1分钟"},
+      {"step": 6, "operation": "拍照存档", "criteria": "记录外观状态", "solution": "拍摄整机外观照片", "tools": [], "estimatedTime": "2分钟"}
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "8分钟",
+    "difficulty": "⭐",
+    "needProfessionalRepair": false,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "定损流程", "标准化", "新手必看"],
+    "relatedCases": ["F098"]
+  },
+  {
+    "id": "F098",
+    "faultType": "维修后检查",
+    "symptom": "维修完成后综合检查",
+    "keywords": ["维修后", "综合检查", "复验", "测试矩阵", "链路测试"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "更换部件后未测试", "probability": "常见", "description": "未执行对应测试矩阵"},
+      {"cause": "排线未插紧", "probability": "常见", "description": "维修后排线松动"},
+      {"cause": "固件版本过旧", "probability": "常见", "description": "大包版本非最新"},
+      {"cause": "防水标签/防拆胶未恢复", "probability": "常见", "description": "维修后未恢复标识"},
+      {"cause": "线扣方向错误", "probability": "少见", "description": "云台线扣方向装反"},
+      {"cause": "SN录件错误", "probability": "少见", "description": "电池SN前3位非4ER"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "执行对应测试矩阵", "criteria": "根据更换部件执行第五章测试矩阵，逐项打√", "solution": "完成所有对应测试项", "tools": [], "estimatedTime": "10分钟"},
+      {"step": 2, "operation": "运行整机链路测试", "criteria": "ET7KY13所有项PASS", "solution": "若NG则排查对应模块", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "运行APP测试", "criteria": "检查报错信息/电机转动/图传信号/拍照录像", "solution": "排查异常项", "tools": ["DJI APP"], "estimatedTime": "5分钟"},
+      {"step": 4, "operation": "确认大包版本", "criteria": "DA2检查为最新版本", "solution": "若不是则升级大包", "tools": ["DA2"], "estimatedTime": "3分钟"},
+      {"step": 5, "operation": "检查防水标签和防拆胶", "criteria": "已恢复或已记录状态", "solution": "补贴或记录", "tools": [], "estimatedTime": "2分钟"},
+      {"step": 6, "operation": "检查云台线扣方向", "criteria": "若更换云台：银色线扣右侧、黑色线扣左侧", "solution": "用显微镜检查并纠正", "tools": ["显微镜"], "estimatedTime": "3分钟"},
+      {"step": 7, "operation": "确认电池SN录件", "criteria": "若更换电池：SN前3位为4ER", "solution": "核对并修正", "tools": [], "estimatedTime": "1分钟"},
+      {"step": 8, "operation": "填写维修记录", "criteria": "更换部件编码/测试结果/操作员完整", "solution": "补全记录", "tools": [], "estimatedTime": "3分钟"}
+    ],
+    "requiredTools": ["ET7KY13", "DA2", "DJI APP", "显微镜"],
+    "totalEstimatedTime": "32分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "维修后检查", "复验", "标准化"],
+    "relatedCases": ["F097"]
+  },
+  {
+    "id": "F099",
+    "faultType": "电源系统",
+    "symptom": "无法开机（电池故障）",
+    "keywords": ["无法开机", "电池故障", "电源", "不开机", "电池定损"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "电池损坏", "probability": "高", "description": "电池内部故障导致无法供电"},
+      {"cause": "电池电量耗尽", "probability": "中", "description": "电池完全没电"},
+      {"cause": "电池接触不良", "probability": "中", "description": "电池触点氧化或变形"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "取下原电池", "criteria": "安全取出电池", "solution": "准备已知正常满电电池", "tools": [], "estimatedTime": "1分钟"},
+      {"step": 2, "operation": "装入正常满电电池", "criteria": "电池安装到位", "solution": "确保卡扣锁紧", "tools": [], "estimatedTime": "1分钟"},
+      {"step": 3, "operation": "按电源键3秒", "criteria": "观察指示灯是否正常亮起", "solution": "若可开机则转入电池定损流程", "tools": [], "estimatedTime": "1分钟"}
+    ],
+    "requiredTools": ["正常满电电池"],
+    "totalEstimatedTime": "3分钟",
+    "difficulty": "⭐",
+    "needProfessionalRepair": false,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 无法开机排查分支",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "无法开机", "电池", "电源系统"],
+    "relatedCases": ["F100", "F101", "F102"]
+  },
+  {
+    "id": "F100",
+    "faultType": "动力系统",
+    "symptom": "无法开机（电调板损坏）",
+    "keywords": ["无法开机", "电调板", "ESC", "电源", "不开机"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "电调板烧毁", "probability": "高", "description": "电调板主芯片或电源模块损坏"},
+      {"cause": "电调板供电短路", "probability": "中", "description": "电调板输出端短路导致保护"},
+      {"cause": "电调板固件损坏", "probability": "低", "description": "电调板程序异常"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "更换电池测试", "criteria": "用正常电池仍无法开机", "solution": "排除电池问题，继续排查", "tools": [], "estimatedTime": "3分钟"},
+      {"step": 2, "operation": "检查电调板-核心板BTB排线", "criteria": "目视排线是否松动/断裂", "solution": "若异常则扣紧或更换排线", "tools": [], "estimatedTime": "3分钟"},
+      {"step": 3, "operation": "更换电调板", "criteria": "连接排线，按电源键3秒", "solution": "若可开机则确认电调板损坏", "tools": [], "estimatedTime": "10分钟"},
+      {"step": 4, "operation": "定损更换电调板", "criteria": "确认电调板损坏", "solution": "更换电调板并执行维修后检查", "tools": [], "estimatedTime": "15分钟"}
+    ],
+    "requiredTools": ["备用电调板", "备用排线"],
+    "totalEstimatedTime": "31分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 无法开机排查分支",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "无法开机", "电调板", "动力系统", "更换主板"],
+    "relatedCases": ["F099", "F101", "F102"]
+  },
+  {
+    "id": "F101",
+    "faultType": "主控系统",
+    "symptom": "无法开机（核心板损坏）",
+    "keywords": ["无法开机", "核心板", "主控", "飞控", "不开机"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "核心板主芯片损坏", "probability": "高", "description": "CPU或电源管理芯片烧毁"},
+      {"cause": "核心板存储器故障", "probability": "中", "description": "eMMC或Flash损坏"},
+      {"cause": "核心板供电异常", "probability": "中", "description": "供电电路损坏"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "更换电池测试", "criteria": "用正常电池仍无法开机", "solution": "排除电池问题", "tools": [], "estimatedTime": "3分钟"},
+      {"step": 2, "operation": "检查电调板-核心板BTB排线", "criteria": "目视排线是否松动/断裂", "solution": "若异常则扣紧或更换排线后重试", "tools": [], "estimatedTime": "3分钟"},
+      {"step": 3, "operation": "更换电调板测试", "criteria": "更换后仍无法开机", "solution": "排除电调板问题", "tools": ["备用电调板"], "estimatedTime": "10分钟"},
+      {"step": 4, "operation": "更换核心板", "criteria": "连接排线，按电源键3秒", "solution": "若可开机则确认核心板损坏", "tools": ["备用核心板"], "estimatedTime": "15分钟"},
+      {"step": 5, "operation": "定损更换核心板", "criteria": "确认核心板损坏", "solution": "更换核心板并执行维修后检查", "tools": [], "estimatedTime": "15分钟"}
+    ],
+    "requiredTools": ["备用核心板", "备用电调板", "备用排线"],
+    "totalEstimatedTime": "46分钟",
+    "difficulty": "⭐⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 无法开机排查分支",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "无法开机", "核心板", "主控系统", "更换主板"],
+    "relatedCases": ["F099", "F100", "F102"]
+  },
+  {
+    "id": "F102",
+    "faultType": "待确认",
+    "symptom": "无法开机（待确认）",
+    "keywords": ["无法开机", "待确认", "疑难杂症", "联系技术支持"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "多模块复合故障", "probability": "高", "description": "多个部件同时损坏"},
+      {"cause": "隐性短路", "probability": "中", "description": "机身内部存在隐性短路点"},
+      {"cause": "罕见固件问题", "probability": "低", "description": "特殊固件版本导致无法启动"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "更换电池测试", "criteria": "排除电池问题", "solution": "记录测试结果", "tools": [], "estimatedTime": "3分钟"},
+      {"step": 2, "operation": "检查并更换电调板", "criteria": "排除电调板问题", "solution": "记录测试结果", "tools": ["备用电调板"], "estimatedTime": "10分钟"},
+      {"step": 3, "operation": "检查并更换核心板", "criteria": "排除核心板问题", "solution": "记录测试结果", "tools": ["备用核心板"], "estimatedTime": "15分钟"},
+      {"step": 4, "operation": "联系总部技术支持", "criteria": "上述步骤均无法解决", "solution": "提供完整排查记录，申请技术支持", "tools": [], "estimatedTime": "-"}
+    ],
+    "requiredTools": ["备用核心板", "备用电调板"],
+    "totalEstimatedTime": "-",
+    "difficulty": "⭐⭐⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 无法开机排查分支",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "无法开机", "待确认", "疑难杂症", "技术支持"],
+    "relatedCases": ["F099", "F100", "F101"]
+  },
+  {
+    "id": "F103",
+    "faultType": "主控系统",
+    "symptom": "整机链路测试报错-核心板故障",
+    "keywords": ["核心板", "链路测试", "ET7KY13", "报错", "主控"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "核心板排线松动", "probability": "高", "description": "BTB排线接触不良"},
+      {"cause": "核心板接口氧化", "probability": "中", "description": "排线接口氧化导致接触不良"},
+      {"cause": "核心板芯片损坏", "probability": "中", "description": "核心板功能模块损坏"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13核心板项报错", "solution": "记录具体报错代码", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 2, "operation": "检查核心板排线", "criteria": "目视排线是否松动/断裂/氧化", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "重新运行链路测试", "criteria": "核心板项是否PASS", "solution": "若仍NG则更换核心板", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 4, "operation": "更换核心板", "criteria": "更换后链路测试PASS", "solution": "定损更换核心板", "tools": ["备用核心板"], "estimatedTime": "15分钟"}
+    ],
+    "requiredTools": ["ET7KY13", "备用核心板", "备用排线"],
+    "totalEstimatedTime": "30分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 机身故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "核心板", "链路测试", "ET7KY13", "主控系统"],
+    "relatedCases": ["F104", "F105"]
+  },
+  {
+    "id": "F104",
+    "faultType": "动力系统",
+    "symptom": "整机链路测试报错-电调板故障",
+    "keywords": ["电调板", "链路测试", "ET7KY13", "报错", "ESC"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "电调板排线松动", "probability": "高", "description": "电调板与核心板连接排线接触不良"},
+      {"cause": "电调板MOS管损坏", "probability": "中", "description": "驱动MOS管烧毁"},
+      {"cause": "电调板供电异常", "probability": "中", "description": "输入电源不稳定"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13电调板项报错", "solution": "记录具体报错代码", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 2, "operation": "检查电调板排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "重新运行链路测试", "criteria": "电调板项是否PASS", "solution": "若仍NG则更换电调板", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 4, "operation": "更换电调板", "criteria": "更换后链路测试PASS", "solution": "定损更换电调板", "tools": ["备用电调板"], "estimatedTime": "15分钟"}
+    ],
+    "requiredTools": ["ET7KY13", "备用电调板", "备用排线"],
+    "totalEstimatedTime": "30分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 机身故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "电调板", "链路测试", "ET7KY13", "动力系统"],
+    "relatedCases": ["F103", "F105"]
+  },
+  {
+    "id": "F105",
+    "faultType": "动力系统",
+    "symptom": "整机链路测试报错-电机故障",
+    "keywords": ["电机", "不转", "反转", "噪音", "链路测试", "ET7KY13"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "电机排线松动", "probability": "高", "description": "电机与电调板连接排线接触不良"},
+      {"cause": "电机轴承损坏", "probability": "中", "description": "电机转动卡滞或有异响"},
+      {"cause": "电机绕组烧毁", "probability": "中", "description": "电机内部线圈短路或开路"},
+      {"cause": "电调板驱动异常", "probability": "低", "description": "电调板对应通道损坏"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13电机项报错（不转/反转/噪音）", "solution": "记录具体报错电机位置", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 2, "operation": "检查电机排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "手动转动电机", "criteria": "检查是否有卡滞或异响", "solution": "若卡滞则更换电机", "tools": [], "estimatedTime": "2分钟"},
+      {"step": 4, "operation": "更换电机", "criteria": "更换后链路测试PASS", "solution": "定损更换电机", "tools": ["备用电机"], "estimatedTime": "10分钟"}
+    ],
+    "requiredTools": ["ET7KY13", "备用电机", "备用排线"],
+    "totalEstimatedTime": "22分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 机身故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "电机", "不转", "反转", "噪音", "链路测试", "ET7KY13"],
+    "relatedCases": ["F103", "F104"]
+  },
+  {
+    "id": "F106",
+    "faultType": "导航系统",
+    "symptom": "整机链路测试报错-GPS板故障",
+    "keywords": ["GPS", "导航", "定位", "链路测试", "ET7KY13"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "GPS板排线松动", "probability": "高", "description": "GPS模块与核心板连接排线接触不良"},
+      {"cause": "GPS模块损坏", "probability": "中", "description": "GPS接收芯片故障"},
+      {"cause": "GPS天线故障", "probability": "中", "description": "天线断线或接口松动"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13 GPS项报错", "solution": "记录具体报错", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 2, "operation": "检查GPS板排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "重新运行链路测试", "criteria": "GPS项是否PASS", "solution": "若仍NG则更换GPS板", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 4, "operation": "更换GPS板", "criteria": "更换后链路测试PASS", "solution": "定损更换GPS板", "tools": ["备用GPS板"], "estimatedTime": "10分钟"}
+    ],
+    "requiredTools": ["ET7KY13", "备用GPS板", "备用排线"],
+    "totalEstimatedTime": "25分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 机身故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "GPS", "导航", "链路测试", "ET7KY13"],
+    "relatedCases": ["F103", "F104"]
+  },
+  {
+    "id": "F107",
+    "faultType": "存储系统",
+    "symptom": "整机链路测试报错-硬盘故障",
+    "keywords": ["硬盘", "存储", "链路测试", "ET7KY13", "数据"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "硬盘排线松动", "probability": "高", "description": "硬盘与核心板连接排线接触不良"},
+      {"cause": "硬盘损坏", "probability": "中", "description": "SSD或eMMC存储芯片故障"},
+      {"cause": "硬盘接口氧化", "probability": "中", "description": "接口氧化导致接触不良"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13硬盘项报错", "solution": "记录具体报错", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 2, "operation": "检查硬盘排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "重新运行链路测试", "criteria": "硬盘项是否PASS", "solution": "若仍NG则更换硬盘", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 4, "operation": "更换硬盘", "criteria": "更换后链路测试PASS", "solution": "定损更换硬盘，注意数据备份", "tools": ["备用硬盘"], "estimatedTime": "10分钟"}
+    ],
+    "requiredTools": ["ET7KY13", "备用硬盘", "备用排线"],
+    "totalEstimatedTime": "25分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 机身故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "硬盘", "存储", "链路测试", "ET7KY13"],
+    "relatedCases": ["F103", "F104"]
+  },
+  {
+    "id": "F108",
+    "faultType": "感知系统",
+    "symptom": "整机链路测试报错-TOF/视觉异常",
+    "keywords": ["TOF", "视觉", "传感器", "避障", "链路测试", "ET7KY13"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "TOF/视觉模块排线松动", "probability": "高", "description": "感知模块与核心板连接排线接触不良"},
+      {"cause": "TOF传感器损坏", "probability": "中", "description": "ToF测距传感器故障"},
+      {"cause": "视觉传感器损坏", "probability": "中", "description": "摄像头模组故障"},
+      {"cause": "传感器窗口脏污", "probability": "低", "description": "传感器窗口有污渍遮挡"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13 TOF/视觉项报错", "solution": "记录具体报错", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 2, "operation": "检查传感器窗口", "criteria": "窗口是否清洁无遮挡", "solution": "用无尘布清洁窗口", "tools": ["无尘布"], "estimatedTime": "3分钟"},
+      {"step": 3, "operation": "检查排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
+      {"step": 4, "operation": "重新运行链路测试", "criteria": "TOF/视觉项是否PASS", "solution": "若仍NG则更换模块", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 5, "operation": "更换TOF/视觉模块", "criteria": "更换后链路测试PASS", "solution": "定损更换对应模块", "tools": ["备用TOF模块", "备用视觉模块"], "estimatedTime": "10分钟"}
+    ],
+    "requiredTools": ["ET7KY13", "备用TOF模块", "备用视觉模块", "无尘布"],
+    "totalEstimatedTime": "28分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 机身故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "TOF", "视觉", "传感器", "链路测试", "ET7KY13"],
+    "relatedCases": ["F103", "F104"]
+  },
+  {
+    "id": "F109",
+    "faultType": "灯光系统",
+    "symptom": "整机链路测试报错-机臂灯故障",
+    "keywords": ["机臂灯", "LED", "灯光", "链路测试", "ET7KY13"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "机臂灯排线松动", "probability": "高", "description": "机臂LED与电调板连接排线接触不良"},
+      {"cause": "LED灯珠损坏", "probability": "中", "description": "LED灯珠烧毁或老化"},
+      {"cause": "驱动电路故障", "probability": "低", "description": "电调板LED驱动通道损坏"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13机臂灯项报错", "solution": "记录具体报错位置", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 2, "operation": "检查机臂灯排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "重新运行链路测试", "criteria": "机臂灯项是否PASS", "solution": "若仍NG则更换机臂灯组件", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 4, "operation": "更换机臂灯组件", "criteria": "更换后链路测试PASS", "solution": "定损更换机臂灯", "tools": ["备用机臂灯"], "estimatedTime": "10分钟"}
+    ],
+    "requiredTools": ["ET7KY13", "备用机臂灯", "备用排线"],
+    "totalEstimatedTime": "25分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 机身故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "机臂灯", "LED", "灯光", "链路测试", "ET7KY13"],
+    "relatedCases": ["F103", "F104"]
+  },
+  {
+    "id": "F110",
+    "faultType": "电源系统",
+    "symptom": "整机链路测试报错-电池在位检测故障",
+    "keywords": ["电池在位", "检测", "电池通信", "链路测试", "ET7KY13"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "电池触点氧化", "probability": "高", "description": "电池或机身触点氧化导致通信失败"},
+      {"cause": "电池触点变形", "probability": "中", "description": "触点物理变形导致接触不良"},
+      {"cause": "检测电路故障", "probability": "低", "description": "核心板电池检测电路损坏"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13电池在位检测项报错", "solution": "记录具体报错", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 2, "operation": "检查电池触点", "criteria": "目视触点是否氧化/变形", "solution": "用酒精棉签清洁触点，校正变形", "tools": ["酒精棉签"], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "更换电池测试", "criteria": "用正常电池测试", "solution": "若正常则判定原电池故障", "tools": ["正常电池"], "estimatedTime": "3分钟"},
+      {"step": 4, "operation": "重新运行链路测试", "criteria": "电池在位检测项是否PASS", "solution": "若仍NG则更换机身电池座", "tools": ["ET7KY13"], "estimatedTime": "5分钟"}
+    ],
+    "requiredTools": ["ET7KY13", "酒精棉签", "正常电池"],
+    "totalEstimatedTime": "18分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 机身故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "电池在位", "检测", "链路测试", "ET7KY13"],
+    "relatedCases": ["F103", "F104"]
+  },
+  {
+    "id": "F111",
+    "faultType": "导航系统",
+    "symptom": "整机链路测试报错-指南针故障",
+    "keywords": ["指南针", "磁罗盘", "校准", "链路测试", "ET7KY13"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "指南针模块排线松动", "probability": "高", "description": "指南针模块与核心板连接排线接触不良"},
+      {"cause": "指南针模块损坏", "probability": "中", "description": "地磁传感器芯片故障"},
+      {"cause": "磁干扰", "probability": "低", "description": "周围存在强磁场干扰"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13指南针项报错", "solution": "记录具体报错", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 2, "operation": "远离干扰源", "criteria": "远离金属物体和电子设备", "solution": "移至无干扰环境", "tools": [], "estimatedTime": "2分钟"},
+      {"step": 3, "operation": "检查指南针排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
+      {"step": 4, "operation": "重新运行链路测试", "criteria": "指南针项是否PASS", "solution": "若仍NG则更换指南针模块", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 5, "operation": "更换指南针模块", "criteria": "更换后链路测试PASS", "solution": "定损更换指南针模块", "tools": ["备用指南针模块"], "estimatedTime": "10分钟"}
+    ],
+    "requiredTools": ["ET7KY13", "备用指南针模块", "备用排线"],
+    "totalEstimatedTime": "27分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 机身故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "指南针", "磁罗盘", "链路测试", "ET7KY13"],
+    "relatedCases": ["F103", "F106"]
+  },
+  {
+    "id": "F112",
+    "faultType": "存储系统",
+    "symptom": "整机链路测试报错-SD卡槽故障",
+    "keywords": ["SD卡槽", "存储卡", "卡槽", "链路测试", "ET7KY13"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "SD卡槽排线松动", "probability": "高", "description": "卡槽与核心板连接排线接触不良"},
+      {"cause": "卡槽物理损坏", "probability": "中", "description": "卡槽弹片变形或断裂"},
+      {"cause": "SD卡本身故障", "probability": "中", "description": "测试用SD卡损坏"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13 SD卡槽项报错", "solution": "记录具体报错", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 2, "operation": "更换SD卡测试", "criteria": "用已知正常的SD卡测试", "solution": "若正常则判定SD卡问题", "tools": ["正常SD卡"], "estimatedTime": "2分钟"},
+      {"step": 3, "operation": "检查卡槽排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
+      {"step": 4, "operation": "重新运行链路测试", "criteria": "SD卡槽项是否PASS", "solution": "若仍NG则更换SD卡槽", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 5, "operation": "更换SD卡槽", "criteria": "更换后链路测试PASS", "solution": "定损更换SD卡槽组件", "tools": ["备用SD卡槽"], "estimatedTime": "10分钟"}
+    ],
+    "requiredTools": ["ET7KY13", "备用SD卡槽", "正常SD卡", "备用排线"],
+    "totalEstimatedTime": "27分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 机身故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "SD卡槽", "存储", "链路测试", "ET7KY13"],
+    "relatedCases": ["F103", "F107"]
+  },
+  {
+    "id": "F113",
+    "faultType": "影像系统",
+    "symptom": "整机链路测试报错-相机出图异常",
+    "keywords": ["相机", "出图", "花屏", "条纹", "图像", "链路测试", "ET7KY13"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "相机排线松动", "probability": "高", "description": "相机与核心板连接排线接触不良"},
+      {"cause": "相机模组损坏", "probability": "中", "description": "图像传感器或ISP芯片故障"},
+      {"cause": "镜头损坏", "probability": "中", "description": "镜头组件物理损坏"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13相机出图项报错", "solution": "记录具体报错", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 2, "operation": "检查相机排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "用APP拍摄测试", "criteria": "检查图像是否花屏/条纹/黑屏", "solution": "记录图像状态", "tools": ["DJI APP"], "estimatedTime": "3分钟"},
+      {"step": 4, "operation": "重新运行链路测试", "criteria": "相机出图项是否PASS", "solution": "若仍NG则更换云台（含相机）", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 5, "operation": "更换云台", "criteria": "更换后链路测试PASS且图像正常", "solution": "定损更换云台", "tools": ["备用云台"], "estimatedTime": "15分钟"}
+    ],
+    "requiredTools": ["ET7KY13", "备用云台", "DJI APP", "备用排线"],
+    "totalEstimatedTime": "33分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 机身故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "相机", "出图", "图像", "链路测试", "ET7KY13"],
+    "relatedCases": ["F103", "F114"]
+  },
+  {
+    "id": "F114",
+    "faultType": "云台系统",
+    "symptom": "整机链路测试报错-云台轴臂故障",
+    "keywords": ["云台", "轴臂", "转动", "卡滞", "链路测试", "ET7KY13"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "云台排线松动", "probability": "高", "description": "云台与核心板连接排线接触不良"},
+      {"cause": "轴臂机械卡滞", "probability": "中", "description": "轴臂轴承损坏或异物卡入"},
+      {"cause": "电机损坏", "probability": "中", "description": "云台电机绕组烧毁"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13云台轴臂项报错", "solution": "记录具体报错", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 2, "operation": "运行绕动力多姿态测试", "criteria": "ET7KY08是否PASS", "solution": "若NG则确认轴臂故障", "tools": ["ET7KY08"], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "检查云台排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
+      {"step": 4, "operation": "手动拨动轴臂", "criteria": "检查是否有卡滞或异响", "solution": "若卡滞则更换云台", "tools": [], "estimatedTime": "3分钟"},
+      {"step": 5, "operation": "更换云台", "criteria": "更换后链路测试PASS", "solution": "定损更换云台", "tools": ["备用云台"], "estimatedTime": "15分钟"}
+    ],
+    "requiredTools": ["ET7KY13", "ET7KY08", "备用云台", "备用排线"],
+    "totalEstimatedTime": "33分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 机身故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "云台", "轴臂", "转动", "链路测试", "ET7KY13", "ET7KY08"],
+    "relatedCases": ["F103", "F113"]
+  },
+  {
+    "id": "F115",
+    "faultType": "云台系统",
+    "symptom": "云台轴臂转动受阻",
+    "keywords": ["云台", "轴臂", "转动受阻", "卡滞", "ET7KY08", "绕动力"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "轴臂轴承损坏", "probability": "高", "description": "轴承磨损或碎裂导致卡滞"},
+      {"cause": "异物卡入", "probability": "中", "description": "沙尘或碎片进入轴臂间隙"},
+      {"cause": "轴臂变形", "probability": "中", "description": "外力撞击导致轴臂变形"},
+      {"cause": "电机轴承损坏", "probability": "低", "description": "电机内部轴承损坏"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "运行绕动力多姿态测试", "criteria": "ET7KY08测试NG", "solution": "记录具体报错轴", "tools": ["ET7KY08"], "estimatedTime": "5分钟"},
+      {"step": 2, "operation": "目视检查轴臂", "criteria": "检查是否有变形、裂纹、异物", "solution": "清除异物，记录损伤", "tools": [], "estimatedTime": "3分钟"},
+      {"step": 3, "operation": "手动拨动各轴", "criteria": "感受阻力和异响", "solution": "确认卡滞位置和程度", "tools": [], "estimatedTime": "3分钟"},
+      {"step": 4, "operation": "更换云台", "criteria": "更换后ET7KY08 PASS", "solution": "定损更换云台", "tools": ["备用云台"], "estimatedTime": "15分钟"}
+    ],
+    "requiredTools": ["ET7KY08", "备用云台"],
+    "totalEstimatedTime": "26分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 云台故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "云台", "轴臂", "转动受阻", "ET7KY08"],
+    "relatedCases": ["F116", "F117", "F114"]
+  },
+  {
+    "id": "F116",
+    "faultType": "云台系统",
+    "symptom": "云台电机/霍尔器件损坏",
+    "keywords": ["云台", "电机", "霍尔", "损坏", "ET7KY13", "链路测试"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "电机绕组烧毁", "probability": "高", "description": "云台电机内部线圈短路或开路"},
+      {"cause": "霍尔传感器损坏", "probability": "中", "description": "霍尔器件无法正确检测位置"},
+      {"cause": "电机驱动电路故障", "probability": "中", "description": "电调板对应驱动通道损坏"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "运行绕动力多姿态测试", "criteria": "ET7KY08测试OK", "solution": "排除轴臂机械故障", "tools": ["ET7KY08"], "estimatedTime": "5分钟"},
+      {"step": 2, "operation": "运行整机链路测试", "criteria": "ET7KY13云台YAW/PITCH/ROLL项NG", "solution": "记录具体报错轴和参数", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "检查云台排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线后重测", "tools": [], "estimatedTime": "5分钟"},
+      {"step": 4, "operation": "更换云台", "criteria": "更换后链路测试PASS", "solution": "定损更换云台", "tools": ["备用云台"], "estimatedTime": "15分钟"}
+    ],
+    "requiredTools": ["ET7KY08", "ET7KY13", "备用云台", "备用排线"],
+    "totalEstimatedTime": "30分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 云台故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "云台", "电机", "霍尔", "ET7KY13", "ET7KY08"],
+    "relatedCases": ["F115", "F117", "F114"]
+  },
+  {
+    "id": "F117",
+    "faultType": "影像系统",
+    "symptom": "云台相机损坏（持续花屏/条纹/黑屏/撕裂）",
+    "keywords": ["云台", "相机", "花屏", "条纹", "黑屏", "撕裂", "图像"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "图像传感器损坏", "probability": "高", "description": "CMOS传感器物理损坏或烧毁"},
+      {"cause": "ISP芯片故障", "probability": "中", "description": "图像处理芯片异常"},
+      {"cause": "相机主板损坏", "probability": "中", "description": "相机控制板故障"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "用APP拍摄白色墙壁/灰卡", "criteria": "检查是否花屏/条纹/黑屏/撕裂", "solution": "记录图像异常类型", "tools": ["DJI APP"], "estimatedTime": "3分钟"},
+      {"step": 2, "operation": "连续拍摄5张", "criteria": "异常是否每次出现", "solution": "若持续出现则确认相机损坏", "tools": ["DJI APP"], "estimatedTime": "2分钟"},
+      {"step": 3, "operation": "检查相机排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线后重拍", "tools": [], "estimatedTime": "5分钟"},
+      {"step": 4, "operation": "更换云台", "criteria": "更换后图像正常", "solution": "定损更换云台", "tools": ["备用云台"], "estimatedTime": "15分钟"}
+    ],
+    "requiredTools": ["DJI APP", "备用云台", "备用排线"],
+    "totalEstimatedTime": "25分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 云台故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "云台", "相机", "花屏", "条纹", "图像"],
+    "relatedCases": ["F118", "F119", "F120"]
+  },
+  {
+    "id": "F118",
+    "faultType": "影像系统",
+    "symptom": "云台FPC损坏（间歇性图像异常）",
+    "keywords": ["云台", "FPC", "柔性排线", "间歇性", "花屏", "图像"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "FPC排线断裂", "probability": "高", "description": "柔性排线内部断裂导致接触不良"},
+      {"cause": "FPC接口氧化", "probability": "中", "description": "排线金手指氧化"},
+      {"cause": "FPC弯折疲劳", "probability": "中", "description": "长期弯折导致内部线路疲劳"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "用APP拍摄白色墙壁/灰卡", "criteria": "检查是否花屏/条纹/撕裂", "solution": "记录图像异常类型", "tools": ["DJI APP"], "estimatedTime": "3分钟"},
+      {"step": 2, "operation": "连续拍摄5张", "criteria": "异常是否间歇性出现", "solution": "若干次中仅部分出现异常", "tools": ["DJI APP"], "estimatedTime": "2分钟"},
+      {"step": 3, "operation": "晃动云台后拍摄", "criteria": "晃动后是否更容易复现", "solution": "若更容易复现则确认FPC问题", "tools": ["DJI APP"], "estimatedTime": "3分钟"},
+      {"step": 4, "operation": "更换云台", "criteria": "更换后图像稳定正常", "solution": "定损更换云台（含FPC）", "tools": ["备用云台"], "estimatedTime": "15分钟"}
+    ],
+    "requiredTools": ["DJI APP", "备用云台"],
+    "totalEstimatedTime": "23分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 云台故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "云台", "FPC", "排线", "间歇性", "图像"],
+    "relatedCases": ["F117", "F119", "F120"]
+  },
+  {
+    "id": "F119",
+    "faultType": "影像系统",
+    "symptom": "云台相机清晰度不良",
+    "keywords": ["云台", "相机", "清晰度", "模糊", "对焦", "图像"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "镜头组件松动", "probability": "高", "description": "镜头模组固定松动导致失焦"},
+      {"cause": "镜头划伤", "probability": "中", "description": "镜头表面划伤影响成像"},
+      {"cause": "CMOS偏移", "probability": "中", "description": "传感器位置偏移导致焦点不准"},
+      {"cause": "对焦马达故障", "probability": "低", "description": "自动对焦马达损坏"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "用APP拍摄测试图", "criteria": "放大照片检查清晰度", "solution": "记录清晰度状态", "tools": ["DJI APP"], "estimatedTime": "3分钟"},
+      {"step": 2, "operation": "清洁镜头", "criteria": "用无尘布+镜头清洁液擦拭", "solution": "排除镜头脏污", "tools": ["无尘布", "镜头清洁液"], "estimatedTime": "3分钟"},
+      {"step": 3, "operation": "重新拍摄对比", "criteria": "清洁后清晰度是否改善", "solution": "若无改善则确认相机问题", "tools": ["DJI APP"], "estimatedTime": "3分钟"},
+      {"step": 4, "operation": "更换云台", "criteria": "更换后图像清晰", "solution": "定损更换云台", "tools": ["备用云台"], "estimatedTime": "15分钟"}
+    ],
+    "requiredTools": ["DJI APP", "备用云台", "无尘布", "镜头清洁液"],
+    "totalEstimatedTime": "24分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 云台故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "云台", "相机", "清晰度", "模糊", "图像"],
+    "relatedCases": ["F117", "F118", "F120"]
+  },
+  {
+    "id": "F120",
+    "faultType": "影像系统",
+    "symptom": "云台相机异色点/暗点（清洁后不可恢复）",
+    "keywords": ["云台", "相机", "异色点", "暗点", "坏点", "CMOS", "图像"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "CMOS坏点", "probability": "高", "description": "传感器像素点物理损坏"},
+      {"cause": "CMOS老化", "probability": "中", "description": "传感器长期使用后产生缺陷像素"},
+      {"cause": "CMOS受潮", "probability": "低", "description": "传感器内部受潮导致异常"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "用APP拍摄纯色背景", "criteria": "全画面检查异色点/暗点", "solution": "记录坏点数量和位置", "tools": ["DJI APP"], "estimatedTime": "3分钟"},
+      {"step": 2, "operation": "清洁镜头", "criteria": "用无尘布+镜头清洁液擦拭镜头", "solution": "排除镜头脏污导致的假性坏点", "tools": ["无尘布", "镜头清洁液"], "estimatedTime": "3分钟"},
+      {"step": 3, "operation": "重新拍摄纯色背景", "criteria": "异色点/暗点是否消失", "solution": "若消失则为镜头脏污；若仍存在则确认相机不良", "tools": ["DJI APP"], "estimatedTime": "3分钟"},
+      {"step": 4, "operation": "更换云台", "criteria": "更换后无坏点", "solution": "定损更换云台", "tools": ["备用云台"], "estimatedTime": "15分钟"}
+    ],
+    "requiredTools": ["DJI APP", "备用云台", "无尘布", "镜头清洁液"],
+    "totalEstimatedTime": "24分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 云台故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "云台", "相机", "异色点", "暗点", "坏点", "图像"],
+    "relatedCases": ["F117", "F118", "F119"]
+  },
+  {
+    "id": "F121",
+    "faultType": "影像系统",
+    "symptom": "云台镜头脏污（已清洁恢复）",
+    "keywords": ["云台", "镜头", "脏污", "清洁", "图像", "假性坏点"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "镜头表面污渍", "probability": "高", "description": "指纹、油渍、灰尘附着"},
+      {"cause": "镜头内部起雾", "probability": "低", "description": "温差导致镜头内部 condensation"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "用APP拍摄纯色背景", "criteria": "发现异色点/暗点或图像模糊", "solution": "记录问题表现", "tools": ["DJI APP"], "estimatedTime": "3分钟"},
+      {"step": 2, "operation": "清洁镜头", "criteria": "用无尘布+镜头清洁液擦拭镜头", "solution": "从中心向外螺旋擦拭", "tools": ["无尘布", "镜头清洁液"], "estimatedTime": "3分钟"},
+      {"step": 3, "operation": "重新拍摄纯色背景", "criteria": "确认异色点/暗点消失，图像清晰", "solution": "记录已清洁完成", "tools": ["DJI APP"], "estimatedTime": "3分钟"}
+    ],
+    "requiredTools": ["DJI APP", "无尘布", "镜头清洁液"],
+    "totalEstimatedTime": "9分钟",
+    "difficulty": "⭐",
+    "needProfessionalRepair": false,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 云台故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "云台", "镜头", "脏污", "清洁", "已解决"],
+    "relatedCases": ["F119", "F120"]
+  },
+  {
+    "id": "F122",
+    "faultType": "电源系统",
+    "symptom": "电池外观异常（客户责任/保修判定）",
+    "keywords": ["电池", "外观", "进水", "鼓包", "变形", "客户责任", "保修"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "进水", "probability": "高", "description": "电池进水导致外观异常"},
+      {"cause": "外力撞击", "probability": "高", "description": "摔落或挤压导致变形/破损"},
+      {"cause": "私自拆卸", "probability": "中", "description": "用户自行拆修电池"},
+      {"cause": "鼓包", "probability": "中", "description": "电芯老化或过热导致鼓包"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "外观检查", "criteria": "检查鼓包、变形、进水、拆卸痕迹、卡扣松动、触点变形", "solution": "详细记录所有异常", "tools": [], "estimatedTime": "3分钟"},
+      {"step": 2, "operation": "拍照存档", "criteria": "多角度拍摄外观异常", "solution": "保留证据照片", "tools": [], "estimatedTime": "2分钟"},
+      {"step": 3, "operation": "判定责任", "criteria": "根据外观判断客户责任或保修范围", "solution": "填写判定结果并告知客户", "tools": [], "estimatedTime": "5分钟"}
+    ],
+    "requiredTools": [],
+    "totalEstimatedTime": "10分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 电池故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "电池", "外观", "客户责任", "保修判定"],
+    "relatedCases": ["F123", "F124", "F125"]
+  },
+  {
+    "id": "F123",
+    "faultType": "电源系统",
+    "symptom": "电池FU模式（Firmware Update）",
+    "keywords": ["电池", "FU模式", "固件升级", "无法开机", "LED不亮", "大包升级"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "电池固件异常", "probability": "高", "description": "电池固件损坏或版本不匹配"},
+      {"cause": "电池与飞机通信失败", "probability": "中", "description": "电池认证信息异常"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "确认症状", "criteria": "按键无响应且LED不亮，电池非低电量状态", "solution": "确认为FU模式", "tools": [], "estimatedTime": "1分钟"},
+      {"step": 2, "operation": "将电池装入飞行器", "criteria": "电池安装到位", "solution": "确保接触良好", "tools": [], "estimatedTime": "1分钟"},
+      {"step": 3, "operation": "连接DA2执行大包升级", "criteria": "升级过程电池LED应有响应", "solution": "等待升级完成", "tools": ["DA2"], "estimatedTime": "15分钟"},
+      {"step": 4, "operation": "升级后测试", "criteria": "按电源键观察LED是否正常亮起", "solution": "若正常则FU模式恢复", "tools": [], "estimatedTime": "2分钟"}
+    ],
+    "requiredTools": ["DA2", "飞行器主机"],
+    "totalEstimatedTime": "19分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 电池故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "电池", "FU模式", "固件升级", "大包升级"],
+    "relatedCases": ["F122", "F124", "F125"]
+  },
+  {
+    "id": "F124",
+    "faultType": "电源系统",
+    "symptom": "电池Shutdown保护（低电量锁定）",
+    "keywords": ["电池", "Shutdown", "保护", "低电量", "LED不亮", "充电管家"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "电量过低触发保护", "probability": "高", "description": "电池电量过低进入Shutdown保护状态"},
+      {"cause": "长期未使用", "probability": "中", "description": "电池长期存放导致自放电至保护阈值"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "确认症状", "criteria": "按键无响应且LED不亮，确认电池为低电量", "solution": "确认为Shutdown保护", "tools": [], "estimatedTime": "1分钟"},
+      {"step": 2, "operation": "接入充电管家", "criteria": "使用原厂充电管家", "solution": "连接充电管家开始充电", "tools": ["充电管家"], "estimatedTime": "2分钟"},
+      {"step": 3, "operation": "观察充电状态", "criteria": "充电LED应逐渐恢复正常", "solution": "耐心等待充电恢复", "tools": [], "estimatedTime": "30分钟"},
+      {"step": 4, "operation": "充满后测试", "criteria": "按电源键观察LED和电量显示", "solution": "若正常则Shutdown保护解除", "tools": [], "estimatedTime": "2分钟"}
+    ],
+    "requiredTools": ["充电管家"],
+    "totalEstimatedTime": "35分钟",
+    "difficulty": "⭐",
+    "needProfessionalRepair": false,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 电池故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "电池", "Shutdown", "保护", "低电量", "充电"],
+    "relatedCases": ["F122", "F123", "F125"]
+  },
+  {
+    "id": "F125",
+    "faultType": "电源系统",
+    "symptom": "电池电量过低（可充电恢复）",
+    "keywords": ["电池", "电量低", "充电", "LED亮", "很快关机"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "正常使用耗尽", "probability": "高", "description": "电池正常使用后电量耗尽"},
+      {"cause": "长期存放", "probability": "中", "description": "长期未充电导致电量自然耗尽"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "确认症状", "criteria": "按键能开机但很快关机", "solution": "确认为电量过低", "tools": [], "estimatedTime": "1分钟"},
+      {"step": 2, "operation": "接入充电器", "criteria": "使用原厂充电器", "solution": "开始充电", "tools": ["充电器"], "estimatedTime": "2分钟"},
+      {"step": 3, "operation": "充满后测试", "criteria": "充满后装入飞行器测试续航", "solution": "若正常则排除电池故障", "tools": [], "estimatedTime": "60分钟"}
+    ],
+    "requiredTools": ["充电器"],
+    "totalEstimatedTime": "63分钟",
+    "difficulty": "⭐",
+    "needProfessionalRepair": false,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 电池故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "电池", "电量低", "充电", "简单处理"],
+    "relatedCases": ["F122", "F123", "F124"]
+  },
+  {
+    "id": "F126",
+    "faultType": "电源系统",
+    "symptom": "电池PF永久失效（Permanent Failure）",
+    "keywords": ["电池", "PF", "永久失效", "报废", "无响应", "充电无响应"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "电芯过放", "probability": "高", "description": "电芯电压低于安全阈值触发PF保护"},
+      {"cause": "电芯短路", "probability": "高", "description": "内部短路导致保护板锁定"},
+      {"cause": "保护板故障", "probability": "中", "description": "电池管理芯片误判触发PF"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "确认症状", "criteria": "按键无响应+充电无响应，充电LED完全不亮", "solution": "初步判断为PF失效", "tools": [], "estimatedTime": "2分钟"},
+      {"step": 2, "operation": "换充电器/充电管家测试", "criteria": "排除充电器故障", "solution": "若仍无响应则确认PF", "tools": ["备用充电器"], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "判定报废", "criteria": "确认PF永久失效", "solution": "填写报废单，按规定回收处理", "tools": [], "estimatedTime": "5分钟"}
+    ],
+    "requiredTools": ["备用充电器"],
+    "totalEstimatedTime": "12分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 电池故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "电池", "PF", "永久失效", "报废"],
+    "relatedCases": ["F122", "F127", "F128"]
+  },
+  {
+    "id": "F127",
+    "faultType": "电源系统",
+    "symptom": "电池触发保护（禁止充电）",
+    "keywords": ["电池", "触发保护", "禁止充电", "LED闪烁", "充电异常"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "温度过高/过低", "probability": "高", "description": "环境温度超出充电范围触发保护"},
+      {"cause": "充电电流过大", "probability": "中", "description": "使用非原装充电器导致"},
+      {"cause": "电芯压差异常", "probability": "中", "description": "串联电芯间电压差过大"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "确认症状", "criteria": "充电LED规律闪烁，无法正常充电", "solution": "记录闪烁模式", "tools": [], "estimatedTime": "2分钟"},
+      {"step": 2, "operation": "检查环境温度", "criteria": "确认温度在0-45°C范围内", "solution": "移至合适温度环境", "tools": [], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "使用原装充电管家", "criteria": "排除充电器不匹配", "solution": "使用原厂设备充电", "tools": ["充电管家"], "estimatedTime": "2分钟"},
+      {"step": 4, "operation": "静置后重试", "criteria": "等待30分钟后再次充电", "solution": "若仍触发保护则判定电池故障", "tools": [], "estimatedTime": "35分钟"}
+    ],
+    "requiredTools": ["充电管家"],
+    "totalEstimatedTime": "44分钟",
+    "difficulty": "⭐⭐",
+    "needProfessionalRepair": false,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 电池故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "电池", "保护", "禁止充电", "LED闪烁"],
+    "relatedCases": ["F122", "F126", "F128"]
+  },
+  {
+    "id": "F128",
+    "faultType": "电源系统",
+    "symptom": "电池充电电路损坏（关机不能充但开机能充）",
+    "keywords": ["电池", "充电电路", "损坏", "关机不能充", "开机能充"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "充电MOS管损坏", "probability": "高", "description": "充电路径MOS管击穿或开路"},
+      {"cause": "充电检测电路故障", "probability": "中", "description": "充电检测电阻或比较器损坏"},
+      {"cause": "充电接口损坏", "probability": "中", "description": "电池充电触点变形或氧化"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "确认症状", "criteria": "关机状态下无法充电，但装入飞机开机后可充电", "solution": "确认为充电电路问题", "tools": [], "estimatedTime": "5分钟"},
+      {"step": 2, "operation": "检查充电触点", "criteria": "目视触点是否氧化/变形", "solution": "清洁或校正触点", "tools": ["酒精棉签"], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "电池助手检测", "criteria": "查看充电电路相关参数", "solution": "记录异常参数", "tools": ["电池助手"], "estimatedTime": "3分钟"},
+      {"step": 4, "operation": "判定更换", "criteria": "确认充电电路损坏", "solution": "定损更换电池", "tools": [], "estimatedTime": "5分钟"}
+    ],
+    "requiredTools": ["电池助手", "酒精棉签"],
+    "totalEstimatedTime": "18分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 电池故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "电池", "充电电路", "损坏", "充电异常"],
+    "relatedCases": ["F122", "F126", "F127"]
+  },
+  {
+    "id": "F129",
+    "faultType": "电源系统",
+    "symptom": "电池检测异常（压差过大/无法通信/认证失败/电池不在位）",
+    "keywords": ["电池", "压差", "通信", "认证", "不在位", "电池助手"],
+    "applicableModels": ["68Y系列"],
+    "possibleCauses": [
+      {"cause": "电芯老化压差大", "probability": "高", "description": "串联电芯间电压差异超过阈值"},
+      {"cause": "电池通信排线松动", "probability": "中", "description": "通信接口接触不良"},
+      {"cause": "电池认证芯片故障", "probability": "中", "description": "认证信息读取失败"},
+      {"cause": "电池触点氧化", "probability": "中", "description": "触点氧化导致接触电阻增大"}
+    ],
+    "troubleshootingSteps": [
+      {"step": 1, "operation": "装入飞行器开机", "criteria": "观察电量指示灯", "solution": "记录LED状态", "tools": [], "estimatedTime": "2分钟"},
+      {"step": 2, "operation": "运行电池助手定损", "criteria": "查看压差/通信/认证/在位状态", "solution": "记录具体异常项", "tools": ["电池助手"], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "清洁电池触点", "criteria": "用酒精棉签清洁触点和卡扣", "solution": "排除接触不良", "tools": ["酒精棉签"], "estimatedTime": "5分钟"},
+      {"step": 4, "operation": "重新检测", "criteria": "电池助手是否检测正常", "solution": "若仍异常则判定电池故障", "tools": ["电池助手"], "estimatedTime": "5分钟"},
+      {"step": 5, "operation": "低空飞测", "criteria": "满电后低空悬停测试续航", "solution": "若续航异常则确认电池问题", "tools": [], "estimatedTime": "10分钟"},
+      {"step": 6, "operation": "定损更换", "criteria": "确认电池故障", "solution": "定损更换电池", "tools": [], "estimatedTime": "5分钟"}
+    ],
+    "requiredTools": ["电池助手", "酒精棉签"],
+    "totalEstimatedTime": "32分钟",
+    "difficulty": "⭐⭐⭐",
+    "needProfessionalRepair": true,
+    "source": "内部SOP",
+    "sourceDetail": "维修团队标准化作业程序 V1.0 - 电池故障排查",
+    "credibility": "A",
+    "verifiedBy": "技术团队",
+    "verifiedAt": "2024-10-15",
+    "reviewStatus": "approved",
+    "tags": ["SOP", "电池", "压差", "通信", "认证", "电池助手"],
+    "relatedCases": ["F122", "F126", "F127", "F128"]
+  }
+]

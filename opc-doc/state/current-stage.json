@@ -1,0 +1,9 @@
+{
+  "stage": "01-resource-audit",
+  "stage_name": "资源盘点",
+  "status": "in_progress",
+  "started_at": "2026-05-29T15:01:00+08:00",
+  "completed_stages": [],
+  "skipped_stages": [],
+  "project": "DroneDoctor"
+}
