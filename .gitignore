@@ -55,4 +55,7 @@ one-click-fix.sh
 *.sqlite
 *.sqlite3
 
-**/.env
+# Backend build-only copies (data/models are at project root, copied to backend/ during Docker build)
+backend/data/
+backend/models/
+
