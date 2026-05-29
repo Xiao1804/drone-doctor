@@ -65,8 +65,13 @@ app.get('/health', (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
+  const isDev = process.env.NODE_ENV !== 'production';
+  console.error(`[ERROR] ${req.method} ${req.path}:`, err);
+  if (isDev) {
+    res.status(500).json({ error: err.message, stack: err.stack });
+  } else {
+    res.status(500).json({ error: 'Something went wrong!' });
+  }
 });
 
 const PORT = process.env.PORT || 3000;

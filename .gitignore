@@ -54,3 +54,5 @@ one-click-fix.sh
 *.db
 *.sqlite
 *.sqlite3
+
+**/.env

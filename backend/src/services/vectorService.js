@@ -39,8 +39,8 @@ async function initVectorTables() {
       WITH (lists = 10)
     `);
 
-    // 普通索引
-    await query(`CREATE INDEX IF NOT EXISTS idx_fault_case_case_id ON fault_case_embeddings(case_id)`);
+    // case_id 唯一索引（ON CONFLICT 依赖）
+    await query(`CREATE UNIQUE INDEX IF NOT EXISTS idx_fault_case_embeddings_case_id_unique ON fault_case_embeddings(case_id)`);
 
     console.log('[Vector] Vector tables initialized');
   } catch (err) {
