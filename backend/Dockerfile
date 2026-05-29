@@ -8,7 +8,7 @@ ENV NODE_ENV=production
 ENV LOCAL_MODEL_PATH=/app/models
 
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 COPY src ./src
 COPY data ./data
