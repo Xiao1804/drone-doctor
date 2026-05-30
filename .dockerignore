@@ -1,0 +1,71 @@
+# Git
+.git/
+.gitignore
+
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build outputs
+dist/
+build/
+*/dist/
+*/build/
+
+# Environment (keep examples)
+.env
+.env.local
+.env.*.local
+.env.tencent
+.env.tencent.local
+*/.env
+*/.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# WorkBuddy
+.workbuddy/
+
+# Server fix scripts
+fix-server*.sh
+update-server.sh
+one-click-fix.sh
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads (runtime only)
+uploads/
+backend/uploads/
+
+# Docs
+.docs/
+opc-doc/
+
+# AI plan
+AI_ENGINEERING_PLAN.md

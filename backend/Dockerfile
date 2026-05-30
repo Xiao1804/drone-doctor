@@ -8,12 +8,12 @@ ENV NODE_ENV=production
 ENV LOCAL_MODEL_PATH=/app/models
 ENV npm_config_sharp_libvips_binary_host_mirror=https://npmmirror.com/mirrors/sharp-libvips
 
-COPY package*.json ./
+COPY backend/package*.json ./
 RUN npm install --omit=dev
 
-COPY src ./src
+COPY backend/src ./src
 COPY data ./data
-COPY models ./models
+COPY backend/models ./models
 
 RUN mkdir -p /app/uploads
 
