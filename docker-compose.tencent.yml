@@ -39,6 +39,9 @@ services:
       KIMI_MODEL: ${KIMI_MODEL:-}
       BAIDU_API_KEY: ${BAIDU_API_KEY:-}
       BAIDU_SECRET_KEY: ${BAIDU_SECRET_KEY:-}
+      XIAOMI_API_KEY: ${XIAOMI_API_KEY:-}
+      XIAOMI_API_BASE: ${XIAOMI_API_BASE:-}
+      XIAOMI_VISION_MODEL: ${XIAOMI_VISION_MODEL:-}
     volumes:
       - backend_uploads:/app/uploads
     expose:
