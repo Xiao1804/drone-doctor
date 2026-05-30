@@ -25,14 +25,12 @@ export default function GuidePage() {
   const [checkedItems, setCheckedItems] = useState(new Set())
   const [loading, setLoading] = useState(false)
 
-  // Load tree list on mount (menu mode)
+  // Load tree list on mount (always needed for terminal navigation)
   useEffect(() => {
-    if (mode === 'menu') {
-      axios.get(apiUrl('/api/decision-trees'))
-        .then(res => setTrees(res.data.trees || []))
-        .catch(console.error)
-    }
-  }, [mode])
+    axios.get(apiUrl('/api/decision-trees'))
+      .then(res => setTrees(res.data.trees || []))
+      .catch(console.error)
+  }, [])
 
   // Load specific tree (wizard mode)
   useEffect(() => {
@@ -157,6 +155,7 @@ export default function GuidePage() {
 
   // ── RENDER: Result (terminal node) ──
   if (currentNode.type === 'terminal') {
+    const isPreInspection = currentTree.id === 'tree-damage-assessment'
     const allChecked = checklist?.items?.every(item =>
       item.required ? checkedItems.has(item.id) : true
     )
@@ -187,8 +186,32 @@ export default function GuidePage() {
             </div>
           </div>
 
-          {/* Post-Repair Checklist */}
-          {checklist && (
+          {/* Pre-Inspection Complete → show fault diagnosis entry points */}
+          {isPreInspection && (
+            <div className="bg-white rounded-xl border border-gray-200 p-8 mb-6">
+              <h2 className="text-xl font-semibold text-black mb-2">选择故障排查流程</h2>
+              <p className="text-gray-500 text-sm mb-6">定损前检查已完成，请根据故障现象选择排查流程</p>
+              <div className="space-y-3">
+                {trees.filter(t => t.id !== 'tree-damage-assessment').map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => handleStartTree(t.id)}
+                    className="w-full flex items-center gap-4 p-4 rounded-xl border border-gray-200 hover:border-black hover:shadow-lg transition-all text-left bg-white"
+                  >
+                    <span className="text-3xl">{t.icon}</span>
+                    <div className="flex-1">
+                      <div className="font-semibold text-black">{t.name}</div>
+                      <div className="text-sm text-gray-500">{t.description}</div>
+                    </div>
+                    <span className="text-gray-400">→</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Post-Repair Checklist — only for actual repair trees */}
+          {!isPreInspection && checklist && (
             <div className="bg-white rounded-xl border border-gray-200 p-8 mb-6">
               <h2 className="text-xl font-semibold text-black mb-2">维修完成后综合检查</h2>
               <p className="text-gray-500 text-sm mb-6">完成以下检查项后方可交付</p>
