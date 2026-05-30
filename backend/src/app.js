@@ -12,6 +12,7 @@ const casesRoutes = require('./routes/cases');
 const imageRoutes = require('./routes/image');
 const userRoutes = require('./routes/user');
 const historyRoutes = require('./routes/history');
+const decisionTreeRoutes = require('./routes/decisionTrees');
 
 const app = express();
 
@@ -59,6 +60,7 @@ app.use('/api/cases', casesRoutes);
 app.use('/api/image', imageRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/history', historyRoutes);
+app.use('/api/decision-trees', decisionTreeRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

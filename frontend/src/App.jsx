@@ -7,6 +7,7 @@ import ImageDiagnosisPage from './pages/ImageDiagnosisPage'
 import HistoryPage from './pages/HistoryPage'
 import AuthPage from './pages/AuthPage'
 import ProfilePage from './pages/ProfilePage'
+import GuidePage from './pages/GuidePage'
 import './index.css'
 
 function App() {
@@ -21,6 +22,8 @@ function App() {
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/guide" element={<GuidePage />} />
+          <Route path="/guide/:treeId" element={<GuidePage />} />
         </Routes>
       </div>
     </Router>

@@ -1,0 +1,795 @@
+{
+  "version": "1.0",
+  "checklist": {
+    "id": "checklist-post-repair",
+    "name": "维修完成后综合检查",
+    "items": [
+      {
+        "id": "chk-1",
+        "text": "根据更换部件执行对应测试矩阵（第五章），逐项打√",
+        "required": true
+      },
+      {
+        "id": "chk-2",
+        "text": "运行整机链路测试（ET7KY13），所有项PASS",
+        "required": true
+      },
+      {
+        "id": "chk-3",
+        "text": "运行APP测试 — 报错信息/电机转动/图传信号/拍照录像",
+        "required": true
+      },
+      {
+        "id": "chk-4",
+        "text": "确认大包版本为最新（DA2检查）",
+        "required": true
+      },
+      {
+        "id": "chk-5",
+        "text": "防水标签、防拆胶已恢复或已记录状态",
+        "required": true
+      },
+      {
+        "id": "chk-6",
+        "text": "若更换了云台 — 确认银色线扣右侧、黑色线扣左侧（用显微镜检查）",
+        "required": false,
+        "condition": "更换了云台"
+      },
+      {
+        "id": "chk-7",
+        "text": "若更换了电池 — 确认SN录件正确（前3位 4ER）",
+        "required": false,
+        "condition": "更换了电池"
+      },
+      {
+        "id": "chk-8",
+        "text": "维修记录填写完整 — 更换部件编码/测试结果/操作员",
+        "required": true
+      }
+    ]
+  },
+  "trees": [
+    {
+      "id": "tree-damage-assessment",
+      "name": "定损前通用检查",
+      "category": "通用流程",
+      "description": "接收无人机后的标准化外观检查流程",
+      "icon": "🔍",
+      "startNode": "da-1",
+      "nodes": {
+        "da-1": {
+          "id": "da-1",
+          "type": "action",
+          "title": "步骤1：目视机身外观",
+          "description": "检查机身是否有裂缝、凹陷、烧焦痕迹",
+          "criteria": "机身外壳完整，无明显物理损伤",
+          "next": { "label": "已检查，继续", "goto": "da-2" },
+          "caseId": "F097"
+        },
+        "da-2": {
+          "id": "da-2",
+          "type": "action",
+          "title": "步骤2：检查防水标签",
+          "description": "检查电调板/GPS板/TOF/相机镜头/核心板上的防水标签是否变色（进水标志）",
+          "criteria": "所有防水标签为白色，无变红/变色",
+          "next": { "label": "已检查，继续", "goto": "da-3" },
+          "caseId": "F097"
+        },
+        "da-3": {
+          "id": "da-3",
+          "type": "action",
+          "title": "步骤3：检查防拆胶",
+          "description": "检查机身各处防拆胶是否完整，有无被撕毁或重新粘贴痕迹",
+          "criteria": "防拆胶完整，无拆卸痕迹",
+          "next": { "label": "已检查，继续", "goto": "da-4" },
+          "caseId": "F097"
+        },
+        "da-4": {
+          "id": "da-4",
+          "type": "action",
+          "title": "步骤4：检查部件完整性",
+          "description": "确认桨叶×4、天线罩、传感器罩是否齐全",
+          "criteria": "所有部件齐全，无缺失",
+          "next": { "label": "已检查，继续", "goto": "da-5" },
+          "caseId": "F097"
+        },
+        "da-5": {
+          "id": "da-5",
+          "type": "action",
+          "title": "步骤5：确认SN",
+          "description": "查看电池仓贴纸SN，确认前3位为 68Y",
+          "criteria": "SN前3位 = 68Y",
+          "next": { "label": "已确认，继续", "goto": "da-6" },
+          "caseId": "F097"
+        },
+        "da-6": {
+          "id": "da-6",
+          "type": "action",
+          "title": "步骤6：拍照存档",
+          "description": "对机身外观状态进行拍照记录，留存定损依据",
+          "criteria": "照片清晰，能反映外观真实状态",
+          "next": { "label": "已完成，结束", "goto": "da-end" },
+          "caseId": "F097"
+        },
+        "da-end": {
+          "id": "da-end",
+          "type": "terminal",
+          "title": "定损前通用检查完成",
+          "description": "外观检查已完成，记录并拍照。如有影响维修的损伤，请在维修记录中注明。",
+          "conclusion": "定损前检查完成",
+          "recommendation": "进入具体故障排查流程"
+        }
+      }
+    },
+    {
+      "id": "tree-power-on",
+      "name": "无法开机排查",
+      "category": "电源",
+      "description": "无人机按电源键无反应的系统性排查流程",
+      "icon": "🔌",
+      "startNode": "po-start",
+      "nodes": {
+        "po-start": {
+          "id": "po-start",
+          "type": "question",
+          "title": "按电源键可开机？",
+          "description": "按下电源键3秒，观察指示灯和电机自检动作",
+          "criteria": "指示灯正常亮起，或有电机自检声音",
+          "yes": { "label": "✅ 可以开机", "goto": "po-data-analysis" },
+          "no": { "label": "❌ 无法开机", "goto": "po-replace-battery" }
+        },
+        "po-data-analysis": {
+          "id": "po-data-analysis",
+          "type": "question",
+          "title": "需要数据分析？",
+          "description": "判断是否需要导出飞行日志进行进一步分析",
+          "criteria": "是否存在异常飞行记录需要分析",
+          "yes": { "label": "✅ 需要", "goto": "po-export-log" },
+          "no": { "label": "❌ 不需要", "goto": "po-check-firmware" }
+        },
+        "po-export-log": {
+          "id": "po-export-log",
+          "type": "action",
+          "title": "导出飞行日志",
+          "description": "使用 DA2 工具导出飞行日志，分析异常原因",
+          "tools": ["DA2"],
+          "estimatedTime": "5分钟",
+          "next": { "label": "已导出，回到开机检查", "goto": "po-start" },
+          "caseId": "F099"
+        },
+        "po-check-firmware": {
+          "id": "po-check-firmware",
+          "type": "question",
+          "title": "大包已是最新版本？",
+          "description": "使用 DA2 检查当前固件版本是否为最新",
+          "criteria": "DA2显示固件为最新版本",
+          "yes": { "label": "✅ 是最新版", "goto": "po-link-test" },
+          "no": { "label": "❌ 不是最新版", "goto": "po-upgrade-firmware" }
+        },
+        "po-upgrade-firmware": {
+          "id": "po-upgrade-firmware",
+          "type": "action",
+          "title": "升级大包固件",
+          "description": "使用 DA2 升级飞机固件到最新版本",
+          "tools": ["DA2"],
+          "estimatedTime": "10-15分钟",
+          "next": { "label": "已升级，重新检查", "goto": "po-check-firmware" },
+          "caseId": "F099"
+        },
+        "po-link-test": {
+          "id": "po-link-test",
+          "type": "question",
+          "title": "整机链路测试（ET7KY13）是否报错？",
+          "description": "运行 ET7KY13 整机链路测试，查看测试结果",
+          "criteria": "ET7KY13 所有测试项显示 PASS",
+          "tools": ["ET7KY13"],
+          "yes": { "label": "❌ 有报错", "goto": "po-link-error" },
+          "no": { "label": "✅ 无报错", "goto": "po-app-test" }
+        },
+        "po-app-test": {
+          "id": "po-app-test",
+          "type": "question",
+          "title": "APP测试是否报错？",
+          "description": "连接APP，检查电机转动、图传信号、拍照录像等功能",
+          "criteria": "APP各项功能正常，无报错提示",
+          "yes": { "label": "❌ 有报错", "goto": "po-app-error" },
+          "no": { "label": "✅ 无报错", "goto": "po-normal" }
+        },
+        "po-app-error": {
+          "id": "po-app-error",
+          "type": "terminal",
+          "title": "APP功能异常",
+          "description": "APP测试中发现功能异常，需要根据报错信息定位具体模块",
+          "conclusion": "APP功能异常",
+          "recommendation": "根据APP报错信息，定出不良模块并更换大部件"
+        },
+        "po-normal": {
+          "id": "po-normal",
+          "type": "terminal",
+          "title": "飞机正常",
+          "description": "链路测试和APP测试均无异常，飞机功能正常",
+          "conclusion": "[飞机正常]",
+          "recommendation": "无需维修，可交付使用"
+        },
+        "po-link-error": {
+          "id": "po-link-error",
+          "type": "action",
+          "title": "链路测试报错定位",
+          "description": "根据 ET7KY13 的具体报错项进行定位。常见报错项包括：核心板、电调板、电机、GPS板、硬盘、TOF、机臂灯、电池在位、指南针、SD卡槽、相机、云台轴臂等。",
+          "criteria": "记录具体报错项",
+          "tools": ["ET7KY13"],
+          "next": { "label": "已定位，进入对应排查", "goto": "po-link-module-check" }
+        },
+        "po-link-module-check": {
+          "id": "po-link-module-check",
+          "type": "action",
+          "title": "检查对应模块排线",
+          "description": "找到报错模块对应的排线接口，目视检查排线是否松动、断裂或接触不良",
+          "criteria": "排线连接牢固，无断裂、氧化",
+          "next": { "label": "排线正常，定损更换", "goto": "po-module-replace" }
+        },
+        "po-module-replace": {
+          "id": "po-module-replace",
+          "type": "terminal",
+          "title": "模块故障定损",
+          "description": "链路测试报错模块经排线检查后仍异常，判定为模块本体故障",
+          "conclusion": "[对应模块损坏]",
+          "recommendation": "定损更换对应大部件"
+        },
+        "po-replace-battery": {
+          "id": "po-replace-battery",
+          "type": "question",
+          "title": "更换已知正常的满电电池后可开机？",
+          "description": "取下原电池，装入已知正常的满电电池，按电源键3秒观察",
+          "criteria": "更换电池后指示灯正常亮起",
+          "yes": { "label": "✅ 可以开机", "goto": "po-battery-fault" },
+          "no": { "label": "❌ 仍无法开机", "goto": "po-check-btb" }
+        },
+        "po-battery-fault": {
+          "id": "po-battery-fault",
+          "type": "terminal",
+          "title": "电池故障",
+          "description": "更换正常电池后可开机，说明原电池存在问题",
+          "conclusion": "[电池故障]",
+          "recommendation": "对原电池进行定损（使用电池助手）",
+          "caseId": "F099"
+        },
+        "po-check-btb": {
+          "id": "po-check-btb",
+          "type": "question",
+          "title": "电调板-核心板BTB排线松动/损坏？",
+          "description": "拆开机身，找到电调板与核心板之间的BTB排线，目视检查是否松动、断裂或接触不良",
+          "criteria": "排线接口牢固，线材无断裂",
+          "yes": { "label": "❌ 排线异常", "goto": "po-fix-btb" },
+          "no": { "label": "✅ 排线正常", "goto": "po-replace-esc" }
+        },
+        "po-fix-btb": {
+          "id": "po-fix-btb",
+          "type": "action",
+          "title": "修复排线",
+          "description": "重新扣紧BTB排线，或更换新的排线",
+          "estimatedTime": "5分钟",
+          "next": { "label": "已修复，回到开机测试", "goto": "po-start" }
+        },
+        "po-replace-esc": {
+          "id": "po-replace-esc",
+          "type": "question",
+          "title": "更换电调板后可开机？",
+          "description": "拆下原电调板，安装已知正常的电调板，连接排线后按电源键3秒",
+          "criteria": "更换电调板后指示灯正常亮起",
+          "yes": { "label": "✅ 可以开机", "goto": "po-esc-fault" },
+          "no": { "label": "❌ 仍无法开机", "goto": "po-replace-core" }
+        },
+        "po-esc-fault": {
+          "id": "po-esc-fault",
+          "type": "terminal",
+          "title": "电调板损坏",
+          "description": "更换电调板后可正常开机，确认原电调板故障",
+          "conclusion": "[电调板损坏]",
+          "recommendation": "定损更换电调板",
+          "caseId": "F100"
+        },
+        "po-replace-core": {
+          "id": "po-replace-core",
+          "type": "question",
+          "title": "更换核心板后可开机？",
+          "description": "拆下原核心板，安装已知正常的核心板，连接排线后按电源键3秒",
+          "criteria": "更换核心板后指示灯正常亮起",
+          "yes": { "label": "✅ 可以开机", "goto": "po-core-fault" },
+          "no": { "label": "❌ 仍无法开机", "goto": "po-escalate" }
+        },
+        "po-core-fault": {
+          "id": "po-core-fault",
+          "type": "terminal",
+          "title": "核心板损坏",
+          "description": "更换核心板后可正常开机，确认原核心板故障",
+          "conclusion": "[核心板损坏]",
+          "recommendation": "定损更换核心板",
+          "caseId": "F101"
+        },
+        "po-escalate": {
+          "id": "po-escalate",
+          "type": "terminal",
+          "title": "待确认 — 联系技术支持",
+          "description": "更换电池、电调板、核心板后仍无法开机，故障超出常规排查范围",
+          "conclusion": "[待确认]",
+          "recommendation": "联系总部技术支持进行进一步诊断",
+          "caseId": "F102"
+        }
+      }
+    },
+    {
+      "id": "tree-link-test",
+      "name": "机身链路测试故障排查",
+      "category": "机身",
+      "description": "ET7KY13链路测试报错后的定位与排查",
+      "icon": "🔧",
+      "startNode": "lt-start",
+      "nodes": {
+        "lt-start": {
+          "id": "lt-start",
+          "type": "action",
+          "title": "运行整机链路测试",
+          "description": "使用 ET7KY13 运行整机链路测试，记录所有报错项",
+          "criteria": "完整记录每一项 PASS/NG 结果",
+          "tools": ["ET7KY13"],
+          "estimatedTime": "3分钟",
+          "next": { "label": "测试完成，查看结果", "goto": "lt-has-error" }
+        },
+        "lt-has-error": {
+          "id": "lt-has-error",
+          "type": "question",
+          "title": "链路测试是否存在报错项？",
+          "description": "检查 ET7KY13 测试结果中是否有 NG 项",
+          "criteria": "测试结果中存在标红/NG的项目",
+          "yes": { "label": "❌ 有报错", "goto": "lt-select-module" },
+          "no": { "label": "✅ 全部PASS", "goto": "lt-pass" }
+        },
+        "lt-pass": {
+          "id": "lt-pass",
+          "type": "terminal",
+          "title": "链路测试正常",
+          "description": "ET7KY13 所有测试项均通过，机身链路无异常",
+          "conclusion": "[链路测试正常]",
+          "recommendation": "继续APP功能测试"
+        },
+        "lt-select-module": {
+          "id": "lt-select-module",
+          "type": "action",
+          "title": "定位报错模块",
+          "description": "根据 ET7KY13 报错项选择对应模块进行排查。常见报错模块：核心板、电调板、电机、GPS板、硬盘、TOF、机臂灯、电池在位检测、指南针、SD卡槽、相机、云台轴臂",
+          "criteria": "准确识别报错模块名称",
+          "tools": ["ET7KY13"],
+          "next": { "label": "已定位，检查排线", "goto": "lt-check-cable" }
+        },
+        "lt-check-cable": {
+          "id": "lt-check-cable",
+          "type": "question",
+          "title": "报错模块的排线是否异常？",
+          "description": "找到报错模块对应的排线接口，目视检查排线是否松动、断裂、氧化或接触不良",
+          "criteria": "排线连接牢固，线材完好",
+          "yes": { "label": "❌ 排线异常", "goto": "lt-fix-cable" },
+          "no": { "label": "✅ 排线正常", "goto": "lt-camera-check" }
+        },
+        "lt-fix-cable": {
+          "id": "lt-fix-cable",
+          "type": "action",
+          "title": "修复排线",
+          "description": "重新插紧排线，或更换新的排线",
+          "estimatedTime": "5分钟",
+          "next": { "label": "已修复，重新测试", "goto": "lt-start" }
+        },
+        "lt-camera-check": {
+          "id": "lt-camera-check",
+          "type": "question",
+          "title": "报错项是否涉及相机/云台？",
+          "description": "检查报错项是否与相机出图或云台轴臂相关",
+          "criteria": "报错项包含相机或云台相关测试",
+          "yes": { "label": "✅ 涉及相机/云台", "goto": "lt-camera-detail" },
+          "no": { "label": "❌ 不涉及", "goto": "lt-module-fault" }
+        },
+        "lt-camera-detail": {
+          "id": "lt-camera-detail",
+          "type": "question",
+          "title": "相机出图是否正常？",
+          "description": "使用APP拍摄照片，检查画面是否正常（无花屏/条纹/黑屏/撕裂）",
+          "criteria": "照片画面清晰，无异常",
+          "yes": { "label": "✅ 出图正常", "goto": "lt-gimbal-check" },
+          "no": { "label": "❌ 出图异常", "goto": "lt-camera-fault" }
+        },
+        "lt-camera-fault": {
+          "id": "lt-camera-fault",
+          "type": "terminal",
+          "title": "相机或排线不良",
+          "description": "相机出图异常，排线检查正常，判定为相机本体或排线不良",
+          "conclusion": "[相机或排线不良]",
+          "recommendation": "检查排线后定损更换相机模块"
+        },
+        "lt-gimbal-check": {
+          "id": "lt-gimbal-check",
+          "type": "question",
+          "title": "云台轴臂绕动力测试是否通过？",
+          "description": "运行 ET7KY08 绕动力多姿态测试，检查云台YAW/PITCH/ROLL三轴",
+          "criteria": "ET7KY08 三轴测试均显示 PASS",
+          "tools": ["ET7KY08"],
+          "yes": { "label": "✅ PASS", "goto": "lt-module-fault" },
+          "no": { "label": "❌ NG", "goto": "lt-gimbal-fault" }
+        },
+        "lt-gimbal-fault": {
+          "id": "lt-gimbal-fault",
+          "type": "terminal",
+          "title": "轴臂故障",
+          "description": "云台轴臂绕动力测试不通过，判定为轴臂故障",
+          "conclusion": "[轴臂故障]",
+          "recommendation": "更换云台总成"
+        },
+        "lt-module-fault": {
+          "id": "lt-module-fault",
+          "type": "terminal",
+          "title": "模块故障",
+          "description": "链路测试报错模块经排线检查后仍异常，判定为模块本体故障",
+          "conclusion": "[对应模块损坏]",
+          "recommendation": "检查排线后定损更换对应大部件"
+        }
+      }
+    },
+    {
+      "id": "tree-gimbal",
+      "name": "云台故障排查",
+      "category": "云台",
+      "description": "云台转动异常或图像异常的专项排查",
+      "icon": "📷",
+      "startNode": "gm-start",
+      "nodes": {
+        "gm-start": {
+          "id": "gm-start",
+          "type": "question",
+          "title": "云台故障类型",
+          "description": "判断云台问题属于转动异常还是图像异常",
+          "criteria": "根据主要症状选择分类",
+          "yes": { "label": "🔄 转动问题（不转/卡顿/异响）", "goto": "gm-rotation" },
+          "no": { "label": "🖼️ 图像问题（花屏/条纹/不清晰）", "goto": "gm-image" }
+        },
+        "gm-rotation": {
+          "id": "gm-rotation",
+          "type": "action",
+          "title": "绕动力多姿态测试（ET7KY08）",
+          "description": "运行 ET7KY08，按提示手动拨动云台各轴，检查YAW/PITCH/ROLL三轴转动",
+          "criteria": "三轴均能顺畅转动，无卡顿或异响",
+          "tools": ["ET7KY08"],
+          "estimatedTime": "3分钟",
+          "next": { "label": "测试完成", "goto": "gm-rotation-result" }
+        },
+        "gm-rotation-result": {
+          "id": "gm-rotation-result",
+          "type": "question",
+          "title": "绕动力测试是否PASS？",
+          "description": "查看 ET7KY08 测试结果",
+          "criteria": "YAW/PITCH/ROLL 均显示 PASS",
+          "tools": ["ET7KY08"],
+          "yes": { "label": "✅ PASS", "goto": "gm-link-test" },
+          "no": { "label": "❌ NG", "goto": "gm-arm-blocked" }
+        },
+        "gm-arm-blocked": {
+          "id": "gm-arm-blocked",
+          "type": "terminal",
+          "title": "轴臂转动受阻",
+          "description": "云台轴臂在手动拨动时有明显卡顿或无法转动",
+          "conclusion": "[轴臂转动受阻]",
+          "recommendation": "更换云台（BC.MA.SS000534.01）",
+          "caseId": "F115"
+        },
+        "gm-link-test": {
+          "id": "gm-link-test",
+          "type": "action",
+          "title": "整机链路测试（ET7KY13）",
+          "description": "运行 ET7KY13，重点查看云台YAW/PITCH/ROLL三项",
+          "criteria": "云台三项均显示 PASS",
+          "tools": ["ET7KY13"],
+          "estimatedTime": "3分钟",
+          "next": { "label": "测试完成", "goto": "gm-link-result" }
+        },
+        "gm-link-result": {
+          "id": "gm-link-result",
+          "type": "question",
+          "title": "链路测试云台项是否正常？",
+          "description": "检查 ET7KY13 中 YAW/PITCH/ROLL 测试结果",
+          "criteria": "YAW/PITCH/ROLL 均显示 PASS",
+          "tools": ["ET7KY13"],
+          "yes": { "label": "✅ 正常", "goto": "gm-rotation-ok" },
+          "no": { "label": "❌ 异常", "goto": "gm-motor-hall" }
+        },
+        "gm-motor-hall": {
+          "id": "gm-motor-hall",
+          "type": "terminal",
+          "title": "云台电机/霍尔器件损坏",
+          "description": "链路测试显示云台电机或霍尔传感器异常",
+          "conclusion": "[云台电机/霍尔器件损坏]",
+          "recommendation": "更换云台总成",
+          "caseId": "F116"
+        },
+        "gm-rotation-ok": {
+          "id": "gm-rotation-ok",
+          "type": "terminal",
+          "title": "排除转动故障",
+          "description": "云台转动功能正常，无故障",
+          "conclusion": "[排除转动故障]",
+          "recommendation": "继续检查图像功能"
+        },
+        "gm-image": {
+          "id": "gm-image",
+          "type": "question",
+          "title": "出图是否存在异常？",
+          "description": "使用APP拍摄照片，检查画面是否有花屏/条纹/黑屏/撕裂",
+          "criteria": "画面清晰，无异常条纹或色块",
+          "yes": { "label": "❌ 有异常", "goto": "gm-image-persistent" },
+          "no": { "label": "✅ 画面正常", "goto": "gm-clarity-check" }
+        },
+        "gm-image-persistent": {
+          "id": "gm-image-persistent",
+          "type": "question",
+          "title": "异常是否持续复现？",
+          "description": "连续拍摄5张照片，检查异常是否每次都出现",
+          "criteria": "5张照片中异常出现的次数",
+          "yes": { "label": "✅ 每次都出现", "goto": "gm-camera-damage" },
+          "no": { "label": "❌ 偶尔出现", "goto": "gm-fpc-damage" }
+        },
+        "gm-camera-damage": {
+          "id": "gm-camera-damage",
+          "type": "terminal",
+          "title": "相机损坏",
+          "description": "图像异常持续复现，判定为相机本体损坏",
+          "conclusion": "[相机损坏]",
+          "recommendation": "更换云台总成",
+          "caseId": "F117"
+        },
+        "gm-fpc-damage": {
+          "id": "gm-fpc-damage",
+          "type": "terminal",
+          "title": "FPC损坏",
+          "description": "图像异常间歇性出现，判定为FPC排线接触不良或损坏",
+          "conclusion": "[FPC损坏]",
+          "recommendation": "更换云台总成",
+          "caseId": "F118"
+        },
+        "gm-clarity-check": {
+          "id": "gm-clarity-check",
+          "type": "question",
+          "title": "拍照清晰度是否OK？",
+          "description": "放大照片，检查画面清晰度是否满足要求",
+          "criteria": "画面清晰，细节可辨",
+          "yes": { "label": "✅ 清晰", "goto": "gm-spot-check" },
+          "no": { "label": "❌ 不清晰", "goto": "gm-clarity-bad" }
+        },
+        "gm-clarity-bad": {
+          "id": "gm-clarity-bad",
+          "type": "terminal",
+          "title": "相机清晰度不良",
+          "description": "照片放大后明显模糊，对焦异常",
+          "conclusion": "[相机清晰度不良]",
+          "recommendation": "更换云台总成",
+          "caseId": "F119"
+        },
+        "gm-spot-check": {
+          "id": "gm-spot-check",
+          "type": "question",
+          "title": "画面是否存在异色点/暗点？",
+          "description": "全画面检查照片，看是否有固定位置的异色点或暗点",
+          "criteria": "画面干净，无异色点/暗点",
+          "yes": { "label": "❌ 有异色点/暗点", "goto": "gm-clean-lens" },
+          "no": { "label": "✅ 画面干净", "goto": "gm-image-ok" }
+        },
+        "gm-clean-lens": {
+          "id": "gm-clean-lens",
+          "type": "action",
+          "title": "清洁镜头",
+          "description": "用无尘布+镜头清洁液擦拭镜头表面，去除污渍",
+          "estimatedTime": "2分钟",
+          "next": { "label": "已清洁，重新拍照", "goto": "gm-recheck-spot" }
+        },
+        "gm-recheck-spot": {
+          "id": "gm-recheck-spot",
+          "type": "question",
+          "title": "清洁后异色点是否消失？",
+          "description": "重新拍摄照片，检查之前的异色点/暗点是否还在",
+          "criteria": "异色点/暗点已消失",
+          "yes": { "label": "✅ 已消失", "goto": "gm-dirty-lens" },
+          "no": { "label": "❌ 仍在", "goto": "gm-camera-bad" }
+        },
+        "gm-dirty-lens": {
+          "id": "gm-dirty-lens",
+          "type": "terminal",
+          "title": "镜头脏污",
+          "description": "异色点/暗点由镜头表面污渍引起，清洁后已恢复",
+          "conclusion": "[镜头脏污]",
+          "recommendation": "已完成清洁，无需更换"
+        },
+        "gm-camera-bad": {
+          "id": "gm-camera-bad",
+          "type": "terminal",
+          "title": "相机不良",
+          "description": "清洁镜头后异色点/暗点仍存在，判定为相机传感器不良",
+          "conclusion": "[相机不良]",
+          "recommendation": "更换云台总成",
+          "caseId": "F121"
+        },
+        "gm-image-ok": {
+          "id": "gm-image-ok",
+          "type": "terminal",
+          "title": "排除图像故障",
+          "description": "图像功能正常，画面清晰无异色点",
+          "conclusion": "[排除图像故障]",
+          "recommendation": "云台图像功能正常"
+        }
+      }
+    },
+    {
+      "id": "tree-battery",
+      "name": "电池故障排查",
+      "category": "电池",
+      "description": "电池无法充电、无法开机或续航异常的排查流程",
+      "icon": "🔋",
+      "startNode": "bt-start",
+      "nodes": {
+        "bt-start": {
+          "id": "bt-start",
+          "type": "question",
+          "title": "外观检查",
+          "description": "检查电池外观：鼓包？变形？进水？拆卸痕迹？卡扣松动？触点变形？",
+          "criteria": "电池外壳平整，无变形/进水/拆卸痕迹",
+          "yes": { "label": "❌ 外观异常", "goto": "bt-appearance-fault" },
+          "no": { "label": "✅ 外观正常", "goto": "bt-insert-plane" }
+        },
+        "bt-appearance-fault": {
+          "id": "bt-appearance-fault",
+          "type": "terminal",
+          "title": "外观异常",
+          "description": "电池外观存在明显异常，可能影响使用安全",
+          "conclusion": "[外观异常]",
+          "recommendation": "记录原因（客户责任/保修判定）",
+          "caseId": "F122"
+        },
+        "bt-insert-plane": {
+          "id": "bt-insert-plane",
+          "type": "question",
+          "title": "装入飞行器开机",
+          "description": "将电池装入飞行器，按电源键3秒，观察电量指示灯",
+          "criteria": "LED指示灯正常亮起",
+          "yes": { "label": "✅ LED正常", "goto": "bt-charge-test" },
+          "no": { "label": "❌ LED不亮", "goto": "bt-led-debug" }
+        },
+        "bt-led-debug": {
+          "id": "bt-led-debug",
+          "type": "question",
+          "title": "按键无响应且LED不亮？",
+          "description": "按下电源键无任何反应，LED完全不亮",
+          "criteria": "确认按键手感正常，LED无任何反应",
+          "yes": { "label": "✅ 是", "goto": "bt-check-low-battery" },
+          "no": { "label": "❌ 按键有反应/LED微亮", "goto": "bt-low-power-shutdown" }
+        },
+        "bt-check-low-battery": {
+          "id": "bt-check-low-battery",
+          "type": "question",
+          "title": "是否低电量状态？",
+          "description": "判断电池是否处于低电量保护状态（长时间未充电）",
+          "criteria": "电池长期未使用或电量极低",
+          "yes": { "label": "✅ 低电量", "goto": "bt-shutdown-protect" },
+          "no": { "label": "❌ 非低电量", "goto": "bt-fu-mode" }
+        },
+        "bt-fu-mode": {
+          "id": "bt-fu-mode",
+          "type": "terminal",
+          "title": "FU模式",
+          "description": "电池非低电量但完全无响应，进入FU更新模式",
+          "conclusion": "[FU模式]",
+          "recommendation": "连接飞机大包升级恢复",
+          "caseId": "F123"
+        },
+        "bt-shutdown-protect": {
+          "id": "bt-shutdown-protect",
+          "type": "terminal",
+          "title": "Shutdown保护",
+          "description": "电池电量过低触发Shutdown保护，禁止放电",
+          "conclusion": "[Shutdown保护]",
+          "recommendation": "用充电管家充电恢复",
+          "caseId": "F124"
+        },
+        "bt-low-power-shutdown": {
+          "id": "bt-low-power-shutdown",
+          "type": "terminal",
+          "title": "电量过低",
+          "description": "按键能开机但很快关机，电池电量不足",
+          "conclusion": "[电量过低]",
+          "recommendation": "充电",
+          "caseId": "F125"
+        },
+        "bt-charge-test": {
+          "id": "bt-charge-test",
+          "type": "question",
+          "title": "连接充电器充电正常？",
+          "description": "将电池接入充电管家，观察充电LED状态",
+          "criteria": "LED正常亮起，有充电指示",
+          "yes": { "label": "✅ 正常充电", "goto": "bt-app-test" },
+          "no": { "label": "❌ 充电异常", "goto": "bt-charge-debug" }
+        },
+        "bt-charge-debug": {
+          "id": "bt-charge-debug",
+          "type": "question",
+          "title": "充电异常表现",
+          "description": "观察充电LED的具体异常表现",
+          "criteria": "LED状态特征",
+          "yes": { "label": "🚫 完全无响应", "goto": "bt-pf-fail" },
+          "no": { "label": "🔍 有其他异常表现", "goto": "bt-charge-detail" }
+        },
+        "bt-pf-fail": {
+          "id": "bt-pf-fail",
+          "type": "terminal",
+          "title": "PF永久失效",
+          "description": "电池按键无响应且充电完全无反应，判定为PF永久失效",
+          "conclusion": "[PF永久失效]",
+          "recommendation": "报废处理",
+          "caseId": "F126"
+        },
+        "bt-charge-detail": {
+          "id": "bt-charge-detail",
+          "type": "action",
+          "title": "判断充电异常类型",
+          "description": "根据LED表现判断：规律闪烁→触发保护；关机不能充但开机能充→充电电路损坏；单LED流水灯→FU模式",
+          "next": { "label": "已判断", "goto": "bt-charge-result" }
+        },
+        "bt-charge-result": {
+          "id": "bt-charge-result",
+          "type": "terminal",
+          "title": "充电异常定损",
+          "description": "根据具体异常表现给出定损结论",
+          "conclusion": "[充电异常]",
+          "recommendation": "根据具体类型处理：触发保护/充电电路损坏/FU模式"
+        },
+        "bt-app-test": {
+          "id": "bt-app-test",
+          "type": "question",
+          "title": "APP/电池助手检测正常？",
+          "description": "装入飞行器开机，运行电池助手定损检测",
+          "criteria": "电池助手显示检测通过",
+          "tools": ["电池助手"],
+          "yes": { "label": "✅ 检测正常", "goto": "bt-flight-test" },
+          "no": { "label": "❌ 检测异常", "goto": "bt-detect-fault" }
+        },
+        "bt-detect-fault": {
+          "id": "bt-detect-fault",
+          "type": "terminal",
+          "title": "电池检测异常",
+          "description": "电池助手检测异常：压差过大/无法通信/认证失败/电池不在位",
+          "conclusion": "[检测异常]",
+          "recommendation": "根据具体异常项进一步排查",
+          "caseId": "F129"
+        },
+        "bt-flight-test": {
+          "id": "bt-flight-test",
+          "type": "question",
+          "title": "低空飞测续航正常？",
+          "description": "电池满电后进行低空悬停飞行测试，观察续航时间",
+          "criteria": "续航时间达到正常标准",
+          "yes": { "label": "✅ 续航正常", "goto": "bt-ok" },
+          "no": { "label": "❌ 续航异常", "goto": "bt-flight-fault" }
+        },
+        "bt-flight-fault": {
+          "id": "bt-flight-fault",
+          "type": "terminal",
+          "title": "续航异常",
+          "description": "低空飞测续航明显短于正常水平",
+          "conclusion": "[续航异常]",
+          "recommendation": "检查压差过大等问题"
+        },
+        "bt-ok": {
+          "id": "bt-ok",
+          "type": "terminal",
+          "title": "排除电池故障",
+          "description": "电池外观、充电、检测、飞测均正常",
+          "conclusion": "[排除电池故障]",
+          "recommendation": "电池功能正常"
+        }
+      }
+    }
+  ]
+}

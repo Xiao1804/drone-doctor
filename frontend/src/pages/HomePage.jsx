@@ -88,6 +88,12 @@ function HomePage() {
             >
               历史记录
             </button>
+            <button
+              onClick={() => navigate('/guide')}
+              className="px-4 py-2 bg-[#FF6B00] text-white text-sm rounded-lg hover:bg-black transition-colors"
+            >
+              维修助手
+            </button>
             {user ? (
               <div className="flex items-center gap-3">
                 <button
