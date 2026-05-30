@@ -18,7 +18,7 @@ class ImageRecognitionService {
     // Xiaomi mimo 中转平台
     this.xiaomiApiKey = process.env.XIAOMI_API_KEY;
     this.xiaomiApiBase = process.env.XIAOMI_API_BASE || 'https://token-plan-cn.xiaomimimo.com';
-    this.xiaomiVisionModel = process.env.XIAOMI_VISION_MODEL || 'gpt-4o';
+    this.xiaomiVisionModel = process.env.XIAOMI_VISION_MODEL || 'mimo-v2.5';
     this.xiaomiClaudeModel = process.env.XIAOMI_CLAUDE_MODEL || 'claude-3-5-sonnet-20241022';
   }
 

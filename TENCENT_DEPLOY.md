@@ -134,25 +134,32 @@ http://<your-server-public-ip>/health
 
 ## 6. Update After Code Changes
 
+> **推荐方式：CDN 逐文件下载**（国内服务器 git pull 几乎必失败）
+>
+> 在本地 `git push` 后，用 commit hash 通过 jsdelivr CDN 下载改动文件：
+> ```bash
+> cd /root/drone-doctor
+> curl -sL -o <本地路径> "https://cdn.jsdelivr.net/gh/Xiao1804/drone-doctor@<commit-hash>/<路径>"
+> ```
+> 下载完成后验证文件头（`head -3 <file>`），确认内容正确再构建。
+
 ```bash
-cd drone-doctor
-git pull origin main
+cd /root/drone-doctor
 docker compose --env-file .env.tencent -f docker-compose.tencent.yml build backend frontend
 docker compose --env-file .env.tencent -f docker-compose.tencent.yml up -d
 ```
 
-> **国内服务器 Git TLS 问题**：腾讯云服务器连 GitHub 经常遇到 `GnuTLS recv error (-110)`。应急方案：
+> **⚠️ 不要使用 `--no-cache`**：sharp 的 libvips 二进制需要从 GitHub 下载，国内服务器会超时（6000+秒后失败）。保留 Docker 缓存层可复用已编译的 sharp。
+
+> **备选方式：git pull**（经常失败，仅作备用）
 > ```bash
-> # 方案 1：关闭 SSL 验证（临时）
+> # 方案 1：关闭 SSL 验证
 > GIT_SSL_NO_VERIFY=1 git pull origin main
 >
 > # 方案 2：切 HTTP/1.1
 > git config --global http.version HTTP/1.1
 > git config --global http.postBuffer 524288000
 > git pull origin main
->
-> # 方案 3：完全不通时，用 jsdelivr CDN 下载单个文件
-> curl -o <file> -L "https://cdn.jsdelivr.net/gh/Xiao1804/drone-doctor@main/<path>"
 > ```
 
 > **`backend/models/` 目录**：embedding 模型文件（~24MB）被 `.gitignore` 排除，`git pull` 不会更新。首次部署需从运行中的容器复制：
