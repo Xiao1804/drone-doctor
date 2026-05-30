@@ -1,8 +1,10 @@
-# DroneDoctor 上线指南：Vercel + Railway
+# DroneDoctor 上线指南
 
-> 国内手机稳定访问建议改用腾讯云单服务器部署，见 [TENCENT_DEPLOY.md](./TENCENT_DEPLOY.md)。
+> **当前推荐部署方式**：腾讯云单服务器 Docker，见 [TENCENT_DEPLOY.md](./TENCENT_DEPLOY.md)。
+>
+> 以下 Vercel + Railway 方案作为备选参考，项目已转向腾讯云部署。
 
-本项目采用前后端分离部署：
+本项目采用前后端分离部署（备选方案，当前推荐腾讯云部署）：
 
 - 前端：Vercel，Root Directory 选择 `frontend`
 - 后端：Railway，Root Directory 选择 `backend`
@@ -76,7 +78,7 @@ VITE_API_BASE_URL=https://your-railway-domain.up.railway.app
 
 ## 4. 本地开发
 
-后端本地默认使用 SQLite，不需要配置 `DATABASE_URL`：
+数据库使用 PostgreSQL（需安装 pgvector 扩展）：
 
 ```bash
 cd backend

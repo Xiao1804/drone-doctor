@@ -131,6 +131,20 @@ async function initDatabase() {
     await db.query(`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`);
     await db.query(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
 
+    // 埋点事件表（行为干预）
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS events (
+        id SERIAL PRIMARY KEY,
+        event TEXT NOT NULL,
+        data JSONB DEFAULT '{}',
+        user_id TEXT,
+        ip TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_events_event ON events(event)`);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at)`);
+
     // 初始化向量表（Phase 1 新增）
     try {
       const { initVectorTables } = require('./services/vectorService');
@@ -177,6 +191,20 @@ async function initDatabase() {
         db.run(`CREATE INDEX IF NOT EXISTS idx_history_created_at ON history(created_at)`);
         db.run(`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`);
         db.run(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
+
+        // 埋点事件表（行为干预）
+        db.run(`
+          CREATE TABLE IF NOT EXISTS events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event TEXT NOT NULL,
+            data TEXT DEFAULT '{}',
+            user_id TEXT,
+            ip TEXT,
+            created_at TEXT DEFAULT (datetime('now'))
+          )
+        `);
+        db.run(`CREATE INDEX IF NOT EXISTS idx_events_event ON events(event)`);
+        db.run(`CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at)`);
 
         db.run('SELECT 1', (err) => {
           if (err) {

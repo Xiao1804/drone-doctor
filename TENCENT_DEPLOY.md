@@ -136,9 +136,30 @@ http://<your-server-public-ip>/health
 
 ```bash
 cd drone-doctor
-git pull
-docker compose --env-file .env.tencent -f docker-compose.tencent.yml up -d --build
+git pull origin main
+docker compose --env-file .env.tencent -f docker-compose.tencent.yml build backend frontend
+docker compose --env-file .env.tencent -f docker-compose.tencent.yml up -d
 ```
+
+> **国内服务器 Git TLS 问题**：腾讯云服务器连 GitHub 经常遇到 `GnuTLS recv error (-110)`。应急方案：
+> ```bash
+> # 方案 1：关闭 SSL 验证（临时）
+> GIT_SSL_NO_VERIFY=1 git pull origin main
+>
+> # 方案 2：切 HTTP/1.1
+> git config --global http.version HTTP/1.1
+> git config --global http.postBuffer 524288000
+> git pull origin main
+>
+> # 方案 3：完全不通时，用 jsdelivr CDN 下载单个文件
+> curl -o <file> -L "https://cdn.jsdelivr.net/gh/Xiao1804/drone-doctor@main/<path>"
+> ```
+
+> **`backend/models/` 目录**：embedding 模型文件（~24MB）被 `.gitignore` 排除，`git pull` 不会更新。首次部署需从运行中的容器复制：
+> ```bash
+> docker cp drone-doctor-backend-1:/app/models backend/
+> ```
+> 恢复一次后永久有效（docker compose build 会 COPY 进镜像）。
 
 ## 7. Database Backup
 

@@ -109,8 +109,34 @@ exports.diagnose = async (req, res) => {
     const confidence = calculateConfidence(symptom, matchedResults, aiResponse);
 
     // ========== 5. 返回诊断结果 ==========
+    const diagnosisId = `diag_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+    // 自动埋点：诊断完成事件
+    try {
+      const { run } = require('../db');
+      await run(
+        "INSERT INTO events (event, data, ip) VALUES (?, ?, ?)",
+        [
+          'diagnosis_complete',
+          JSON.stringify({
+            diagnosis_id: diagnosisId,
+            device_type: req.body.deviceType || '',
+            fault_type: req.body.faultType || '',
+            steps_count: aiResponse.steps?.length || 0,
+            difficulty: aiResponse.difficulty || '1',
+            search_method: useSemanticSearch ? 'semantic' : 'keyword',
+            confidence: Math.round(confidence * 100) / 100
+          }),
+          req.ip || ''
+        ]
+      );
+    } catch (trackErr) {
+      console.warn('[Track] diagnosis_complete event failed:', trackErr.message);
+    }
+
     res.json({
       success: true,
+      diagnosisId,
       diagnosis: aiResponse,
       matchedCasesCount: matchedResults.length,
       topMatchScore: matchedResults[0]?.score || 0,
