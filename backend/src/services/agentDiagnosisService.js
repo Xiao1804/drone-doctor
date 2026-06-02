@@ -14,7 +14,7 @@ const axios = require('axios');
  */
 
 // ========== 配置 ==========
-const KNOWLEDGE_BASE_PATH = path.join(__dirname, '../../../data/knowledge-base.json');
+const KNOWLEDGE_BASE_PATH = path.join(__dirname, '../../data/knowledge-base.json');
 
 // 品牌/型号关键词映射
 const BRAND_MAP = {
