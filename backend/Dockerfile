@@ -13,7 +13,9 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV LOCAL_MODEL_PATH=/app/models
-ENV npm_config_sharp_libvips_binary_host_mirror=https://npmmirror.com/mirrors/sharp-libvips
+# sharp 使用国内镜像下载 libvips（去掉 _mirror 后缀才是正确变量名）
+ENV SHARP_LIBVIPS_BINARY_HOST=https://npmmirror.com/mirrors/sharp-libvips
+ENV npm_config_sharp_libvips_binary_host=https://npmmirror.com/mirrors/sharp-libvips
 
 COPY backend/package*.json ./
 RUN npm install --omit=dev
