@@ -1,8 +1,8 @@
 FROM node:20-bookworm-slim
 
-# 换国内 apt 源加速
-RUN sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list && \
-    sed -i 's|security.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list
+# 换国内 apt 源加速（兼容 deb822 格式）
+RUN find /etc/apt -type f \( -name "*.list" -o -name "*.sources" \) -exec sed -i 's|deb.debian.org|mirrors.aliyun.com|g' {} + 2>/dev/null || true && \
+    find /etc/apt -type f \( -name "*.list" -o -name "*.sources" \) -exec sed -i 's|security.debian.org|mirrors.aliyun.com|g' {} + 2>/dev/null || true
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends python3 python3-pip make g++ ca-certificates libvips-dev \
