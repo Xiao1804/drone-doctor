@@ -1,0 +1,97 @@
+{
+  "version": "pilot-v1",
+  "domain": "battery",
+  "description": "电池故障智能体知识库（试点）——包含电池决策树和电池相关案例",
+  "documents": [
+    {
+      "id": "tree-battery",
+      "type": "decision_tree",
+      "title": "电池故障排查决策树",
+      "summary": "电池无法充电、无法开机或续航异常的排查流程",
+      "content": "电池故障排查流程：\n1. 外观检查：检查电池是否鼓包、变形、进水、拆卸痕迹、卡扣松动、触点变形。如外观异常→记录原因（客户责任/保修判定）。\n2. 装入飞行器开机：按电源键3秒观察LED。如LED不亮→进入LED调试。\n3. LED调试：确认按键无响应且LED不亮。如长期未使用/电量极低→Shutdown保护（充电恢复）。如非低电量→FU模式（连接大包升级）。\n4. 如按键有反应但很快关机→电量过低（充电）。\n5. 如LED正常→连接充电器测试。如充电异常→进入充电异常诊断。\n6. 充电异常：如完全无响应→PF永久失效（报废）。如有其他异常→根据LED表现判断：规律闪烁=触发保护；关机不能充但开机能充=充电电路损坏；单LED流水灯=FU模式。\n7. 如充电正常→APP/电池助手检测。如检测异常→压差过大/无法通信/认证失败/电池不在位。\n8. 如检测正常→低空飞测续航。如续航异常→压差过大等问题。如续航正常→排除电池故障。",
+      "faultTypes": ["battery", "power", "电源系统"],
+      "keywords": ["电池", "充电", "无法开机", "续航", "电量", "鼓包", "LED不亮", "电池故障", "电池助手"],
+      "relatedCases": ["F006", "F007", "F018", "F122", "F123", "F124", "F125", "F126", "F129"]
+    },
+    {
+      "id": "node-bt-appearance-fault",
+      "type": "tree_node",
+      "treeId": "tree-battery",
+      "nodeId": "bt-appearance-fault",
+      "title": "电池外观异常",
+      "content": "电池外观存在明显异常（鼓包、变形、进水、拆卸痕迹），可能影响使用安全。结论：[外观异常]。建议：记录原因（客户责任/保修判定）。关联案例：F122。",
+      "faultTypes": ["battery"],
+      "keywords": ["鼓包", "变形", "进水", "外观异常", "电池损坏"]
+    },
+    {
+      "id": "node-bt-shutdown-protect",
+      "type": "tree_node",
+      "treeId": "tree-battery",
+      "nodeId": "bt-shutdown-protect",
+      "title": "电池Shutdown保护",
+      "content": "电池电量过低触发Shutdown保护，禁止放电。常见原因：长期未使用或电量极低。结论：[Shutdown保护]。建议：用充电管家充电恢复。关联案例：F124。",
+      "faultTypes": ["battery"],
+      "keywords": ["Shutdown", "保护", "无法开机", "长期未用", "电量低", "不能放电"]
+    },
+    {
+      "id": "node-bt-fu-mode",
+      "type": "tree_node",
+      "treeId": "tree-battery",
+      "nodeId": "bt-fu-mode",
+      "title": "电池FU模式",
+      "content": "电池非低电量但完全无响应，进入FU更新模式。结论：[FU模式]。建议：连接飞机大包升级恢复。关联案例：F123。",
+      "faultTypes": ["battery"],
+      "keywords": ["FU模式", "无响应", "升级", "固件"]
+    },
+    {
+      "id": "node-bt-pf-fail",
+      "type": "tree_node",
+      "treeId": "tree-battery",
+      "nodeId": "bt-pf-fail",
+      "title": "电池PF永久失效",
+      "content": "电池按键无响应且充电完全无反应，判定为PF永久失效。结论：[PF永久失效]。建议：报废处理。关联案例：F126。",
+      "faultTypes": ["battery"],
+      "keywords": ["PF失效", "永久失效", "报废", "无反应", "充电无反应"]
+    },
+    {
+      "id": "node-bt-detect-fault",
+      "type": "tree_node",
+      "treeId": "tree-battery",
+      "nodeId": "bt-detect-fault",
+      "title": "电池检测异常",
+      "content": "电池助手检测异常，可能原因：压差过大、无法通信、认证失败、电池不在位。结论：[检测异常]。建议：根据具体异常项进一步排查。关联案例：F129。",
+      "faultTypes": ["battery"],
+      "keywords": ["检测异常", "压差", "无法通信", "认证失败", "电池不在位"]
+    },
+    {
+      "id": "case-F006",
+      "type": "case",
+      "caseId": "F006",
+      "title": "电池鼓包",
+      "content": "故障现象：电池鼓包。可能原因：过充过放(40%)、高温环境使用(30%)、电池质量问题(20%)、长期存放未使用(10%)。排查步骤：1.检查电池外观（鼓包则立即停止使用）；2.检查电池电压（万用表测量）；3.检查电池循环次数（App查看健康度，>200次建议更换）；4.安全处理（鼓包电池需专业回收处理）。适用机型：Mavic系列、Air系列、Mini系列、植保机。难度：⭐⭐。需专业维修：是。",
+      "faultType": "电源系统",
+      "keywords": ["电池鼓包", "电池膨胀", "电池变形", "过充", "高温", "老化"],
+      "applicableModels": ["Mavic系列", "Air系列", "Mini系列", "植保机"]
+    },
+    {
+      "id": "case-F007",
+      "type": "case",
+      "caseId": "F007",
+      "title": "续航时间明显缩短",
+      "content": "故障现象：续航时间明显缩短/飞行时间短/电池不耐用。可能原因：电池老化(50%)、低温环境(25%)、电机效率下降(15%)、飞行负载过重(10%)。排查步骤：1.检查电池健康度（App查看，>80%正常）；2.检查电池循环次数（<200次正常）；3.检查环境温度（>10°C正常，低温需预热）；4.检查电机转动（顺滑正常，异响查轴承）。适用机型：Mavic系列、Air系列、Mini系列。难度：⭐⭐。关联案例：F006。",
+      "faultType": "动力系统",
+      "keywords": ["续航短", "飞行时间短", "电池不耐用", "电池老化", "低温"],
+      "applicableModels": ["Mavic系列", "Air系列", "Mini系列"]
+    },
+    {
+      "id": "case-F018",
+      "type": "case",
+      "caseId": "F018",
+      "title": "电池无法充电",
+      "content": "故障现象：电池无法充电/充电失败/电池不充电。可能原因：充电器故障(35%)、电池过放保护(30%)、充电接口问题(20%)、电池温度异常(15%)。排查步骤：1.检查充电器（指示灯正常，尝试更换）；2.检查充电接口（清洁无氧化，用酒精+棉签清洁）；3.检查电池温度（5-40°C正常，等待恢复）；4.激活过放电池（长时间连接充电器激活）。适用机型：Mavic系列、Air系列、Mini系列、植保机。难度：⭐⭐。",
+      "faultType": "电源系统",
+      "keywords": ["电池无法充电", "充电失败", "电池不充电", "充电器", "过放保护", "充电接口"],
+      "applicableModels": ["Mavic系列", "Air系列", "Mini系列", "植保机"]
+    }
+  ]
+}

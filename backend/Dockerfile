@@ -1,6 +1,9 @@
 FROM node:20-bookworm-slim
 
-RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ ca-certificates libvips-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends python3 python3-pip make g++ ca-certificates libvips-dev \
+  && python3 -m pip install --break-system-packages --no-cache-dir pyulog \
+  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 

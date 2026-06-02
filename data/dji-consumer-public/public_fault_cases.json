@@ -1,0 +1,549 @@
+{
+  "datasetId": "dji-consumer-public-fault-cases-seed",
+  "version": "0.1.0",
+  "generatedAt": "2026-05-30",
+  "language": "zh-CN",
+  "scope": {
+    "brand": "DJI",
+    "segment": "consumer camera drones",
+    "includedFamilies": [
+      "DJI Mini",
+      "DJI Air",
+      "DJI Mavic",
+      "DJI Flip",
+      "DJI Neo",
+      "DJI Avata",
+      "Spark",
+      "Phantom 4 consumer/prosumer models"
+    ],
+    "excludedFamilies": [
+      "DJI Agriculture",
+      "DJI Enterprise-only Matrice/Dock workflows",
+      "non-DJI drones"
+    ]
+  },
+  "sourcePolicy": [
+    "Only public sources are used.",
+    "This seed batch uses DJI official public troubleshooting and safety pages as source material.",
+    "These entries are public troubleshooting patterns, not claimed field repair cases.",
+    "Any safety-sensitive recommendation must be reviewed by a qualified pilot or repair professional before production use."
+  ],
+  "caseSchema": {
+    "id": "stable case id",
+    "caseNature": "public_official_troubleshooting_pattern | public_forum_case | public_repair_discussion",
+    "sourceRefs": "source ids from docs/dji-consumer-public-sources.md",
+    "faultCategory": "normalized category",
+    "symptom": "user-facing symptom",
+    "appPrompt": "DJI app warning text when available",
+    "applicableModels": "model families from source",
+    "possibleCauses": "causes supported by source",
+    "triageSteps": "front-line checks, non-invasive first",
+    "stopConditions": "when to stop DIY and seek official/pro repair",
+    "confidence": "A=official source, B=public community source, C=needs confirmation"
+  },
+  "cases": [
+    {
+      "id": "DJI-CONS-001",
+      "caseNature": "public_official_troubleshooting_pattern",
+      "title": "DJI Fly 提示云台卡住 40002",
+      "faultCategory": "gimbal_camera",
+      "symptom": "开机后云台无法自检或转动受阻，DJI Fly 提示 Gimbal stuck。",
+      "appPrompt": "Gimbal stuck (Error Code: 40002)",
+      "applicableModels": ["Camera Drones", "Mini", "Air", "Mavic", "Flip", "Neo"],
+      "possibleCauses": [
+        "开机时机臂未展开或云台保护罩未取下",
+        "云台附近有异物卡滞",
+        "需要云台校准",
+        "云台机构或排线存在硬件损伤"
+      ],
+      "triageSteps": [
+        "关机，取下云台保护罩并展开机臂。",
+        "如已安装 microSD 卡，先移除后再排查。",
+        "关机状态下轻柔检查云台运动范围，确认无沙粒、草屑、保护膜等异物。",
+        "清理异物后重启；若无异物，重启后在 App 内执行云台校准。",
+        "校准后仍异常时停止飞行并送检。"
+      ],
+      "stopConditions": [
+        "云台曾受撞击、进水或跌落",
+        "云台不能自由转动或有异响",
+        "校准失败后仍提示 40002"
+      ],
+      "sourceRefs": ["DJI-S01"],
+      "confidence": "A",
+      "humanReviewRequired": true,
+      "tags": ["云台", "40002", "DJI Fly", "校准", "异物"]
+    },
+    {
+      "id": "DJI-CONS-002",
+      "caseNature": "public_official_troubleshooting_pattern",
+      "title": "IMU 校准 required/failed/cannot be calibrated",
+      "faultCategory": "flight_control_sensors",
+      "symptom": "App 提示 IMU 需要校准、校准失败或无法校准。",
+      "appPrompt": "IMU calibration required / IMU calibration failed / IMU cannot be calibrated",
+      "applicableModels": ["Camera Drones", "Mini", "Air", "Mavic", "Avata", "FPV", "Phantom 4", "Spark"],
+      "possibleCauses": [
+        "IMU 数据异常",
+        "校准时电量不足",
+        "机身未按 App 指示方向摆放",
+        "校准表面不水平、不干燥或环境扰动过大"
+      ],
+      "triageSteps": [
+        "确认使用正确 App，飞机与遥控器已连接。",
+        "确认电池电量至少 50%。",
+        "将飞机置于水平、干燥表面；Mavic 系列按来源要求折叠机臂。",
+        "在 DJI Fly 或 DJI GO 4 对应路径进入 IMU 校准并严格按屏幕方向摆放。",
+        "若失败，重启飞机后重新校准一次；仍失败则送检。"
+      ],
+      "stopConditions": [
+        "重启后仍无法完成 IMU 校准",
+        "飞行器曾撞击或进水",
+        "自检同时出现多项传感器异常"
+      ],
+      "sourceRefs": ["DJI-S02"],
+      "confidence": "A",
+      "humanReviewRequired": true,
+      "tags": ["IMU", "传感器", "校准", "飞控"]
+    },
+    {
+      "id": "DJI-CONS-003",
+      "caseNature": "public_official_troubleshooting_pattern",
+      "title": "指南针校准提示或校准失败",
+      "faultCategory": "flight_control_sensors",
+      "symptom": "飞行中或长时间未使用后 App 提示 Compass calibration required。",
+      "appPrompt": "Compass calibration required",
+      "applicableModels": ["Camera Drones", "Mini", "Air", "Mavic", "Avata", "FPV", "Phantom 4", "Spark"],
+      "possibleCauses": [
+        "飞机长时间未使用后需要重新校准",
+        "周围有强磁场或大型金属物体",
+        "遥控器自身指南针需要校准",
+        "指南针硬件或环境干扰导致校准失败"
+      ],
+      "triageSteps": [
+        "移至开阔地，远离大型电气设备、停车场、船只、地下钢筋建筑等强磁/金属环境。",
+        "确认电池电量至少 50%，飞机机臂展开。",
+        "在 DJI Fly 或 DJI GO 4 对应路径执行飞行器指南针校准。",
+        "使用 DJI RC/RC Pro 系列时，如遥控器提示校准，按系统设置内的 Compass Calibration 操作。",
+        "失败后重启再试；仍失败则停止飞行并送检。"
+      ],
+      "stopConditions": [
+        "同一地点反复校准失败",
+        "远离干扰源后仍提示指南针异常",
+        "飞行中出现姿态/航向异常"
+      ],
+      "sourceRefs": ["DJI-S03"],
+      "confidence": "A",
+      "humanReviewRequired": true,
+      "tags": ["指南针", "磁干扰", "DJI Fly", "校准"]
+    },
+    {
+      "id": "DJI-CONS-004",
+      "caseNature": "public_official_troubleshooting_pattern",
+      "title": "GPS 信号弱或无 GPS 信号",
+      "faultCategory": "gnss_navigation",
+      "symptom": "App 显示 Weak GPS signal 或 No GPS signal；GPS 信号条变黄/红，卫星数为 0 或偏低。",
+      "appPrompt": "Weak GPS signal / No GPS signal",
+      "applicableModels": ["Camera Drones"],
+      "possibleCauses": [
+        "上方遮挡导致 GNSS 接收差",
+        "周围强磁场、金属物或高压塔干扰",
+        "室内或楼群、树木、山体附近环境不适合搜星",
+        "视觉系统不可用且 GPS/指南针受干扰时进入 ATTI 风险状态"
+      ],
+      "triageSteps": [
+        "开机后等待 1-3 分钟完成搜星。",
+        "移至开阔户外起飞点，避开室内、楼群、树木和山体遮挡。",
+        "远离高压线、基站、雷达、Wi-Fi 热点、蓝牙设备等电磁干扰源。",
+        "若进入 ATTI 或无法稳定悬停，应尽快在安全地点降落。",
+        "尝试后仍持续异常，送 DJI 诊断。"
+      ],
+      "stopConditions": [
+        "App 长时间显示 No GPS signal",
+        "飞机无法自动悬停或无法自动刹停",
+        "飞行中发生明显水平漂移"
+      ],
+      "sourceRefs": ["DJI-S04"],
+      "confidence": "A",
+      "humanReviewRequired": true,
+      "tags": ["GPS", "GNSS", "ATTI", "搜星", "漂移"]
+    },
+    {
+      "id": "DJI-CONS-005",
+      "caseNature": "public_official_troubleshooting_pattern",
+      "title": "电机无法启动或启动后无法起飞",
+      "faultCategory": "takeoff_propulsion",
+      "symptom": "电机无法启动，或电机启动后飞机无法离地。",
+      "appPrompt": "Unable to take off / motors cannot start",
+      "applicableModels": ["Camera Drones"],
+      "possibleCauses": [
+        "位于 Restricted Zone 或其他受限区域",
+        "螺旋桨安装错误",
+        "电机故障",
+        "初学者/教学模式下 GPS 信号弱",
+        "固件或 App 版本过旧"
+      ],
+      "triageSteps": [
+        "若相机界面无明确提示，先联网更新飞行器固件和 DJI App。",
+        "查看地图确认是否位于 Restricted Zone；需要时按合法流程解锁。",
+        "关机检查螺旋桨型号、方向和安装是否正确。",
+        "尝试启动电机并观察每个电机是否正常旋转。",
+        "检查是否处于 Beginner/Tutorial mode；弱 GPS 环境下不要强行起飞。",
+        "仍无法解决时送检。"
+      ],
+      "stopConditions": [
+        "任一电机不转、卡滞或异响",
+        "螺旋桨有裂纹、弯曲或安装不确定",
+        "处于受限空域且未获合法授权"
+      ],
+      "sourceRefs": ["DJI-S05", "DJI-S15", "DJI-S18"],
+      "confidence": "A",
+      "humanReviewRequired": true,
+      "tags": ["无法起飞", "电机", "螺旋桨", "GEO", "受限区"]
+    },
+    {
+      "id": "DJI-CONS-006",
+      "caseNature": "public_official_troubleshooting_pattern",
+      "title": "App 提示 Aircraft Disconnected 或 Aircraft not connected to RC",
+      "faultCategory": "remote_control_link",
+      "symptom": "进入 DJI Fly/DJI GO 4 后显示飞机断连，遥控器无法控制飞机或无法配对。",
+      "appPrompt": "Aircraft Disconnected / Aircraft not connected to RC",
+      "applicableModels": ["Camera Drones"],
+      "possibleCauses": [
+        "飞机与遥控器型号不匹配",
+        "飞机和遥控器固件版本不一致",
+        "飞机未与遥控器对频/绑定",
+        "App 版本过旧"
+      ],
+      "triageSteps": [
+        "确认飞机和遥控器均已开机，机臂指示灯亮起。",
+        "检查 DJI Fly/DJI GO 4 是否为最新版本。",
+        "确认遥控器型号与飞机兼容。",
+        "连接成功后检查是否有固件更新提示，并完成飞机/遥控器固件更新。",
+        "若状态灯提示对频失败，按 Aircraft Linking Guide 重新对频。"
+      ],
+      "stopConditions": [
+        "确认兼容且固件更新后仍无法对频",
+        "遥控器不能控制飞机",
+        "遥控器或飞机曾受撞击/进水"
+      ],
+      "sourceRefs": ["DJI-S06"],
+      "confidence": "A",
+      "humanReviewRequired": true,
+      "tags": ["断连", "对频", "遥控器", "固件"]
+    },
+    {
+      "id": "DJI-CONS-007",
+      "caseNature": "public_official_troubleshooting_pattern",
+      "title": "飞行中遥控器信号弱、断连或图传卡顿",
+      "faultCategory": "remote_control_link",
+      "symptom": "遥控器信号变弱或断开，图传信号条小于等于 3 格，画面卡顿或丢失。",
+      "appPrompt": "Remote controller signal weak/disconnected / image transmission lost",
+      "applicableModels": ["Camera Drones"],
+      "possibleCauses": [
+        "遥控器天线未朝向飞机",
+        "障碍物遮挡或无线干扰",
+        "遥控器硬件异常",
+        "返航高度未预设导致断连后碰撞风险升高"
+      ],
+      "triageSteps": [
+        "飞前确认遥控器天线平面朝向飞机。",
+        "飞行中出现弱信号时调整天线方向，确保遥控器和飞机之间无遮挡。",
+        "图传冻结或丢失时，如仍可控，升高至高于障碍物并返回安全区域。",
+        "飞前将 Signal Lost 行为设为 RTH，并设置高于周围障碍物的 RTH 高度。",
+        "如飞前即提示遥控器信号错误，优先检查固件更新；仍异常则送检遥控器。"
+      ],
+      "stopConditions": [
+        "信号持续丢失且无法目视确认安全",
+        "遥控器硬件错误提示反复出现",
+        "环境存在强电磁干扰或遮挡无法消除"
+      ],
+      "sourceRefs": ["DJI-S07", "DJI-S15"],
+      "confidence": "A",
+      "humanReviewRequired": true,
+      "tags": ["遥控器", "图传", "信号弱", "RTH", "天线"]
+    },
+    {
+      "id": "DJI-CONS-008",
+      "caseNature": "public_official_troubleshooting_pattern",
+      "title": "无图传信号或相机画面黑屏",
+      "faultCategory": "image_transmission",
+      "symptom": "进入相机视图或飞行中提示 No image transmission signal，画面变黑。",
+      "appPrompt": "No image transmission signal",
+      "applicableModels": ["Camera Drones"],
+      "possibleCauses": [
+        "App 与设备固件版本不兼容",
+        "无线信号干扰",
+        "遥控器天线方向不正确",
+        "microSD 卡不兼容或损坏",
+        "移动设备不兼容"
+      ],
+      "triageSteps": [
+        "使用最新版 DJI Fly/DJI GO 4 同步更新飞机和遥控器固件。",
+        "在 App 传输/HD 页面查看信道状态，优先使用 Auto 选择最佳信道。",
+        "离开高楼密集或强干扰区域。",
+        "检查遥控器天线方向，并必要时重新对频。",
+        "取出 microSD 卡，重启飞机后再插回测试。",
+        "换用 DJI 兼容列表内的移动设备交叉测试。"
+      ],
+      "stopConditions": [
+        "原始视频/拍照功能也异常",
+        "换设备、换卡、更新后仍黑屏",
+        "飞机曾撞击导致相机/云台损伤"
+      ],
+      "sourceRefs": ["DJI-S08"],
+      "confidence": "A",
+      "humanReviewRequired": true,
+      "tags": ["图传", "黑屏", "信道", "microSD", "移动设备兼容"]
+    },
+    {
+      "id": "DJI-CONS-009",
+      "caseNature": "public_official_troubleshooting_pattern",
+      "title": "智能飞行电池无法充电或充电灯异常",
+      "faultCategory": "battery_power",
+      "symptom": "电池连接充电设备后一段时间仍不充电，电量灯不亮或单灯持续闪烁。",
+      "appPrompt": "Battery charging failure / abnormal battery LEDs",
+      "applicableModels": ["Camera Drones"],
+      "possibleCauses": [
+        "充电器、线缆或充电管家异常",
+        "电池长时间未使用进入休眠或过放",
+        "电池损坏、鼓包或充电口异常",
+        "充电电流/电压异常",
+        "充电环境温度超出常见 5-40 摄氏度范围"
+      ],
+      "triageSteps": [
+        "用单电池直充和充电管家交叉测试，区分电池问题还是充电设备问题。",
+        "观察电池外观是否鼓包、破损，充电口是否异常。",
+        "确认充电环境温度在来源建议范围内。",
+        "更换可靠充电器和线缆测试。",
+        "如电池可开机，装入飞机连接 App 查看是否有电池错误提示并拍照记录。",
+        "出现明显损坏、鼓包、漏液或持续错误提示时联系 DJI 支持。"
+      ],
+      "stopConditions": [
+        "电池鼓包、漏液、异味或明显破损",
+        "四个 LED 同时闪烁指示电池损坏",
+        "App 出现电池错误提示"
+      ],
+      "sourceRefs": ["DJI-S09"],
+      "confidence": "A",
+      "humanReviewRequired": true,
+      "tags": ["电池", "充电", "过放", "休眠", "鼓包"]
+    },
+    {
+      "id": "DJI-CONS-010",
+      "caseNature": "public_official_troubleshooting_pattern",
+      "title": "电量充足但飞机无法开机",
+      "faultCategory": "battery_power",
+      "symptom": "插入有电电池后，按键开机无响应，电量灯无响应。",
+      "appPrompt": "Unable to power on",
+      "applicableModels": ["Camera Drones", "Mini", "Air", "Mavic", "Neo", "Avata 2", "Flip"],
+      "possibleCauses": [
+        "开机按键操作方式不正确",
+        "新电池或久置电池处于休眠",
+        "部分机型连接充电器时不能开机",
+        "电池损坏",
+        "电源按键损坏"
+      ],
+      "triageSteps": [
+        "按正确开机方式：短按释放后立即长按约 2 秒。",
+        "新电池或久置电池先充电唤醒。",
+        "对适用机型，确认未连接充电器再开机。",
+        "将电池放入飞机或充电管家充电，观察 LED 模式。",
+        "若四灯同时闪烁或以上步骤无效，联系 DJI 售后检测；Mini 系列通常连同飞机一起送检。"
+      ],
+      "stopConditions": [
+        "电池 LED 指示损坏",
+        "电源按键疑似损坏",
+        "飞机或电池曾进水/跌落"
+      ],
+      "sourceRefs": ["DJI-S10"],
+      "confidence": "A",
+      "humanReviewRequired": true,
+      "tags": ["无法开机", "电池", "休眠", "电源键"]
+    },
+    {
+      "id": "DJI-CONS-011",
+      "caseNature": "public_official_troubleshooting_pattern",
+      "title": "起飞漂移或无法定点悬停",
+      "faultCategory": "flight_stability",
+      "symptom": "起飞后飞机漂移，或无法在原地稳定悬停。",
+      "appPrompt": "Aircraft drifting during takeoff / unable to hover in place",
+      "applicableModels": ["Camera Drones"],
+      "possibleCauses": [
+        "飞行器曾发生碰撞或外力冲击",
+        "GPS/视觉定位条件不足",
+        "指南针或 IMU 异常",
+        "起飞环境不平整、反光或有干扰"
+      ],
+      "triageSteps": [
+        "先询问/记录是否有碰撞、跌落、进水或外力冲击。",
+        "检查 App 自检是否有 IMU、指南针、视觉系统、GPS 异常。",
+        "移至开阔、纹理正常、无强反光地面并等待 GPS 正常。",
+        "按来源流程完成 IMU/指南针/视觉系统相关校准。",
+        "仍漂移时停止飞行并送检。"
+      ],
+      "stopConditions": [
+        "有碰撞或进水历史",
+        "无法悬停且水平漂移明显",
+        "传感器校准失败"
+      ],
+      "sourceRefs": ["DJI-S11", "DJI-S04", "DJI-S02", "DJI-S03", "DJI-S13"],
+      "confidence": "A",
+      "humanReviewRequired": true,
+      "tags": ["漂移", "悬停", "视觉定位", "IMU", "GPS"]
+    },
+    {
+      "id": "DJI-CONS-012",
+      "caseNature": "public_official_troubleshooting_pattern",
+      "title": "碰撞或跌落后存在结构/电子损伤风险",
+      "faultCategory": "crash_damage",
+      "symptom": "飞机、机臂、云台相机、电机或电池在碰撞/跌落后受损。",
+      "appPrompt": null,
+      "applicableModels": ["Camera Drones"],
+      "possibleCauses": [
+        "外壳或机臂结构损坏",
+        "内部电子部件受损",
+        "电机、云台、相机、电池受损",
+        "后续飞行存在安全风险"
+      ],
+      "triageSteps": [
+        "不要继续试飞确认故障。",
+        "记录外观损伤、云台相机、电机和电池状态。",
+        "若电池鼓包或漏液，不要直接寄送电池，先联系 DJI 支持。",
+        "将飞机送 DJI 诊断，避免后续飞行安全风险。",
+        "送修前备份个人数据。"
+      ],
+      "stopConditions": [
+        "任何碰撞、跌落、进水后出现无法开机、无法起飞、悬停不稳、画面模糊或视频强烈抖动",
+        "电池鼓包、漏液或发热异常"
+      ],
+      "sourceRefs": ["DJI-S12"],
+      "confidence": "A",
+      "humanReviewRequired": true,
+      "tags": ["炸机", "跌落", "碰撞", "送检", "电池安全"]
+    },
+    {
+      "id": "DJI-CONS-013",
+      "caseNature": "public_official_troubleshooting_pattern",
+      "title": "视觉系统错误或视觉传感器校准失败",
+      "faultCategory": "vision_sensors",
+      "symptom": "App 提示 Vision system error，或 DJI Assistant 2 视觉校准失败。",
+      "appPrompt": "Vision system error / Calibration Failed",
+      "applicableModels": ["Mini 3 Pro", "Air 2S", "Mavic Air 2", "Mavic Air", "Avata", "DJI FPV", "Phantom 4", "Mavic 2", "Mavic Pro", "newer auto-calibration models"],
+      "possibleCauses": [
+        "视觉传感器需要校准",
+        "校准时电量不足",
+        "USB 数据线连接不稳定",
+        "机型不支持通过 DJI Assistant 2 手动视觉校准"
+      ],
+      "triageSteps": [
+        "确认机型是否支持 DJI Assistant 2 视觉校准；新机型可能由 DJI Fly 自动校准。",
+        "电池电量保持 50% 以上。",
+        "使用正确版本 DJI Assistant 2，并保持 USB 数据线连接稳定。",
+        "按软件教程完成校准并重启飞机。",
+        "自动校准机型出现视觉系统错误时，等待 DJI Fly 自动处理；仍异常则联系支持。"
+      ],
+      "stopConditions": [
+        "校准反复失败",
+        "传感器镜片损坏、污染无法清洁",
+        "碰撞后出现视觉系统错误"
+      ],
+      "sourceRefs": ["DJI-S13"],
+      "confidence": "A",
+      "humanReviewRequired": true,
+      "tags": ["视觉系统", "DJI Assistant 2", "校准", "避障"]
+    },
+    {
+      "id": "DJI-CONS-014",
+      "caseNature": "public_official_troubleshooting_pattern",
+      "title": "拍摄照片或视频颜色异常",
+      "faultCategory": "gimbal_camera",
+      "symptom": "无人机拍摄的照片/视频颜色发浅、偏红或偏绿。",
+      "appPrompt": null,
+      "applicableModels": ["Camera Drones"],
+      "possibleCauses": [
+        "飞行器固件异常",
+        "相机参数设置错误",
+        "移动设备不兼容导致解码不匹配",
+        "相机模块损坏"
+      ],
+      "triageSteps": [
+        "将飞行器固件更新到最新版本。",
+        "在 DJI Fly 或 DJI GO 4 中重置相机参数。",
+        "将 microSD 卡中的原始素材放到电脑或其他显示设备上查看。",
+        "若原始素材正常，多为显示/解码兼容问题；若原始素材也异常，联系 DJI 支持。",
+        "若异常源于碰撞或坠落，直接送检。"
+      ],
+      "stopConditions": [
+        "原始素材也存在颜色异常",
+        "相机/云台受过外力撞击",
+        "更新固件并重置参数后无改善"
+      ],
+      "sourceRefs": ["DJI-S14"],
+      "confidence": "A",
+      "humanReviewRequired": true,
+      "tags": ["相机", "颜色异常", "固件", "解码", "microSD"]
+    },
+    {
+      "id": "DJI-CONS-015",
+      "caseNature": "public_official_troubleshooting_pattern",
+      "title": "返航、低电或失控返航设置不当导致风险升高",
+      "faultCategory": "return_to_home_safety",
+      "symptom": "断连、低电或 RTH 高度设置不当时，返航失败、撞障或飞丢风险升高。",
+      "appPrompt": "Low Battery RTH / Signal Lost / RTH",
+      "applicableModels": ["Camera Drones", "Mini", "Air", "Mavic", "Avata"],
+      "possibleCauses": [
+        "起飞前未记录 Home Point 或定位服务不佳",
+        "Signal Lost 行为未设为 RTH",
+        "RTH 高度低于周围障碍物",
+        "低电返航提示被取消后电量不足以安全降落",
+        "夜间或视觉系统光照不足时无法避障"
+      ],
+      "triageSteps": [
+        "飞前等待 Home Point 更新提示。",
+        "将 Remote Controller Signal Lost 设置为 RTH。",
+        "根据周围最高障碍物设置合理 RTH 高度。",
+        "出现低电 RTH 提示时优先返航或就近安全降落，不建议随意取消。",
+        "RTH 或自动降落期间保持观察，并在允许范围内控制水平移动寻找安全降落点。"
+      ],
+      "stopConditions": [
+        "低电仅够降落时不要继续悬停或远离操作者",
+        "夜间/弱光/强遮挡环境下不要依赖避障",
+        "Home Point 未更新时不要远距离飞行"
+      ],
+      "sourceRefs": ["DJI-S15", "DJI-S16"],
+      "confidence": "A",
+      "humanReviewRequired": true,
+      "tags": ["返航", "RTH", "低电", "失控保护", "飞行安全"]
+    },
+    {
+      "id": "DJI-CONS-016",
+      "caseNature": "public_official_troubleshooting_pattern",
+      "title": "飞丢或无法定位飞机后的处置",
+      "faultCategory": "flyaway_recovery",
+      "symptom": "飞机飞丢、掉入水域/山崖/树顶，或断连后无法确认位置。",
+      "appPrompt": "Find My Drone / Flyaway",
+      "applicableModels": ["Camera Drones", "Mini", "Air", "Mavic", "Avata", "Neo", "Flip"],
+      "possibleCauses": [
+        "断连、低电或环境干扰导致飞丢",
+        "掉落位置危险无法直接取回",
+        "GPS 记录不准，需要查看飞行记录",
+        "需要提交 Flyaway case"
+      ],
+      "triageSteps": [
+        "优先确认人身安全，水域、山崖、屋顶等危险位置不要冒险取回。",
+        "在 DJI Fly/DJI GO 4 中使用 Find My Drone 查看最后位置。",
+        "若仍连接，尝试通过蜂鸣/闪灯定位。",
+        "无法找回时同步或保存飞行记录，并提交 Flyaway case。",
+        "找回飞机后建议送 DJI 诊断，避免下一次飞行风险。"
+      ],
+      "stopConditions": [
+        "取回位置存在人身危险",
+        "飞机进水、跌落或挂树后受力不明",
+        "无法确认飞行记录或最后坐标"
+      ],
+      "sourceRefs": ["DJI-S17"],
+      "confidence": "A",
+      "humanReviewRequired": true,
+      "tags": ["飞丢", "Find My Drone", "飞行记录", "售后"]
+    }
+  ]
+}

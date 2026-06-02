@@ -1,9 +1,13 @@
 {
-  "stage": "01-resource-audit",
-  "stage_name": "资源盘点",
+  "stage": "04-business-model",
+  "stage_name": "商业模式",
   "status": "in_progress",
-  "started_at": "2026-05-29T15:01:00+08:00",
-  "completed_stages": [],
+  "started_at": "2026-06-01T20:11:00+08:00",
+  "completed_stages": ["01-resource-audit", "02-niche-positioning", "03-value-proposition"],
   "skipped_stages": [],
-  "project": "DroneDoctor"
+  "project": "DroneDoctor",
+  "confirmed_decisions": {
+    "value_proposition": "效率优先型",
+    "vp_statement": "AI 帮你 3 分钟诊断无人机故障，省去 3 天送修等待"
+  }
 }

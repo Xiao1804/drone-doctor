@@ -1,0 +1,350 @@
+{
+  "datasetId": "dji-consumer-safety-practice-questions-seed",
+  "version": "0.1.0",
+  "generatedAt": "2026-05-30",
+  "disclaimer": "This is a non-official safety practice question draft generated from public regulations and DJI official safety/troubleshooting material. It is not a CAAC question bank, not an official syllabus-derived question bank, and not official exam material.",
+  "reviewStatus": "pending_human_review",
+  "sources": ["CAAC-S01", "CAAC-S02", "DJI-S02", "DJI-S03", "DJI-S04", "DJI-S05", "DJI-S07", "DJI-S09", "DJI-S12", "DJI-S15", "DJI-S16", "DJI-S17"],
+  "questions": [
+    {
+      "id": "DJI-SAFE-001",
+      "type": "single_choice",
+      "chapter": "飞行前准备",
+      "difficulty": "easy",
+      "question": "大疆消费级无人机起飞前，App 已提示 Home Point updated。这个提示的主要安全意义是什么？",
+      "options": {
+        "A": "说明云台校准已经完成",
+        "B": "说明返航点已记录，后续 RTH 具备基础前提",
+        "C": "说明电池已经充满",
+        "D": "说明可以忽略空域限制"
+      },
+      "answer": "B",
+      "explanation": "返航逻辑依赖返航点、定位状态和相关设置。起飞前确认返航点更新是安全飞行检查的一部分。",
+      "sourceRefs": ["DJI-S15", "DJI-S16"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-002",
+      "type": "single_choice",
+      "chapter": "飞行环境与干扰",
+      "difficulty": "easy",
+      "question": "App 提示 Weak GPS signal 或 No GPS signal 时，优先应如何处理？",
+      "options": {
+        "A": "继续远距离飞行，等待系统自动恢复",
+        "B": "移至开阔户外，远离遮挡、金属物和强电磁干扰源",
+        "C": "关闭 App 后直接手动起飞",
+        "D": "只要电量足够即可忽略"
+      },
+      "answer": "B",
+      "explanation": "DJI 官方资料指出 GPS 可能受遮挡、强磁场、金属物和高压塔等影响，应在开阔环境使用。",
+      "sourceRefs": ["DJI-S04"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-003",
+      "type": "single_choice",
+      "chapter": "异常状态处置",
+      "difficulty": "medium",
+      "question": "飞机进入 ATTI 风险状态时，以下说法正确的是？",
+      "options": {
+        "A": "飞机一定可以自动悬停和自动刹停",
+        "B": "智能飞行功能会全部增强",
+        "C": "飞机更易受环境影响，应尽快安全降落",
+        "D": "只影响拍照颜色，不影响飞行"
+      },
+      "answer": "C",
+      "explanation": "GPS 弱且视觉/指南针条件不佳时可能进入 ATTI，自动悬停和刹停能力受影响，应尽快安全降落。",
+      "sourceRefs": ["DJI-S04"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-004",
+      "type": "single_choice",
+      "chapter": "指南针与磁干扰",
+      "difficulty": "easy",
+      "question": "进行指南针校准时，以下地点最不合适的是？",
+      "options": {
+        "A": "开阔草地",
+        "B": "远离建筑物的空旷地",
+        "C": "大型金属设备或地下钢筋密集建筑附近",
+        "D": "无强磁干扰的户外区域"
+      },
+      "answer": "C",
+      "explanation": "指南针校准应避开强磁场和大型金属物。",
+      "sourceRefs": ["DJI-S03"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-005",
+      "type": "single_choice",
+      "chapter": "IMU 校准",
+      "difficulty": "easy",
+      "question": "IMU 校准前，下列准备较符合 DJI 官方公开资料的是？",
+      "options": {
+        "A": "电池电量至少 50%，飞机放在水平干燥表面",
+        "B": "电池低于 10% 更适合校准",
+        "C": "手持飞机晃动校准更准确",
+        "D": "校准时必须在强磁环境中完成"
+      },
+      "answer": "A",
+      "explanation": "公开资料要求校准前保证足够电量，并按 App 指示将飞机放置在合适表面。",
+      "sourceRefs": ["DJI-S02"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-006",
+      "type": "single_choice",
+      "chapter": "无法起飞排查",
+      "difficulty": "medium",
+      "question": "电机无法启动或启动后无法起飞时，以下哪项属于公开资料支持的优先排查项？",
+      "options": {
+        "A": "是否位于受限区、螺旋桨是否装反、电机是否异常",
+        "B": "直接拆开飞控板更换芯片",
+        "C": "关闭全部安全提示后再试飞",
+        "D": "将 RTH 高度设为 0"
+      },
+      "answer": "A",
+      "explanation": "DJI 官方无法起飞资料列出 Restricted Zone、螺旋桨安装和电机故障等排查方向。",
+      "sourceRefs": ["DJI-S05"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-007",
+      "type": "single_choice",
+      "chapter": "遥控链路",
+      "difficulty": "easy",
+      "question": "飞行中遥控器信号弱或图传卡顿时，首先应注意什么？",
+      "options": {
+        "A": "让遥控器天线朝向地面",
+        "B": "调整天线方向，确保飞机与遥控器之间尽量无遮挡",
+        "C": "关闭遥控器以重启信号",
+        "D": "继续远飞以测试极限距离"
+      },
+      "answer": "B",
+      "explanation": "遥控器天线方向和障碍物/干扰会影响链路质量。",
+      "sourceRefs": ["DJI-S07", "DJI-S15"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-008",
+      "type": "single_choice",
+      "chapter": "返航设置",
+      "difficulty": "medium",
+      "question": "飞前设置返航高度时，较合理的原则是？",
+      "options": {
+        "A": "低于周围障碍物，节省电量",
+        "B": "高于周围障碍物，降低返航碰撞风险",
+        "C": "必须始终设为最高值",
+        "D": "不需要设置，默认一定安全"
+      },
+      "answer": "B",
+      "explanation": "公开安全指南建议观察周围障碍物高度，并设置合理 RTH 高度以避免返航碰撞。",
+      "sourceRefs": ["DJI-S15"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-009",
+      "type": "single_choice",
+      "chapter": "低电返航",
+      "difficulty": "medium",
+      "question": "低电返航提示出现后，随意取消并继续远飞的主要风险是什么？",
+      "options": {
+        "A": "照片颜色会偏绿",
+        "B": "电量可能不足以安全返航或降落，导致坠机或飞丢",
+        "C": "指南针会自动校准",
+        "D": "返航点会自动删除"
+      },
+      "answer": "B",
+      "explanation": "RTH 逻辑资料说明取消低电返航可能导致电池不足以安全降落。",
+      "sourceRefs": ["DJI-S16"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-010",
+      "type": "single_choice",
+      "chapter": "电池安全",
+      "difficulty": "easy",
+      "question": "智能飞行电池出现鼓包、漏液或明显破损时，正确处置是？",
+      "options": {
+        "A": "继续充满后试飞",
+        "B": "停止使用并联系官方/专业支持",
+        "C": "用胶带包住后继续飞",
+        "D": "放入飞机里强制开机"
+      },
+      "answer": "B",
+      "explanation": "电池外观损伤和异常属于安全风险，应停止使用并联系支持。",
+      "sourceRefs": ["DJI-S09", "DJI-S12"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-011",
+      "type": "single_choice",
+      "chapter": "电池充电排查",
+      "difficulty": "easy",
+      "question": "电池无法充电时，较合适的第一轮排查方法是？",
+      "options": {
+        "A": "交叉测试充电器、线缆、充电管家和单电池直充",
+        "B": "立即拆开电池外壳",
+        "C": "放入冷冻柜后充电",
+        "D": "边开机边充电飞行"
+      },
+      "answer": "A",
+      "explanation": "公开资料建议通过不同充电方式交叉测试，区分电池和充电设备问题。",
+      "sourceRefs": ["DJI-S09"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-012",
+      "type": "single_choice",
+      "chapter": "碰撞后处置",
+      "difficulty": "easy",
+      "question": "无人机发生碰撞或跌落后，即使还能开机，较安全的处理是？",
+      "options": {
+        "A": "立即继续高空试飞确认性能",
+        "B": "停止飞行，检查记录损伤，必要时送官方诊断",
+        "C": "只要 App 没报错就无需处理",
+        "D": "只更换 microSD 卡"
+      },
+      "answer": "B",
+      "explanation": "碰撞或跌落可能造成结构和内部电子损伤，继续飞行有安全风险。",
+      "sourceRefs": ["DJI-S12"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-013",
+      "type": "single_choice",
+      "chapter": "飞丢处置",
+      "difficulty": "easy",
+      "question": "无人机掉入水域、山崖或屋顶等危险位置后，第一原则是什么？",
+      "options": {
+        "A": "立即冒险取回以保护设备",
+        "B": "优先人身安全，使用 Find My Drone/飞行记录辅助定位",
+        "C": "删除飞行记录",
+        "D": "关闭遥控器避免报警"
+      },
+      "answer": "B",
+      "explanation": "DJI 飞丢指南强调危险环境中安全第一，可用 Find My Drone 和飞行记录定位。",
+      "sourceRefs": ["DJI-S17"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-014",
+      "type": "single_choice",
+      "chapter": "图传问题",
+      "difficulty": "medium",
+      "question": "无图传或画面黑屏时，哪组原因均属于公开资料支持的可能原因？",
+      "options": {
+        "A": "固件不兼容、信号干扰、天线方向不当、microSD 卡或移动设备兼容问题",
+        "B": "只有电池电量过高一种原因",
+        "C": "一定是 GPS 模块损坏",
+        "D": "一定是法规限制造成"
+      },
+      "answer": "A",
+      "explanation": "DJI 图传问题资料列出固件、干扰、天线、microSD 和移动设备兼容等原因。",
+      "sourceRefs": ["DJI-S08"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-015",
+      "type": "single_choice",
+      "chapter": "云台问题",
+      "difficulty": "easy",
+      "question": "DJI Fly 提示 Gimbal stuck 40002 时，以下哪项是较合理的非侵入式处理？",
+      "options": {
+        "A": "确认云台保护罩已取下、机臂展开、无异物后再做云台校准",
+        "B": "直接强行扭转云台到最大角度",
+        "C": "在飞行中等待自动恢复",
+        "D": "关闭所有安全提示"
+      },
+      "answer": "A",
+      "explanation": "官方资料对 40002 的排查包括取下保护罩、展开机臂、清理异物和云台校准。",
+      "sourceRefs": ["DJI-S01"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-016",
+      "type": "single_choice",
+      "chapter": "法规基础",
+      "difficulty": "easy",
+      "question": "《民用无人驾驶航空器运行安全管理规则》的基本目的更接近以下哪一项？",
+      "options": {
+        "A": "规范民用无人驾驶航空器运行安全管理",
+        "B": "规定所有无人机必须使用同一品牌 App",
+        "C": "规定所有消费级无人机禁止拍照",
+        "D": "只管理农业无人机，不涉及其他无人机"
+      },
+      "answer": "A",
+      "explanation": "该规则是民用无人驾驶航空器运行安全管理的公开法规依据。",
+      "sourceRefs": ["CAAC-S01", "CAAC-S02"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-017",
+      "type": "single_choice",
+      "chapter": "法规意识",
+      "difficulty": "medium",
+      "question": "在中国境内使用无人机前，面对空域和地方临时管控信息，较稳妥的做法是？",
+      "options": {
+        "A": "只看天气，不需要关心空域",
+        "B": "查看法规、空域限制、GEO/Restricted Zone 和地方临时管控要求",
+        "C": "只要飞得低就一定合法",
+        "D": "只要是消费级无人机就不受任何管理"
+      },
+      "answer": "B",
+      "explanation": "公开法规和 DJI 飞行安全资料都强调运行安全、空域限制和飞行环境检查。",
+      "sourceRefs": ["CAAC-S01", "DJI-S15"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-018",
+      "type": "single_choice",
+      "chapter": "飞行前检查",
+      "difficulty": "easy",
+      "question": "以下哪项属于大疆消费级机型飞前检查的合理内容？",
+      "options": {
+        "A": "检查电池、螺旋桨、App 警告、图传信号和返航设置",
+        "B": "只检查相机滤镜颜色",
+        "C": "无需开机自检",
+        "D": "只看飞机外观，忽略 App 提示"
+      },
+      "answer": "A",
+      "explanation": "飞行安全指南和 Mini 3 入门指南均覆盖电池、桨叶、自检提示、图传和 RTH 设置。",
+      "sourceRefs": ["DJI-S15", "DJI-S18"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-019",
+      "type": "single_choice",
+      "chapter": "螺旋桨与动力",
+      "difficulty": "easy",
+      "question": "螺旋桨安装错误可能导致什么问题？",
+      "options": {
+        "A": "飞机可能无法起飞",
+        "B": "照片一定偏红",
+        "C": "电池一定无法充电",
+        "D": "遥控器屏幕亮度下降"
+      },
+      "answer": "A",
+      "explanation": "DJI 无法起飞资料和 Mini 3 指南均提示螺旋桨安装错误会影响起飞。",
+      "sourceRefs": ["DJI-S05", "DJI-S18"],
+      "humanReviewRequired": true
+    },
+    {
+      "id": "DJI-SAFE-020",
+      "type": "single_choice",
+      "chapter": "人工复核原则",
+      "difficulty": "medium",
+      "question": "AI 根据公开资料给出无人机故障排查建议后，涉及飞行安全或维修判断时应如何处理？",
+      "options": {
+        "A": "直接作为最终维修结论",
+        "B": "由具备经验的飞手/维修人员复核后再执行",
+        "C": "删除来源链接以减少干扰",
+        "D": "把 AI 猜测当作真实案例"
+      },
+      "answer": "B",
+      "explanation": "公开资料可用于初筛和学习，但安全相关建议必须人工审核，不能替代真实维修经验。",
+      "sourceRefs": ["CAAC-S01", "DJI-S12"],
+      "humanReviewRequired": true
+    }
+  ]
+}

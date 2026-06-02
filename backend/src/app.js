@@ -15,6 +15,8 @@ const historyRoutes = require('./routes/history');
 const decisionTreeRoutes = require('./routes/decisionTrees');
 const eventsRoutes = require('./routes/events');
 const statsRoutes = require('./routes/stats');
+const flightLogRoutes = require('./routes/flightLog');
+const diagnosisAgentRoutes = require('./routes/diagnosisAgent');
 
 const app = express();
 
@@ -65,6 +67,8 @@ app.use('/api/history', historyRoutes);
 app.use('/api/decision-trees', decisionTreeRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/flight-logs', flightLogRoutes);
+app.use('/api/diagnosis/agent', diagnosisAgentRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

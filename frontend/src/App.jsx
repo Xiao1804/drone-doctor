@@ -8,6 +8,7 @@ import HistoryPage from './pages/HistoryPage'
 import AuthPage from './pages/AuthPage'
 import ProfilePage from './pages/ProfilePage'
 import GuidePage from './pages/GuidePage'
+import FlightLogPage from './pages/FlightLogPage'
 import './index.css'
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/guide" element={<GuidePage />} />
           <Route path="/guide/:treeId" element={<GuidePage />} />
+          <Route path="/flight-log" element={<FlightLogPage />} />
         </Routes>
       </div>
     </Router>

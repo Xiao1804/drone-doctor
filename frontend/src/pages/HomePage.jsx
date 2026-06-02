@@ -62,6 +62,12 @@ function HomePage() {
   const [user, setUser] = useState(null)
   const navigate = useNavigate()
 
+  // 智能体诊断状态（试点）
+  const [showAgentModal, setShowAgentModal] = useState(false)
+  const [agentQuery, setAgentQuery] = useState('')
+  const [agentLoading, setAgentLoading] = useState(false)
+  const [agentResult, setAgentResult] = useState(null)
+
   useEffect(() => {
     const userData = localStorage.getItem('user')
     if (userData) {
@@ -193,6 +199,39 @@ function HomePage() {
       console.error('Diagnosis error:', error)
       alert('诊断失败，请稍后重试')
       setLoading(false)
+    }
+  }
+
+  // 智能体诊断（试点）
+  const handleAgentDiagnose = async () => {
+    if (!agentQuery.trim()) return
+
+    const remaining = getRemainingCount()
+    if (remaining <= 0) {
+      alert('今日免费诊断次数已用完，明天再来！')
+      return
+    }
+
+    setAgentLoading(true)
+    setAgentResult(null)
+
+    try {
+      const response = await axios.post(apiUrl('/api/diagnosis/agent'), {
+        query: agentQuery.trim(),
+        mode: 'single'
+      })
+
+      if (response.data.success) {
+        setAgentResult(response.data.data)
+        incrementDiagnosisCount()
+      } else {
+        alert('诊断失败：' + (response.data.error || '未知错误'))
+      }
+    } catch (error) {
+      console.error('Agent diagnosis error:', error)
+      alert('智能体诊断失败，请稍后重试')
+    } finally {
+      setAgentLoading(false)
     }
   }
 
@@ -407,7 +446,13 @@ function HomePage() {
 
           {/* 其他诊断模式入口 */}
           {!loading && (
-            <div className="flex items-center justify-center gap-4 mb-8">
+            <div className="flex items-center justify-center gap-4 mb-8 flex-wrap">
+              <button
+                onClick={() => setShowAgentModal(true)}
+                className="px-6 py-3 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors flex items-center gap-2"
+              >
+                <span>🤖</span> AI智能诊断
+              </button>
               <button
                 onClick={() => navigate('/conversation')}
                 className="px-6 py-3 bg-[#FF6B00] text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors"
@@ -419,6 +464,12 @@ function HomePage() {
                 className="px-6 py-3 border-2 border-[#FF6B00] text-[#FF6B00] rounded-lg text-sm font-medium hover:bg-orange-50 transition-colors"
               >
                 📷 图片识别
+              </button>
+              <button
+                onClick={() => navigate('/flight-log')}
+                className="px-6 py-3 border-2 border-gray-900 text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+              >
+                飞行日志解析
               </button>
             </div>
           )}
@@ -553,6 +604,114 @@ function HomePage() {
           </div>
         </div>
       </footer>
+
+      {/* AI智能诊断弹窗（试点） */}
+      {showAgentModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto shadow-2xl">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🤖</span>
+                  <h3 className="text-lg font-semibold">AI智能诊断</h3>
+                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">v1.0</span>
+                </div>
+                <button
+                  onClick={() => { setShowAgentModal(false); setAgentResult(null); setAgentQuery(""); }}
+                  className="text-gray-400 hover:text-gray-600 text-xl"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <p className="text-sm text-gray-500 mb-4">
+                用自然语言描述你的故障，AI从知识库中查找相关资料并给出诊断建议。
+              </p>
+
+              {!agentResult ? (
+                <div>
+                  <textarea
+                    value={agentQuery}
+                    onChange={(e) => setAgentQuery(e.target.value)}
+                    placeholder="例如：Mavic 3电池充不进去电，充电器指示灯不亮"
+                    rows={4}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 transition-colors resize-none mb-4"
+                  />
+                  <button
+                    onClick={handleAgentDiagnose}
+                    disabled={agentLoading || !agentQuery.trim()}
+                    className="w-full py-3 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {agentLoading ? (
+                      <>
+                        <span className="animate-spin">⏳</span> 分析中...
+                      </>
+                    ) : (
+                      <>开始智能诊断</>
+                    )}
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <div className="bg-gray-50 rounded-xl p-4 mb-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-sm font-medium">
+                        {agentResult.canDiagnose ? "✅ 可以诊断" : "❓ 需要更多信息"}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        置信度: {Math.round(agentResult.confidence * 100)}%
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-700 whitespace-pre-line">
+                      {agentResult.answer}
+                    </div>
+                  </div>
+
+                  {agentResult.suggestedActions && agentResult.suggestedActions.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {agentResult.suggestedActions.map((action, i) => (
+                        <button
+                          key={i}
+                          onClick={() => {
+                            if (action.type === "start_tree" && action.payload?.treeId) {
+                              navigate("/guide/" + action.payload.treeId);
+                              setShowAgentModal(false);
+                            }
+                          }}
+                          className="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors"
+                        >
+                          {action.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {agentResult.relatedCases && agentResult.relatedCases.length > 0 && (
+                    <div className="mb-4">
+                      <p className="text-sm font-medium text-gray-600 mb-2">相关案例:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {agentResult.relatedCases.map((c) => (
+                          <span key={c.caseId} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                            {c.title} ({c.caseId})
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={() => setAgentResult(null)}
+                    className="w-full py-3 border-2 border-gray-200 text-gray-600 rounded-xl font-medium hover:border-purple-500 hover:text-purple-600 transition-colors"
+                  >
+                    重新描述
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
