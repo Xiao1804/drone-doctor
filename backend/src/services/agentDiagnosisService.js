@@ -33,18 +33,358 @@ const MODEL_MAP = {
   'matrice': ['matrice', 'm300', 'm350', 'm30'],
 };
 
-// 高优先级症状（明确报错词，一旦出现直接匹配，优先级最高）
-const HIGH_PRIORITY_SYMPTOMS = {
-  'compass_abnormal': ['指南针异常', '指南针错误', '磁场干扰', '磁罗盘异常', 'compass error', 'compass cal'],
-  'imu_abnormal': ['IMU异常', 'IMU未校准', '姿态异常', 'imu error', 'imu cal'],
-  'gps_abnormal': ['GPS信号弱', 'GPS异常', '定位不准', '搜星失败', '卫星不足', 'gnss'],
-  'motor_abnormal': ['电机不转', '电机异响', '转速异常', '电机故障', 'motor fail'],
-  'battery_abnormal': ['电池异常', '电池故障', '电压过低', '电芯损坏', '电池鼓包'],
-  'failsafe': ['failsafe', '失控保护', '失控返航', '信号丢失返航'],
-  'nofly_zone': ['禁飞区', '禁飞', 'no fly', 'nfz'],
+// ========== 故障意图识别规则 ==========
+
+/**
+ * 目的：
+ * 1. 避免"无法起飞"误判成"无法开机"
+ * 2. 明确报错优先，例如：指南针异常 > 无法起飞
+ * 3. 将 faultType 映射到正确的决策树
+ */
+
+const INTENT_RULES = [
+  {
+    faultType: 'compass_abnormal',
+    label: '指南针异常',
+    priority: 100,
+    keywords: [
+      '指南针异常',
+      '指南针错误',
+      '指南针校准',
+      '指南针校准失败',
+      '磁场干扰',
+      '磁干扰',
+      '罗盘异常',
+      'compass'
+    ]
+  },
+  {
+    faultType: 'imu_abnormal',
+    label: 'IMU异常',
+    priority: 95,
+    keywords: [
+      'IMU异常',
+      'IMU错误',
+      'IMU未校准',
+      'IMU校准失败',
+      '姿态异常',
+      '姿态传感器异常'
+    ]
+  },
+  {
+    faultType: 'gps_abnormal',
+    label: 'GPS异常',
+    priority: 90,
+    keywords: [
+      'GPS异常',
+      'GPS信号弱',
+      'GPS信号差',
+      '搜星失败',
+      '卫星少',
+      '定位异常',
+      '定位失败'
+    ]
+  },
+  {
+    faultType: 'takeoff_failure',
+    label: '无法起飞',
+    priority: 80,
+    keywords: [
+      '无法起飞',
+      '不能起飞',
+      '起飞失败',
+      '无法解锁',
+      '不能解锁',
+      '解锁失败',
+      '电机无法启动',
+      '电机不转',
+      '无法启动电机'
+    ]
+  },
+  {
+    faultType: 'power_on_failure',
+    label: '无法开机',
+    priority: 70,
+    keywords: [
+      '无法开机',
+      '不能开机',
+      '不开机',
+      '开不了机',
+      '按电源键无反应',
+      '电源键没反应',
+      '无法通电',
+      '不通电',
+      '黑屏',
+      '没反应'
+    ]
+  },
+  {
+    faultType: 'battery_abnormal',
+    label: '电池异常',
+    priority: 60,
+    keywords: [
+      '电池异常',
+      '电池报错',
+      '电池故障',
+      '电池无法充电',
+      '电池鼓包',
+      '电池损坏',
+      '电池通信异常'
+    ]
+  }
+];
+
+const FAULT_TYPE_TO_TREE = {
+  compass_abnormal: {
+    treeId: 'tree-compass-abnormal',
+    treeName: '指南针异常排查'
+  },
+  imu_abnormal: {
+    treeId: 'tree-imu-abnormal',
+    treeName: 'IMU异常排查'
+  },
+  gps_abnormal: {
+    treeId: 'tree-gps-abnormal',
+    treeName: 'GPS异常排查'
+  },
+  takeoff_failure: {
+    treeId: 'tree-takeoff-failure',
+    treeName: '无法起飞排查'
+  },
+  power_on_failure: {
+    treeId: 'tree-power-on',
+    treeName: '无法开机排查'
+  },
+  battery_abnormal: {
+    treeId: 'tree-battery-abnormal',
+    treeName: '电池异常排查'
+  }
 };
 
-// 故障类型关键词映射（全量，按匹配优先级排序）
+const POWER_ON_INCLUDE = [
+  '无法开机',
+  '不能开机',
+  '不开机',
+  '开不了机',
+  '按电源键无反应',
+  '电源键没反应',
+  '无法通电',
+  '不通电',
+  '黑屏'
+];
+
+const POWER_ON_EXCLUDE = [
+  '无法起飞',
+  '不能起飞',
+  '起飞失败',
+  '无法解锁',
+  '不能解锁',
+  '解锁失败',
+  '指南针异常',
+  '指南针错误',
+  '磁场干扰',
+  '磁干扰',
+  'GPS异常',
+  'GPS信号弱',
+  'IMU异常',
+  'IMU错误',
+  '禁飞区',
+  '限飞区'
+];
+
+function normalizeQuery(query) {
+  return String(query || '').trim();
+}
+
+function includesKeyword(query, keyword) {
+  if (!query || !keyword) return false;
+  const lowerQuery = query.toLowerCase();
+  const lowerKeyword = keyword.toLowerCase();
+  return lowerQuery.includes(lowerKeyword);
+}
+
+function matchKeywords(query, keywords = []) {
+  return keywords.filter(keyword => includesKeyword(query, keyword));
+}
+
+/**
+ * 判断是否允许使用无法开机树
+ * 防止"无法起飞 / 指南针异常"误触发 tree-power-on
+ */
+function shouldUsePowerOnTree(query) {
+  const text = normalizeQuery(query);
+  const include = POWER_ON_INCLUDE.some(keyword => includesKeyword(text, keyword));
+  const exclude = POWER_ON_EXCLUDE.some(keyword => includesKeyword(text, keyword));
+  return include && !exclude;
+}
+
+/**
+ * 识别用户故障意图
+ * 明确报错优先级高于行为现象
+ */
+function detectFaultIntent(query) {
+  const text = normalizeQuery(query);
+
+  if (!text) {
+    return {
+      faultType: 'unknown',
+      secondaryFaultType: null,
+      label: '未知故障',
+      matchedKeywords: [],
+      confidence: 0
+    };
+  }
+
+  const matches = [];
+
+  for (const rule of INTENT_RULES) {
+    const matchedKeywords = matchKeywords(text, rule.keywords);
+    if (matchedKeywords.length > 0) {
+      matches.push({
+        faultType: rule.faultType,
+        label: rule.label,
+        priority: rule.priority,
+        matchedKeywords,
+        score: rule.priority + matchedKeywords.length * 5
+      });
+    }
+  }
+
+  if (matches.length === 0) {
+    return {
+      faultType: 'unknown',
+      secondaryFaultType: null,
+      label: '未知故障',
+      matchedKeywords: [],
+      confidence: 0.3
+    };
+  }
+
+  matches.sort((a, b) => b.score - a.score);
+
+  const primary = matches[0];
+  const secondary = matches[1] || null;
+
+  return {
+    faultType: primary.faultType,
+    secondaryFaultType: secondary ? secondary.faultType : null,
+    label: primary.label,
+    matchedKeywords: primary.matchedKeywords,
+    allMatches: matches,
+    confidence: Math.min(0.95, 0.65 + primary.matchedKeywords.length * 0.1)
+  };
+}
+
+/**
+ * 根据故障意图选择决策树
+ */
+function getTreeByIntent(intent, query) {
+  if (!intent || !intent.faultType) return null;
+
+  // tree-power-on 必须严格限制，避免误触发
+  if (intent.faultType === 'power_on_failure') {
+    if (!shouldUsePowerOnTree(query)) {
+      return null;
+    }
+  }
+
+  return FAULT_TYPE_TO_TREE[intent.faultType] || null;
+}
+
+/**
+ * 判断一个决策树文档是否和意图匹配
+ */
+function isTreeMatchedWithIntent(treeDoc, intent) {
+  if (!treeDoc || !intent) return false;
+  const doc = treeDoc.doc || treeDoc;
+  const docId = doc.id || doc.treeId;
+  const expectedTree = FAULT_TYPE_TO_TREE[intent.faultType];
+  if (!expectedTree) return false;
+  return docId === expectedTree.treeId;
+}
+
+/**
+ * 从召回结果中选择最合适的决策树
+ * 优先级：
+ * 1. faultType 对应的树
+ * 2. 召回结果中和 intent 匹配的树
+ * 3. 明确禁止误用 tree-power-on
+ */
+function selectBestDecisionTree(query, retrievedDocs = []) {
+  const intent = detectFaultIntent(query);
+  const mappedTree = getTreeByIntent(intent, query);
+
+  // 先找召回结果里是否有完全匹配的树
+  if (mappedTree && Array.isArray(retrievedDocs)) {
+    const matchedRetrievedTree = retrievedDocs.find(item => {
+      const doc = item.doc || item;
+      return doc && doc.type === 'decision_tree' && (doc.id === mappedTree.treeId || doc.treeId === mappedTree.treeId);
+    });
+
+    if (matchedRetrievedTree) {
+      const doc = matchedRetrievedTree.doc || matchedRetrievedTree;
+      return {
+        id: doc.id || doc.treeId || mappedTree.treeId,
+        title: doc.title || doc.treeName || mappedTree.treeName,
+        source: 'retrieved_intent_matched',
+        intent
+      };
+    }
+  }
+
+  // 如果知识库暂时没有这个树，也直接返回映射树，让前端可以跳转或提示
+  if (mappedTree) {
+    return {
+      id: mappedTree.treeId,
+      title: mappedTree.treeName,
+      source: 'intent_mapping',
+      intent
+    };
+  }
+
+  // 禁止在有"无法起飞/指南针异常"等排除词时 fallback 到 tree-power-on
+  const hasPowerOnExclude = POWER_ON_EXCLUDE.some(keyword => includesKeyword(query, keyword));
+
+  if (hasPowerOnExclude) {
+    const safeTreeDoc = retrievedDocs.find(item => {
+      const doc = item.doc || item;
+      return doc && doc.type === 'decision_tree' && doc.id !== 'tree-power-on';
+    });
+
+    if (safeTreeDoc) {
+      const doc = safeTreeDoc.doc || safeTreeDoc;
+      return {
+        id: doc.id || doc.treeId,
+        title: doc.title || doc.treeName,
+        source: 'safe_fallback',
+        intent
+      };
+    }
+
+    return null;
+  }
+
+  // 最后才允许普通 fallback
+  const treeDoc = retrievedDocs.find(item => {
+    const doc = item.doc || item;
+    return doc && doc.type === 'decision_tree';
+  });
+
+  if (treeDoc) {
+    const doc = treeDoc.doc || treeDoc;
+    return {
+      id: doc.id || doc.treeId,
+      title: doc.title || doc.treeName,
+      source: 'fallback_retrieved_tree',
+      intent
+    };
+  }
+
+  return null;
+}
+
+// ========== 故障类型关键词映射（全量，兼容旧版 parseIntent 和其他模块） ==========
+
 const FAULT_TYPE_MAP = {
   // === 明确报错（高优先级）===
   'compass_abnormal': ['指南针异常', '指南针错误', '磁场干扰', '磁罗盘', 'compass'],
@@ -83,34 +423,6 @@ const FAULT_TYPE_MAP = {
   'water': ['进水', '涉水', '防水', '潮湿'],
   'crash': ['坠机', '摔机', '碰撞', '炸机', '坠毁'],
   'spray': ['喷洒', '喷头', '水泵', '流量', '药箱', '漏药', '堵塞', '雾化'],
-};
-
-// 故障类型 → 决策树映射
-const FAULT_TYPE_TO_TREE = {
-  'power_on': 'tree-power-on',
-  'takeoff_failure': 'tree-takeoff-failure',
-  'compass_abnormal': 'tree-compass-abnormal',
-  'imu_abnormal': 'tree-imu-abnormal',
-  'gps_abnormal': 'tree-gps-abnormal',
-  'motor_abnormal': 'tree-motor',
-  'motor': 'tree-motor',
-  'battery_abnormal': 'tree-battery',
-  'battery': 'tree-battery',
-  'gimbal': 'tree-gimbal',
-  'video': 'tree-video',
-  'camera': 'tree-camera',
-  'remote': 'tree-remote',
-  'communication': 'tree-remote',
-  'flight': 'tree-flight',
-  'landing': 'tree-landing',
-  'crash': 'tree-crash',
-  'sensor': 'tree-sensor',
-  'noise': 'tree-motor',
-  'overheat': 'tree-overheat',
-  'water': 'tree-water',
-  'failsafe': 'tree-failsafe',
-  'nofly_zone': 'tree-nofly',
-  'spray': 'tree-spray',
 };
 
 // ========== 状态 ==========
@@ -251,19 +563,24 @@ function countMatches(queryWords, targetWords) {
 
 /**
  * 解析用户意图，提取关键信息
- * 优先级：明确报错 > 具体部件 > 行为现象 > 泛化描述
+ * 整合品牌/型号识别 + detectFaultIntent 故障意图识别
  * @param {string} query - 用户原始输入
- * @returns {object} { brand, model, faultType, secondaryFaultType, symptom, confidence }
+ * @returns {object} { brand, model, faultType, secondaryFaultType, label, symptom, confidence }
  */
 function parseIntent(query) {
   const lower = query.toLowerCase();
+
+  // 用 detectFaultIntent 做故障类型识别（优先级 + 分数机制）
+  const faultIntent = detectFaultIntent(query);
+
   const result = {
     brand: null,
     model: null,
-    faultType: null,
-    secondaryFaultType: null,
+    faultType: faultIntent.faultType,
+    secondaryFaultType: faultIntent.secondaryFaultType,
+    label: faultIntent.label,
     symptom: query,
-    confidence: 0,
+    confidence: faultIntent.confidence,
   };
 
   let matchCount = 0;
@@ -286,53 +603,10 @@ function parseIntent(query) {
     }
   }
 
-  // === Step 1: 高优先级症状（明确报错词，优先级最高）===
-  for (const [ftype, keywords] of Object.entries(HIGH_PRIORITY_SYMPTOMS)) {
-    if (keywords.some(k => lower.includes(k.toLowerCase()))) {
-      result.faultType = ftype;
-      matchCount += 2; // 高优先级匹配给更高权重
-      break;
-    }
+  // 品牌和型号匹配提升置信度
+  if (matchCount > 0) {
+    result.confidence = Math.min(0.98, result.confidence + matchCount * 0.05);
   }
-
-  // === Step 2: 一般故障类型匹配（仅当高优先级未命中时）===
-  if (!result.faultType) {
-    for (const [ftype, keywords] of Object.entries(FAULT_TYPE_MAP)) {
-      if (keywords.some(k => lower.includes(k.toLowerCase()))) {
-        result.faultType = ftype;
-        matchCount++;
-        break;
-      }
-    }
-  }
-
-  // === Step 3: 次要高优先级症状（作为 secondaryFaultType）===
-  if (result.faultType) {
-    for (const [ftype, keywords] of Object.entries(HIGH_PRIORITY_SYMPTOMS)) {
-      if (ftype === result.faultType) continue; // 跳过已匹配的
-      if (keywords.some(k => lower.includes(k.toLowerCase()))) {
-        result.secondaryFaultType = ftype;
-        matchCount++;
-        break;
-      }
-    }
-  }
-
-  // === Step 4: 次要高优先级没命中，检查一般类型作为 secondary ===
-  if (!result.secondaryFaultType && result.faultType) {
-    for (const [ftype, keywords] of Object.entries(FAULT_TYPE_MAP)) {
-      if (ftype === result.faultType) continue;
-      if (keywords.some(k => lower.includes(k.toLowerCase()))) {
-        result.secondaryFaultType = ftype;
-        matchCount++;
-        break;
-      }
-    }
-  }
-
-  // 置信度计算：高优先级匹配基础分更高
-  const baseConfidence = result.faultType && HIGH_PRIORITY_SYMPTOMS[result.faultType] ? 0.5 : 0.3;
-  result.confidence = Math.min(0.95, baseConfidence + matchCount * 0.15);
 
   return result;
 }
@@ -348,35 +622,24 @@ function parseIntent(query) {
  */
 function generateDiagnosis(query, intent, retrievedDocs) {
   // 分类检索结果
-  const treeDocs = retrievedDocs.filter(r => r.doc.type === 'decision_tree');
   const caseDocs = retrievedDocs.filter(r => r.doc.type === 'case');
   const nodeDocs = retrievedDocs.filter(r => r.doc.type === 'tree_node');
 
   const topScore = retrievedDocs.length > 0 ? retrievedDocs[0].score : 0;
 
-  // 根据 faultType 查找映射的决策树
-  let treeDoc = null;
-  if (intent.faultType && FAULT_TYPE_TO_TREE[intent.faultType]) {
-    const mappedTreeId = FAULT_TYPE_TO_TREE[intent.faultType];
-    treeDoc = treeDocs.find(r => r.doc.id === mappedTreeId);
-  }
-
-  // 如果映射没找到，用检索结果中的第一个决策树
-  if (!treeDoc && treeDocs.length > 0) {
-    treeDoc = treeDocs[0];
-  }
+  // 使用 selectBestDecisionTree 选择最合适的决策树
+  const selectedTree = selectBestDecisionTree(query, retrievedDocs);
 
   // 判断资料充分性
-  const hasTree = !!treeDoc;
+  const hasTree = !!selectedTree;
   const hasCases = caseDocs.length > 0;
-  const hasNodes = nodeDocs.length > 0;
 
   // 决策模式
-  if (hasTree && topScore >= 2) {
-    // 模式A：有决策树 + 匹配度高 → 推荐执行决策树
-    return generateTreeModeResult(query, intent, treeDoc, caseDocs, nodeDocs, retrievedDocs);
+  if (hasTree) {
+    // 模式A：有决策树 → 推荐执行决策树
+    return generateTreeModeResult(query, intent, selectedTree, caseDocs, nodeDocs, retrievedDocs);
   } else if (hasCases && topScore >= 1) {
-    // 模式B：有案例但无决策树（或匹配度中等）→ 基于案例给建议
+    // 模式B：有案例但无决策树 → 基于案例给建议
     return generateCaseModeResult(query, intent, caseDocs);
   } else {
     // 模式C：资料不足 → 建议提供更多信息
@@ -387,9 +650,7 @@ function generateDiagnosis(query, intent, retrievedDocs) {
 /**
  * 模式A：决策树模式 —— 推荐执行决策树排查
  */
-function generateTreeModeResult(query, intent, treeDoc, caseDocs, nodeDocs, retrievedDocs) {
-  const tree = treeDoc.doc;
-
+function generateTreeModeResult(query, intent, selectedTree, caseDocs, nodeDocs, retrievedDocs) {
   // 构建预测路径（基于匹配的终端节点）
   const predictedNodes = nodeDocs.slice(0, 3).map(n => ({
     id: n.doc.nodeId,
@@ -413,8 +674,11 @@ function generateTreeModeResult(query, intent, treeDoc, caseDocs, nodeDocs, retr
   });
 
   // 生成回答文本
-  let answer = `根据您的描述，这属于**${tree.title}**范围。\n\n`;
-  answer += `📋 **建议排查流程**：\n${tree.summary}\n\n`;
+  const labelText = selectedTree.intent && selectedTree.intent.label
+    ? `这更符合"${selectedTree.intent.label}"问题。`
+    : '';
+
+  let answer = `根据您的描述，${labelText}建议进入"${selectedTree.title}"流程继续排查。\n\n`;
 
   if (predictedNodes.length > 0) {
     answer += `🔍 **最可能的故障方向**：\n`;
@@ -437,10 +701,18 @@ function generateTreeModeResult(query, intent, treeDoc, caseDocs, nodeDocs, retr
   return {
     mode: 'tree_recommendation',
     canDiagnose: true,
-    confidence: Math.min(0.95, 0.5 + treeDoc.score * 0.05),
+    confidence: selectedTree.intent ? selectedTree.intent.confidence : 0.85,
+    faultType: selectedTree.intent ? selectedTree.intent.faultType : undefined,
+    secondaryFaultType: selectedTree.intent ? selectedTree.intent.secondaryFaultType : undefined,
     answer,
-    treeId: tree.id,
-    treeName: tree.title,
+    treeId: selectedTree.id,
+    treeName: selectedTree.title,
+    source: selectedTree.source,
+    suggestions: [
+      `进入"${selectedTree.title}"`,
+      '按照步骤逐项排查',
+      '如果提示信息发生变化，请重新输入最新报错'
+    ],
     predictedPath: predictedNodes,
     relatedCases: caseDocs.slice(0, 5).map(c => ({
       caseId: c.doc.id,
