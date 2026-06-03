@@ -311,7 +311,7 @@ function generateTreeModeResult(query, intent, treeDoc, caseDocs, nodeDocs, retr
       const causeMatch = c.doc.content.match(/可能原因[：:](.+?)(?=排查步骤|$)/s);
       if (causeMatch) {
         possibleCauses.push({
-          caseId: c.doc.caseId,
+          caseId: c.doc.id,
           title: c.doc.title,
           summary: causeMatch[1].trim().substring(0, 200),
         });
@@ -347,10 +347,10 @@ function generateTreeModeResult(query, intent, treeDoc, caseDocs, nodeDocs, retr
     confidence: Math.min(0.95, 0.5 + treeDoc.score * 0.05),
     answer,
     treeId: tree.id,
-    treeName: tree.name,
+    treeName: tree.title,
     predictedPath: predictedNodes,
     relatedCases: caseDocs.slice(0, 5).map(c => ({
-      caseId: c.doc.caseId,
+      caseId: c.doc.id,
       title: c.doc.title,
       score: c.score,
     })),
@@ -371,13 +371,13 @@ function generateCaseModeResult(query, intent, caseDocs) {
   const topCase = caseDocs[0].doc;
 
   let answer = `根据您的描述，找到了相似的故障案例：\n\n`;
-  answer += `📌 **${topCase.title}**（案例${topCase.caseId}）\n`;
+  answer += `📌 **${topCase.title}**（案例${topCase.id}）\n`;
   answer += `${topCase.content}\n\n`;
 
   if (caseDocs.length > 1) {
     answer += `📚 **其他相关案例**：\n`;
     caseDocs.slice(1, 4).forEach(c => {
-      answer += `- ${c.doc.title}（${c.doc.caseId}）\n`;
+      answer += `- ${c.doc.title}（${c.doc.id}）\n`;
     });
     answer += '\n';
   }
@@ -390,7 +390,7 @@ function generateCaseModeResult(query, intent, caseDocs) {
     confidence: Math.min(0.8, 0.4 + caseDocs[0].score * 0.05),
     answer,
     relatedCases: caseDocs.slice(0, 5).map(c => ({
-      caseId: c.doc.caseId,
+      caseId: c.doc.id,
       title: c.doc.title,
       score: c.score,
     })),
