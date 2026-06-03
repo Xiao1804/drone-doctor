@@ -40,6 +40,7 @@ HEX_X_MOTOR_LAYOUT = {
     5: {"port": "M5", "positionLabel": "后左", "rotationDirection": "顺时针 CW"},
     6: {"port": "M6", "positionLabel": "左侧", "rotationDirection": "逆时针 CCW"},
 }
+HEX_X_PHYSICAL_PORTS = set(HEX_X_MOTOR_LAYOUT)
 
 IMPORTANT_MESSAGE_PATTERNS = (
     "FC_SW_VERSION",
@@ -265,10 +266,9 @@ def summarize_motors(motor_topic):
         duplicate_group = fingerprints.get(motor.pop("_fingerprint"), [])
         duplicate_count = len(duplicate_group)
         motor["duplicateGroupSize"] = duplicate_count
-        motor["likelyPhysicalMotor"] = bool(
-            motor.get("active_in_log")
-            and not (motor["portIndex"] > 6 and duplicate_count >= 4)
-        )
+        motor["likelyPhysicalMotor"] = bool(motor.get("active_in_log") and motor["portIndex"] in HEX_X_PHYSICAL_PORTS)
+        if motor["portIndex"] not in HEX_X_PHYSICAL_PORTS:
+            motor["physicalMotorNote"] = "Excluded from Hex X six-motor statistics"
 
     active = [motor for motor in motors if motor.get("likelyPhysicalMotor")]
     spread = None
