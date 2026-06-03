@@ -33,41 +33,84 @@ const MODEL_MAP = {
   'matrice': ['matrice', 'm300', 'm350', 'm30'],
 };
 
-// 故障类型关键词映射（全量）
+// 高优先级症状（明确报错词，一旦出现直接匹配，优先级最高）
+const HIGH_PRIORITY_SYMPTOMS = {
+  'compass_abnormal': ['指南针异常', '指南针错误', '磁场干扰', '磁罗盘异常', 'compass error', 'compass cal'],
+  'imu_abnormal': ['IMU异常', 'IMU未校准', '姿态异常', 'imu error', 'imu cal'],
+  'gps_abnormal': ['GPS信号弱', 'GPS异常', '定位不准', '搜星失败', '卫星不足', 'gnss'],
+  'motor_abnormal': ['电机不转', '电机异响', '转速异常', '电机故障', 'motor fail'],
+  'battery_abnormal': ['电池异常', '电池故障', '电压过低', '电芯损坏', '电池鼓包'],
+  'failsafe': ['failsafe', '失控保护', '失控返航', '信号丢失返航'],
+  'nofly_zone': ['禁飞区', '禁飞', 'no fly', 'nfz'],
+};
+
+// 故障类型关键词映射（全量，按匹配优先级排序）
 const FAULT_TYPE_MAP = {
-  // 电源/电池
-  'battery': ['电池', '充电', '续航', '电量', '鼓包', '电压', '电源', '充电器', '充电管家'],
-  'power_on': ['无法开机', '开不了机', '没反应', '不启动', '按电源', '电源键', '开机'],
+  // === 明确报错（高优先级）===
+  'compass_abnormal': ['指南针异常', '指南针错误', '磁场干扰', '磁罗盘', 'compass'],
+  'imu_abnormal': ['IMU异常', 'IMU未校准', '姿态异常', 'IMU', 'imu'],
+  'gps_abnormal': ['GPS信号弱', 'GPS异常', '定位不准', '搜星', '卫星不足', 'GNSS'],
+  'motor_abnormal': ['电机不转', '电机异响', '转速异常', '电机故障'],
+  'battery_abnormal': ['电池异常', '电池故障', '电压过低', '电芯损坏'],
+  'failsafe': ['失控保护', '失控返航', '信号丢失返航'],
+  'nofly_zone': ['禁飞区', '禁飞'],
 
-  // 云台
+  // === 电源/开机 ===
+  'power_on': ['无法开机', '开不了机', '不开机', '按电源键无反应', '电源键没反应', '无法通电', '不通电'],
+  'battery': ['电池', '充电', '续航', '电量', '鼓包', '电压', '充电器', '充电管家', '电芯'],
+
+  // === 起飞/动力 ===
+  'takeoff_failure': ['无法起飞', '不能起飞', '起飞失败', '无法解锁', '解锁失败', '电机无法启动', '起飞'],
+  'motor': ['电机', '螺旋桨', '桨叶', '转速', '动力', '推力'],
+  'flight': ['飞行异常', '飞行不稳', '抖动', '晃动', '漂移', '悬停不稳', '定高异常'],
+
+  // === 云台/影像 ===
   'gimbal': ['云台', '云台抖动', '云台卡住', '云台偏移', '云台不转', '云台异常', '云台自检', '云台歪'],
-
-  // 图传/影像
-  'video': ['图传', '图传异常', '图传黑屏', '无画面', '画面卡顿', '图传断', '图像', '视频', '花屏'],
+  'video': ['图传', '图传异常', '图传黑屏', '无画面', '画面卡顿', '图传断', '花屏'],
   'camera': ['相机', '拍照', '录像', '摄像头', '镜头', '画面模糊', '拍照失败', '无法录像'],
 
-  // 飞行/动力
-  'power_system': ['动力', '电机', '电机不转', '电机异响', '转速异常', '螺旋桨', '桨叶', '起飞', '无法起飞'],
-  'flight': ['飞行', '飞行异常', '飞行不稳', '抖动', '晃动', '漂移', '悬停', '定高'],
-
-  // 导航/传感器
-  'gps': ['GPS', '导航', '定位', '信号弱', '搜星', '卫星', '定位不准', '指南针', '磁罗盘'],
+  // === 导航/传感器 ===
   'sensor': ['传感器', '避障', '视觉', '红外', '超声波', '雷达', 'TOF', '避障失效'],
-  'imu': ['IMU', '姿态', '校准', '水平', '倾斜', '翻滚'],
 
-  // 通信/遥控
+  // === 通信/遥控 ===
   'remote': ['遥控', '遥控器', '信号中断', '失联', '断连', '图传距离', '控制距离'],
-  'communication': ['通信', '连接', 'WiFi', '蓝牙', '链路', '图传信号'],
+  'communication': ['通信', '连接', 'WiFi', '蓝牙', '链路'],
 
-  // 喷洒（植保机）
-  'spray': ['喷洒', '喷头', '水泵', '流量', '药箱', '漏药', '堵塞', '雾化'],
-
-  // 其他
+  // === 其他 ===
   'landing': ['降落', '返航', '迫降', '着陆', '落地'],
   'noise': ['噪音', '异响', '震动', '振动'],
   'overheat': ['过热', '高温', '温度', '散热'],
   'water': ['进水', '涉水', '防水', '潮湿'],
   'crash': ['坠机', '摔机', '碰撞', '炸机', '坠毁'],
+  'spray': ['喷洒', '喷头', '水泵', '流量', '药箱', '漏药', '堵塞', '雾化'],
+};
+
+// 故障类型 → 决策树映射
+const FAULT_TYPE_TO_TREE = {
+  'power_on': 'tree-power-on',
+  'takeoff_failure': 'tree-takeoff-failure',
+  'compass_abnormal': 'tree-compass-abnormal',
+  'imu_abnormal': 'tree-imu-abnormal',
+  'gps_abnormal': 'tree-gps-abnormal',
+  'motor_abnormal': 'tree-motor',
+  'motor': 'tree-motor',
+  'battery_abnormal': 'tree-battery',
+  'battery': 'tree-battery',
+  'gimbal': 'tree-gimbal',
+  'video': 'tree-video',
+  'camera': 'tree-camera',
+  'remote': 'tree-remote',
+  'communication': 'tree-remote',
+  'flight': 'tree-flight',
+  'landing': 'tree-landing',
+  'crash': 'tree-crash',
+  'sensor': 'tree-sensor',
+  'noise': 'tree-motor',
+  'overheat': 'tree-overheat',
+  'water': 'tree-water',
+  'failsafe': 'tree-failsafe',
+  'nofly_zone': 'tree-nofly',
+  'spray': 'tree-spray',
 };
 
 // ========== 状态 ==========
@@ -208,8 +251,9 @@ function countMatches(queryWords, targetWords) {
 
 /**
  * 解析用户意图，提取关键信息
+ * 优先级：明确报错 > 具体部件 > 行为现象 > 泛化描述
  * @param {string} query - 用户原始输入
- * @returns {object} { brand, model, faultType, symptom, confidence }
+ * @returns {object} { brand, model, faultType, secondaryFaultType, symptom, confidence }
  */
 function parseIntent(query) {
   const lower = query.toLowerCase();
@@ -217,6 +261,7 @@ function parseIntent(query) {
     brand: null,
     model: null,
     faultType: null,
+    secondaryFaultType: null,
     symptom: query,
     confidence: 0,
   };
@@ -241,17 +286,53 @@ function parseIntent(query) {
     }
   }
 
-  // 解析故障类型（电池域）
-  for (const [ftype, aliases] of Object.entries(FAULT_TYPE_MAP)) {
-    if (aliases.some(a => lower.includes(a))) {
+  // === Step 1: 高优先级症状（明确报错词，优先级最高）===
+  for (const [ftype, keywords] of Object.entries(HIGH_PRIORITY_SYMPTOMS)) {
+    if (keywords.some(k => lower.includes(k.toLowerCase()))) {
       result.faultType = ftype;
-      matchCount++;
+      matchCount += 2; // 高优先级匹配给更高权重
       break;
     }
   }
 
-  // 置信度计算
-  result.confidence = Math.min(0.9, 0.3 + matchCount * 0.2);
+  // === Step 2: 一般故障类型匹配（仅当高优先级未命中时）===
+  if (!result.faultType) {
+    for (const [ftype, keywords] of Object.entries(FAULT_TYPE_MAP)) {
+      if (keywords.some(k => lower.includes(k.toLowerCase()))) {
+        result.faultType = ftype;
+        matchCount++;
+        break;
+      }
+    }
+  }
+
+  // === Step 3: 次要高优先级症状（作为 secondaryFaultType）===
+  if (result.faultType) {
+    for (const [ftype, keywords] of Object.entries(HIGH_PRIORITY_SYMPTOMS)) {
+      if (ftype === result.faultType) continue; // 跳过已匹配的
+      if (keywords.some(k => lower.includes(k.toLowerCase()))) {
+        result.secondaryFaultType = ftype;
+        matchCount++;
+        break;
+      }
+    }
+  }
+
+  // === Step 4: 次要高优先级没命中，检查一般类型作为 secondary ===
+  if (!result.secondaryFaultType && result.faultType) {
+    for (const [ftype, keywords] of Object.entries(FAULT_TYPE_MAP)) {
+      if (ftype === result.faultType) continue;
+      if (keywords.some(k => lower.includes(k.toLowerCase()))) {
+        result.secondaryFaultType = ftype;
+        matchCount++;
+        break;
+      }
+    }
+  }
+
+  // 置信度计算：高优先级匹配基础分更高
+  const baseConfidence = result.faultType && HIGH_PRIORITY_SYMPTOMS[result.faultType] ? 0.5 : 0.3;
+  result.confidence = Math.min(0.95, baseConfidence + matchCount * 0.15);
 
   return result;
 }
@@ -267,11 +348,23 @@ function parseIntent(query) {
  */
 function generateDiagnosis(query, intent, retrievedDocs) {
   // 分类检索结果
-  const treeDoc = retrievedDocs.find(r => r.doc.type === 'decision_tree');
+  const treeDocs = retrievedDocs.filter(r => r.doc.type === 'decision_tree');
   const caseDocs = retrievedDocs.filter(r => r.doc.type === 'case');
   const nodeDocs = retrievedDocs.filter(r => r.doc.type === 'tree_node');
 
   const topScore = retrievedDocs.length > 0 ? retrievedDocs[0].score : 0;
+
+  // 根据 faultType 查找映射的决策树
+  let treeDoc = null;
+  if (intent.faultType && FAULT_TYPE_TO_TREE[intent.faultType]) {
+    const mappedTreeId = FAULT_TYPE_TO_TREE[intent.faultType];
+    treeDoc = treeDocs.find(r => r.doc.id === mappedTreeId);
+  }
+
+  // 如果映射没找到，用检索结果中的第一个决策树
+  if (!treeDoc && treeDocs.length > 0) {
+    treeDoc = treeDocs[0];
+  }
 
   // 判断资料充分性
   const hasTree = !!treeDoc;
@@ -279,10 +372,10 @@ function generateDiagnosis(query, intent, retrievedDocs) {
   const hasNodes = nodeDocs.length > 0;
 
   // 决策模式
-  if (hasTree && topScore >= 3) {
+  if (hasTree && topScore >= 2) {
     // 模式A：有决策树 + 匹配度高 → 推荐执行决策树
     return generateTreeModeResult(query, intent, treeDoc, caseDocs, nodeDocs, retrievedDocs);
-  } else if (hasCases && topScore >= 2) {
+  } else if (hasCases && topScore >= 1) {
     // 模式B：有案例但无决策树（或匹配度中等）→ 基于案例给建议
     return generateCaseModeResult(query, intent, caseDocs);
   } else {
