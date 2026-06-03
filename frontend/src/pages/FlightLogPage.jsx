@@ -28,12 +28,82 @@ function levelClass(level) {
   return 'border-blue-200 bg-blue-50 text-blue-700'
 }
 
+function summaryClass(level) {
+  if (level === 'danger') return 'border-red-200 bg-red-50 text-red-800'
+  if (level === 'warning') return 'border-yellow-200 bg-yellow-50 text-yellow-800'
+  if (level === 'ok') return 'border-green-200 bg-green-50 text-green-800'
+  return 'border-blue-200 bg-blue-50 text-blue-800'
+}
+
+function summaryLabel(level) {
+  if (level === 'danger') return '优先处理'
+  if (level === 'warning') return '需要复核'
+  if (level === 'ok') return '基本正常'
+  return '可解析'
+}
+
+function confidenceText(value) {
+  if (value === 'confirmed') return '日志确认'
+  if (value === 'high-confidence inference') return '高可信推断'
+  if (value === 'medium-confidence inference') return '推断线索，需人工复核'
+  if (value === 'unknown') return '尚未确认'
+  return value
+}
+
 function StatPill({ label, value }) {
   return (
     <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
       <div className="text-xs text-gray-500">{label}</div>
       <div className="mt-1 text-lg font-semibold text-gray-950">{formatValue(value)}</div>
     </div>
+  )
+}
+
+function PlainSummary({ summary }) {
+  if (!summary) return null
+
+  const sections = [
+    { title: '好消息', items: summary.goodNews || [] },
+    { title: '需要注意', items: summary.watchItems || [] },
+    { title: '下一步', items: summary.nextSteps || [] },
+  ].filter(section => section.items.length > 0)
+
+  return (
+    <section className={`rounded-lg border p-5 ${summaryClass(summary.riskLevel)}`}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="text-sm font-medium opacity-80">先看这里</div>
+        <div className="rounded-full bg-white/70 px-3 py-1 text-xs font-medium">{summaryLabel(summary.riskLevel)}</div>
+      </div>
+      <h3 className="mt-3 text-xl font-semibold text-gray-950">{summary.headline}</h3>
+      <p className="mt-2 text-sm leading-6 text-gray-700">{summary.summary}</p>
+
+      {(summary.plainMetrics || []).length > 0 && (
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {summary.plainMetrics.map(item => (
+            <div key={item.label} className="rounded-lg bg-white/75 px-4 py-3">
+              <div className="text-xs text-gray-500">{item.label}</div>
+              <div className="mt-1 text-lg font-semibold text-gray-950">{item.value}</div>
+              <div className="mt-1 text-xs leading-5 text-gray-600">{item.meaning}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-3">
+        {sections.map(section => (
+          <div key={section.title} className="rounded-lg bg-white/75 p-4">
+            <h4 className="text-sm font-semibold text-gray-950">{section.title}</h4>
+            <ul className="mt-3 space-y-2 text-sm leading-6 text-gray-700">
+              {section.items.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      {summary.technicalHint && <p className="mt-4 text-xs text-gray-600">{summary.technicalHint}</p>}
+    </section>
   )
 }
 
@@ -237,6 +307,8 @@ function FlightLogPage() {
                   </div>
                 </div>
 
+                <PlainSummary summary={report.plainSummary} />
+
                 {identityItems.length > 0 && (
                   <Section title="设备与固件信息">
                     <div className="grid gap-3 md:grid-cols-2">
@@ -256,7 +328,7 @@ function FlightLogPage() {
                       <div key={`${item.title}-${index}`} className={`rounded-lg border p-4 ${levelClass(item.level)}`}>
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="font-medium">{item.title}</div>
-                          <div className="text-xs opacity-80">{item.confidence}</div>
+                          <div className="text-xs opacity-80">{confidenceText(item.confidence)}</div>
                         </div>
                         <p className="mt-2 text-sm opacity-90">{item.description}</p>
                         {item.time_s !== undefined && <p className="mt-1 text-xs opacity-80">时间：{item.time_s}s</p>}
@@ -312,9 +384,9 @@ function FlightLogPage() {
                   <StatTable
                     items={report.motors?.motors}
                     columns={[
-                      { key: 'port', label: 'Manual port' },
-                      { key: 'positionLabel', label: 'Manual position', render: row => row.positionLabel || '-' },
-                      { key: 'rotationDirection', label: 'Rotation', render: row => row.rotationDirection || '-' },
+                      { key: 'port', label: '手册端口' },
+                      { key: 'positionLabel', label: '手册位置', render: row => row.positionLabel || '-' },
+                      { key: 'rotationDirection', label: '旋转方向', render: row => row.rotationDirection || '-' },
                       { key: 'field', label: '电机' },
                       { key: 'min', label: '最小' },
                       { key: 'max', label: '最大' },

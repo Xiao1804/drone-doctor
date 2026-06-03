@@ -461,6 +461,145 @@ def build_conclusion(anomalies, flight_topic):
     return "日志可解析，但未检测到明显解锁飞行段，更像地面测试或未起飞日志。"
 
 
+def format_duration_text(seconds):
+    if not isinstance(seconds, (int, float)):
+        return "-"
+    seconds = int(round(seconds))
+    minutes, remain = divmod(seconds, 60)
+    if minutes:
+        return f"{minutes}分{remain}秒"
+    return f"{remain}秒"
+
+
+def build_plain_summary(duration_seconds, flight_topic, gps_topic, motor_summary, battery_summary, anomalies, fallback_start):
+    danger_count = sum(1 for item in anomalies if item.get("level") == "danger")
+    warning_count = sum(1 for item in anomalies if item.get("level") == "warning")
+    risk_level = "danger" if danger_count else "warning" if warning_count else "ok"
+
+    good_news = []
+    watch_items = []
+    next_steps = []
+    plain_metrics = [
+        {
+            "label": "日志时长",
+            "value": format_duration_text(duration_seconds),
+            "meaning": "这份文件覆盖的总时间",
+        }
+    ]
+
+    arm_events = transitions(flight_topic, "flag_arm", fallback_start)
+    arm_start = next((item["time_s"] for item in arm_events if item.get("value") == 1 and item.get("time_s") is not None), None)
+    arm_end = next((item["time_s"] for item in arm_events if item.get("value") == 0 and item.get("time_s") is not None and arm_start is not None and item["time_s"] > arm_start), None)
+    if arm_start is not None and arm_end is not None:
+        armed_duration = round_value(arm_end - arm_start)
+        plain_metrics.append({
+            "label": "实际飞行",
+            "value": format_duration_text(armed_duration),
+            "meaning": "从解锁到落地锁定",
+        })
+        good_news.append(f"日志里能看到完整飞行过程：{arm_start}s 解锁，{arm_end}s 落地锁定。")
+    elif arm_start is not None:
+        good_news.append(f"日志里能看到 {arm_start}s 解锁，但没有明确落地锁定时间。")
+    else:
+        watch_items.append("没有检测到明确解锁飞行段，这份日志可能是地面测试或记录不完整。")
+
+    failsafe_values = [value for value in get_values(flight_topic, "failsafe") if isinstance(value, (int, float))]
+    if failsafe_values and all(value == 0 for value in failsafe_values):
+        good_news.append("没有看到 failsafe 触发，暂未发现断联保护或紧急保护介入。")
+    elif any(value != 0 for value in failsafe_values):
+        watch_items.append("日志里出现 failsafe 非零值，需要优先排查遥控、定位或保护触发原因。")
+        next_steps.append("先查 failsafe 发生时刻附近的遥控信号、GPS 状态和模式切换。")
+
+    gps_fix = stats(gps_topic, "fixState")
+    gps_sv = stats(gps_topic, "numSV")
+    if gps_fix and gps_fix.get("min") is not None:
+        if gps_fix["min"] >= 3:
+            sv_text = f"，卫星数约 {gps_sv['min']}-{gps_sv['max']} 颗" if gps_sv else ""
+            good_news.append(f"GPS 定位状态稳定，fixState 全程不低于 3{sv_text}。")
+        else:
+            watch_items.append("GPS 定位曾低于稳定状态，涉及漂移/返航/定点问题时要重点看这段。")
+            next_steps.append("复核起飞前是否等到 GPS 稳定，再看 GNSS 健康状态是否中途掉线。")
+
+    voltage = battery_summary.get("raw_battery_voltage")
+    if voltage and voltage.get("start") and voltage.get("end"):
+        drop = round_value(voltage["start"] - voltage["end"])
+        plain_metrics.append({
+            "label": "电压变化",
+            "value": f"{voltage['start']}V → {voltage['end']}V",
+            "meaning": f"下降约 {drop}V",
+        })
+        if voltage["start"] > 0 and (voltage["start"] - voltage["end"]) / voltage["start"] > 0.08:
+            cell_note = ""
+            if voltage["start"] > 35:
+                cell_note = f"按 12S 粗略估算，结束时约 {round_value(voltage['end'] / 12, 2)}V/节。"
+            watch_items.append(f"电池电压下降较大：从 {voltage['start']}V 降到 {voltage['end']}V。{cell_note}")
+            next_steps.append("优先检查电池：是否满电起飞、单节压差、内阻、老化鼓包，以及降落电压参数。")
+
+    motor_spread = motor_summary.get("avgSpread")
+    active_count = motor_summary.get("activeCount")
+    if active_count:
+        plain_metrics.append({
+            "label": "实体电机",
+            "value": f"{active_count} 个",
+            "meaning": f"六轴平均差 {formatValueForText(motor_spread)}",
+        })
+    if isinstance(motor_spread, (int, float)):
+        if motor_spread <= 150:
+            good_news.append(f"按六轴 Hex X 口径看，6 个实体电机平均输出差约 {motor_spread}，没有明显单个电机被拉爆。")
+        elif motor_spread <= 250:
+            watch_items.append(f"6 个实体电机平均输出差约 {motor_spread}，略有差异，若有抖动/偏航现象再重点排查电机和桨叶。")
+        else:
+            watch_items.append(f"6 个实体电机平均输出差约 {motor_spread}，需要检查载荷偏心、电机、桨叶或机架。")
+            next_steps.append("检查 6 个电机和桨叶：桨叶是否变形、夹头是否松、机臂是否歪、载荷是否偏心。")
+
+    mode_changes = transitions(flight_topic, "flight_mode", fallback_start)
+    in_air_mode_changes = [
+        item for item in mode_changes
+        if item.get("time_s") is not None and arm_start is not None and item["time_s"] >= arm_start and (arm_end is None or item["time_s"] <= arm_end)
+    ]
+    if len(in_air_mode_changes) > 6:
+        watch_items.append(f"飞行中模式切换较多，共检测到 {len(in_air_mode_changes)} 次，主要在 LOITER/ALTHOLD 间切换。")
+        next_steps.append("询问飞手是否主动切换模式；如果不是人为操作，检查模式开关通道 ch05 和飞控模式配置。")
+    elif in_air_mode_changes:
+        good_news.append("飞行模式切换有记录，可用于和飞手操作过程对照。")
+
+    if not good_news:
+        good_news.append("日志已经成功解析，可以继续结合飞手描述定位问题。")
+    if not watch_items:
+        watch_items.append("没有看到明显保护触发或严重异常；如有具体故障现象，需要按对应时间段继续细查。")
+    if not next_steps:
+        next_steps.append("把这份摘要先和飞手描述对照：什么时候异常、当时在什么模式、是否有低电压或漂移。")
+
+    if risk_level == "danger":
+        headline = "这次日志里有需要优先处理的保护或异常。"
+        summary = "先不要只看表格，优先定位保护触发时刻，再查遥控、定位、电池和模式切换。"
+    elif warning_count:
+        headline = "这次飞行没有看到明显断联保护，但有需要复核的风险点。"
+        summary = "先看电池和模式切换；电机表、Topic 明细放在后面给工程师复核。"
+    else:
+        headline = "这次日志整体看起来比较平稳。"
+        summary = "没有看到明显 failsafe 或严重异常；如果飞机有具体故障，需要按飞手描述的时间点继续查。"
+
+    return {
+        "riskLevel": risk_level,
+        "headline": headline,
+        "summary": summary,
+        "goodNews": good_news[:5],
+        "watchItems": watch_items[:5],
+        "nextSteps": next_steps[:5],
+        "plainMetrics": plain_metrics,
+        "technicalHint": "下面的专业表格保留给维修工程师复核，普通用户先看本摘要即可。",
+    }
+
+
+def formatValueForText(value):
+    if value is None:
+        return "-"
+    if isinstance(value, float):
+        return str(round_value(value))
+    return str(value)
+
+
 def analyze(input_path):
     ulog = ULog(str(input_path), disable_str_exceptions=True)
     topics = list(ulog.data_list)
@@ -478,6 +617,7 @@ def analyze(input_path):
     motor_summary = summarize_motors(motor_topic)
     battery_summary = summarize_battery(raw_sensor_topic)
     anomalies = build_anomalies(flight_topic, gps_topic, motor_summary, battery_summary, important_messages, fallback_start)
+    duration_seconds = round_value((ulog.last_timestamp - ulog.start_timestamp) / 1_000_000 if ulog.last_timestamp else None)
 
     return {
         "file": {
@@ -485,11 +625,12 @@ def analyze(input_path):
             "sizeBytes": input_path.stat().st_size,
         },
         "overview": {
-            "durationSeconds": round_value((ulog.last_timestamp - ulog.start_timestamp) / 1_000_000 if ulog.last_timestamp else None),
+            "durationSeconds": duration_seconds,
             "topicCount": len(topics),
             "messageCount": len(all_messages),
             "conclusion": build_conclusion(anomalies, flight_topic),
         },
+        "plainSummary": build_plain_summary(duration_seconds, flight_topic, gps_topic, motor_summary, battery_summary, anomalies, fallback_start),
         "identity": extract_identity(important_messages),
         "timeline": build_timeline(flight_topic, mode_topic, important_messages, fallback_start),
         "anomalies": anomalies,
