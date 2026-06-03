@@ -63,7 +63,10 @@
           "title": "步骤1：目视机身外观",
           "description": "检查机身是否有裂缝、凹陷、烧焦痕迹",
           "criteria": "机身外壳完整，无明显物理损伤",
-          "next": { "label": "已检查，继续", "goto": "da-2" },
+          "next": {
+            "label": "已检查，继续",
+            "goto": "da-2"
+          },
           "caseId": "F097"
         },
         "da-2": {
@@ -72,7 +75,10 @@
           "title": "步骤2：检查防水标签",
           "description": "检查电调板/GPS板/TOF/相机镜头/核心板上的防水标签是否变色（进水标志）",
           "criteria": "所有防水标签为白色，无变红/变色",
-          "next": { "label": "已检查，继续", "goto": "da-3" },
+          "next": {
+            "label": "已检查，继续",
+            "goto": "da-3"
+          },
           "caseId": "F097"
         },
         "da-3": {
@@ -81,7 +87,10 @@
           "title": "步骤3：检查防拆胶",
           "description": "检查机身各处防拆胶是否完整，有无被撕毁或重新粘贴痕迹",
           "criteria": "防拆胶完整，无拆卸痕迹",
-          "next": { "label": "已检查，继续", "goto": "da-4" },
+          "next": {
+            "label": "已检查，继续",
+            "goto": "da-4"
+          },
           "caseId": "F097"
         },
         "da-4": {
@@ -90,7 +99,10 @@
           "title": "步骤4：检查部件完整性",
           "description": "确认桨叶×4、天线罩、传感器罩是否齐全",
           "criteria": "所有部件齐全，无缺失",
-          "next": { "label": "已检查，继续", "goto": "da-5" },
+          "next": {
+            "label": "已检查，继续",
+            "goto": "da-5"
+          },
           "caseId": "F097"
         },
         "da-5": {
@@ -99,7 +111,10 @@
           "title": "步骤5：确认SN",
           "description": "查看电池仓贴纸SN，确认前3位为 68Y",
           "criteria": "SN前3位 = 68Y",
-          "next": { "label": "已确认，继续", "goto": "da-6" },
+          "next": {
+            "label": "已确认，继续",
+            "goto": "da-6"
+          },
           "caseId": "F097"
         },
         "da-6": {
@@ -108,7 +123,10 @@
           "title": "步骤6：拍照存档",
           "description": "对机身外观状态进行拍照记录，留存定损依据",
           "criteria": "照片清晰，能反映外观真实状态",
-          "next": { "label": "已完成，结束", "goto": "da-end" },
+          "next": {
+            "label": "已完成，结束",
+            "goto": "da-end"
+          },
           "caseId": "F097"
         },
         "da-end": {
@@ -135,8 +153,63 @@
           "title": "按电源键可开机？",
           "description": "按下电源键3秒，观察指示灯和电机自检动作",
           "criteria": "指示灯正常亮起，或有电机自检声音",
-          "yes": { "label": "✅ 可以开机", "goto": "po-data-analysis" },
-          "no": { "label": "❌ 无法开机", "goto": "po-replace-battery" }
+          "yes": {
+            "label": "✅ 可以开机",
+            "goto": "po-data-analysis",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ 无法开机",
+            "goto": "po-replace-battery",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了电源或开机相关故障，正在排查无法开机问题，当前步骤：按电源键可开机？",
+            "expectedAnswers": {
+              "yes": [
+                "可以",
+                "能",
+                "正常",
+                "有",
+                "是"
+              ],
+              "no": [
+                "无法",
+                "不能",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：指示灯正常亮起，或有电机自检声音？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：按下电源键3秒，观察指示灯和电机自检动作"
+          }
         },
         "po-data-analysis": {
           "id": "po-data-analysis",
@@ -144,17 +217,80 @@
           "title": "需要数据分析？",
           "description": "判断是否需要导出飞行日志进行进一步分析",
           "criteria": "是否存在异常飞行记录需要分析",
-          "yes": { "label": "✅ 需要", "goto": "po-export-log" },
-          "no": { "label": "❌ 不需要", "goto": "po-check-firmware" }
+          "yes": {
+            "label": "✅ 需要",
+            "goto": "po-export-log",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ 不需要",
+            "goto": "po-check-firmware",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了电源或开机相关故障，正在排查无法开机问题，当前步骤：需要数据分析？",
+            "expectedAnswers": {
+              "yes": [
+                "需要",
+                "要",
+                "能",
+                "可以",
+                "正常",
+                "有",
+                "是"
+              ],
+              "no": [
+                "不需要",
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：是否存在异常飞行记录需要分析？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：判断是否需要导出飞行日志进行进一步分析"
+          }
         },
         "po-export-log": {
           "id": "po-export-log",
           "type": "action",
           "title": "导出飞行日志",
           "description": "使用 DA2 工具导出飞行日志，分析异常原因",
-          "tools": ["DA2"],
+          "tools": [
+            "DA2"
+          ],
           "estimatedTime": "5分钟",
-          "next": { "label": "已导出，回到开机检查", "goto": "po-start" },
+          "next": {
+            "label": "已导出，回到开机检查",
+            "goto": "po-start"
+          },
           "caseId": "F099"
         },
         "po-check-firmware": {
@@ -163,17 +299,78 @@
           "title": "大包已是最新版本？",
           "description": "使用 DA2 检查当前固件版本是否为最新",
           "criteria": "DA2显示固件为最新版本",
-          "yes": { "label": "✅ 是最新版", "goto": "po-link-test" },
-          "no": { "label": "❌ 不是最新版", "goto": "po-upgrade-firmware" }
+          "yes": {
+            "label": "✅ 是最新版",
+            "goto": "po-link-test",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ 不是最新版",
+            "goto": "po-upgrade-firmware",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了电源或开机相关故障，正在排查无法开机问题，当前步骤：大包已是最新版本？",
+            "expectedAnswers": {
+              "yes": [
+                "是",
+                "能",
+                "可以",
+                "正常",
+                "有"
+              ],
+              "no": [
+                "不是",
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：DA2显示固件为最新版本？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：使用 DA2 检查当前固件版本是否为最新"
+          }
         },
         "po-upgrade-firmware": {
           "id": "po-upgrade-firmware",
           "type": "action",
           "title": "升级大包固件",
           "description": "使用 DA2 升级飞机固件到最新版本",
-          "tools": ["DA2"],
+          "tools": [
+            "DA2"
+          ],
           "estimatedTime": "10-15分钟",
-          "next": { "label": "已升级，重新检查", "goto": "po-check-firmware" },
+          "next": {
+            "label": "已升级，重新检查",
+            "goto": "po-check-firmware"
+          },
           "caseId": "F099"
         },
         "po-link-test": {
@@ -182,9 +379,66 @@
           "title": "整机链路测试（ET7KY13）是否报错？",
           "description": "运行 ET7KY13 整机链路测试，查看测试结果",
           "criteria": "ET7KY13 所有测试项显示 PASS",
-          "tools": ["ET7KY13"],
-          "yes": { "label": "❌ 有报错", "goto": "po-link-error" },
-          "no": { "label": "✅ 无报错", "goto": "po-app-test" }
+          "tools": [
+            "ET7KY13"
+          ],
+          "yes": {
+            "label": "❌ 有报错",
+            "goto": "po-link-error",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "✅ 无报错",
+            "goto": "po-app-test",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了电源或开机相关故障，正在排查无法开机问题，当前步骤：整机链路测试（ET7KY13）是否报错？",
+            "expectedAnswers": {
+              "yes": [
+                "有",
+                "能",
+                "可以",
+                "正常",
+                "是"
+              ],
+              "no": [
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：ET7KY13 所有测试项显示 PASS？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：运行 ET7KY13 整机链路测试，查看测试结果"
+          }
         },
         "po-app-test": {
           "id": "po-app-test",
@@ -192,8 +446,63 @@
           "title": "APP测试是否报错？",
           "description": "连接APP，检查电机转动、图传信号、拍照录像等功能",
           "criteria": "APP各项功能正常，无报错提示",
-          "yes": { "label": "❌ 有报错", "goto": "po-app-error" },
-          "no": { "label": "✅ 无报错", "goto": "po-normal" }
+          "yes": {
+            "label": "❌ 有报错",
+            "goto": "po-app-error",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "✅ 无报错",
+            "goto": "po-normal",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了电源或开机相关故障，正在排查无法开机问题，当前步骤：APP测试是否报错？",
+            "expectedAnswers": {
+              "yes": [
+                "有",
+                "能",
+                "可以",
+                "正常",
+                "是"
+              ],
+              "no": [
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：APP各项功能正常，无报错提示？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：连接APP，检查电机转动、图传信号、拍照录像等功能"
+          }
         },
         "po-app-error": {
           "id": "po-app-error",
@@ -217,8 +526,13 @@
           "title": "链路测试报错定位",
           "description": "根据 ET7KY13 的具体报错项进行定位。常见报错项包括：核心板、电调板、电机、GPS板、硬盘、TOF、机臂灯、电池在位、指南针、SD卡槽、相机、云台轴臂等。",
           "criteria": "记录具体报错项",
-          "tools": ["ET7KY13"],
-          "next": { "label": "已定位，进入对应排查", "goto": "po-link-module-check" }
+          "tools": [
+            "ET7KY13"
+          ],
+          "next": {
+            "label": "已定位，进入对应排查",
+            "goto": "po-link-module-check"
+          }
         },
         "po-link-module-check": {
           "id": "po-link-module-check",
@@ -226,7 +540,10 @@
           "title": "检查对应模块排线",
           "description": "找到报错模块对应的排线接口，目视检查排线是否松动、断裂或接触不良",
           "criteria": "排线连接牢固，无断裂、氧化",
-          "next": { "label": "排线正常，定损更换", "goto": "po-module-replace" }
+          "next": {
+            "label": "排线正常，定损更换",
+            "goto": "po-module-replace"
+          }
         },
         "po-module-replace": {
           "id": "po-module-replace",
@@ -242,8 +559,63 @@
           "title": "更换已知正常的满电电池后可开机？",
           "description": "取下原电池，装入已知正常的满电电池，按电源键3秒观察",
           "criteria": "更换电池后指示灯正常亮起",
-          "yes": { "label": "✅ 可以开机", "goto": "po-battery-fault" },
-          "no": { "label": "❌ 仍无法开机", "goto": "po-check-btb" }
+          "yes": {
+            "label": "✅ 可以开机",
+            "goto": "po-battery-fault",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ 仍无法开机",
+            "goto": "po-check-btb",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了电源或开机相关故障，正在排查无法开机问题，当前步骤：更换已知正常的满电电池后可开机？",
+            "expectedAnswers": {
+              "yes": [
+                "可以",
+                "能",
+                "正常",
+                "有",
+                "是"
+              ],
+              "no": [
+                "无法",
+                "不能",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：更换电池后指示灯正常亮起？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：取下原电池，装入已知正常的满电电池，按电源键3秒观察"
+          }
         },
         "po-battery-fault": {
           "id": "po-battery-fault",
@@ -260,8 +632,63 @@
           "title": "电调板-核心板BTB排线松动/损坏？",
           "description": "拆开机身，找到电调板与核心板之间的BTB排线，目视检查是否松动、断裂或接触不良",
           "criteria": "排线接口牢固，线材无断裂",
-          "yes": { "label": "❌ 排线异常", "goto": "po-fix-btb" },
-          "no": { "label": "✅ 排线正常", "goto": "po-replace-esc" }
+          "yes": {
+            "label": "❌ 排线异常",
+            "goto": "po-fix-btb",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "✅ 排线正常",
+            "goto": "po-replace-esc",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了电源或开机相关故障，正在排查无法开机问题，当前步骤：电调板-核心板BTB排线松动/损坏？",
+            "expectedAnswers": {
+              "yes": [
+                "能",
+                "可以",
+                "正常",
+                "有",
+                "是"
+              ],
+              "no": [
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：排线接口牢固，线材无断裂？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：拆开机身，找到电调板与核心板之间的BTB排线，目视检查是否松动、断裂或接触不良"
+          }
         },
         "po-fix-btb": {
           "id": "po-fix-btb",
@@ -269,7 +696,10 @@
           "title": "修复排线",
           "description": "重新扣紧BTB排线，或更换新的排线",
           "estimatedTime": "5分钟",
-          "next": { "label": "已修复，回到开机测试", "goto": "po-start" }
+          "next": {
+            "label": "已修复，回到开机测试",
+            "goto": "po-start"
+          }
         },
         "po-replace-esc": {
           "id": "po-replace-esc",
@@ -277,8 +707,63 @@
           "title": "更换电调板后可开机？",
           "description": "拆下原电调板，安装已知正常的电调板，连接排线后按电源键3秒",
           "criteria": "更换电调板后指示灯正常亮起",
-          "yes": { "label": "✅ 可以开机", "goto": "po-esc-fault" },
-          "no": { "label": "❌ 仍无法开机", "goto": "po-replace-core" }
+          "yes": {
+            "label": "✅ 可以开机",
+            "goto": "po-esc-fault",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ 仍无法开机",
+            "goto": "po-replace-core",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了电源或开机相关故障，正在排查无法开机问题，当前步骤：更换电调板后可开机？",
+            "expectedAnswers": {
+              "yes": [
+                "可以",
+                "能",
+                "正常",
+                "有",
+                "是"
+              ],
+              "no": [
+                "无法",
+                "不能",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：更换电调板后指示灯正常亮起？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：拆下原电调板，安装已知正常的电调板，连接排线后按电源键3秒"
+          }
         },
         "po-esc-fault": {
           "id": "po-esc-fault",
@@ -295,8 +780,63 @@
           "title": "更换核心板后可开机？",
           "description": "拆下原核心板，安装已知正常的核心板，连接排线后按电源键3秒",
           "criteria": "更换核心板后指示灯正常亮起",
-          "yes": { "label": "✅ 可以开机", "goto": "po-core-fault" },
-          "no": { "label": "❌ 仍无法开机", "goto": "po-escalate" }
+          "yes": {
+            "label": "✅ 可以开机",
+            "goto": "po-core-fault",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ 仍无法开机",
+            "goto": "po-escalate",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了电源或开机相关故障，正在排查无法开机问题，当前步骤：更换核心板后可开机？",
+            "expectedAnswers": {
+              "yes": [
+                "可以",
+                "能",
+                "正常",
+                "有",
+                "是"
+              ],
+              "no": [
+                "无法",
+                "不能",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：更换核心板后指示灯正常亮起？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：拆下原核心板，安装已知正常的核心板，连接排线后按电源键3秒"
+          }
         },
         "po-core-fault": {
           "id": "po-core-fault",
@@ -332,9 +872,14 @@
           "title": "运行整机链路测试",
           "description": "使用 ET7KY13 运行整机链路测试，记录所有报错项",
           "criteria": "完整记录每一项 PASS/NG 结果",
-          "tools": ["ET7KY13"],
+          "tools": [
+            "ET7KY13"
+          ],
           "estimatedTime": "3分钟",
-          "next": { "label": "测试完成，查看结果", "goto": "lt-has-error" }
+          "next": {
+            "label": "测试完成，查看结果",
+            "goto": "lt-has-error"
+          }
         },
         "lt-has-error": {
           "id": "lt-has-error",
@@ -342,8 +887,63 @@
           "title": "链路测试是否存在报错项？",
           "description": "检查 ET7KY13 测试结果中是否有 NG 项",
           "criteria": "测试结果中存在标红/NG的项目",
-          "yes": { "label": "❌ 有报错", "goto": "lt-select-module" },
-          "no": { "label": "✅ 全部PASS", "goto": "lt-pass" }
+          "yes": {
+            "label": "❌ 有报错",
+            "goto": "lt-select-module",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "✅ 全部PASS",
+            "goto": "lt-pass",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了链路测试报错或机身模块故障，正在定位具体模块，当前步骤：链路测试是否存在报错项？",
+            "expectedAnswers": {
+              "yes": [
+                "有",
+                "能",
+                "可以",
+                "正常",
+                "是"
+              ],
+              "no": [
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：测试结果中存在标红/NG的项目？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：检查 ET7KY13 测试结果中是否有 NG 项"
+          }
         },
         "lt-pass": {
           "id": "lt-pass",
@@ -359,8 +959,13 @@
           "title": "定位报错模块",
           "description": "根据 ET7KY13 报错项选择对应模块进行排查。常见报错模块：核心板、电调板、电机、GPS板、硬盘、TOF、机臂灯、电池在位检测、指南针、SD卡槽、相机、云台轴臂",
           "criteria": "准确识别报错模块名称",
-          "tools": ["ET7KY13"],
-          "next": { "label": "已定位，检查排线", "goto": "lt-check-cable" }
+          "tools": [
+            "ET7KY13"
+          ],
+          "next": {
+            "label": "已定位，检查排线",
+            "goto": "lt-check-cable"
+          }
         },
         "lt-check-cable": {
           "id": "lt-check-cable",
@@ -368,8 +973,63 @@
           "title": "报错模块的排线是否异常？",
           "description": "找到报错模块对应的排线接口，目视检查排线是否松动、断裂、氧化或接触不良",
           "criteria": "排线连接牢固，线材完好",
-          "yes": { "label": "❌ 排线异常", "goto": "lt-fix-cable" },
-          "no": { "label": "✅ 排线正常", "goto": "lt-camera-check" }
+          "yes": {
+            "label": "❌ 排线异常",
+            "goto": "lt-fix-cable",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "✅ 排线正常",
+            "goto": "lt-camera-check",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了链路测试报错或机身模块故障，正在定位具体模块，当前步骤：报错模块的排线是否异常？",
+            "expectedAnswers": {
+              "yes": [
+                "能",
+                "可以",
+                "正常",
+                "有",
+                "是"
+              ],
+              "no": [
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：排线连接牢固，线材完好？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：找到报错模块对应的排线接口，目视检查排线是否松动、断裂、氧化或接触不良"
+          }
         },
         "lt-fix-cable": {
           "id": "lt-fix-cable",
@@ -377,7 +1037,10 @@
           "title": "修复排线",
           "description": "重新插紧排线，或更换新的排线",
           "estimatedTime": "5分钟",
-          "next": { "label": "已修复，重新测试", "goto": "lt-start" }
+          "next": {
+            "label": "已修复，重新测试",
+            "goto": "lt-start"
+          }
         },
         "lt-camera-check": {
           "id": "lt-camera-check",
@@ -385,8 +1048,65 @@
           "title": "报错项是否涉及相机/云台？",
           "description": "检查报错项是否与相机出图或云台轴臂相关",
           "criteria": "报错项包含相机或云台相关测试",
-          "yes": { "label": "✅ 涉及相机/云台", "goto": "lt-camera-detail" },
-          "no": { "label": "❌ 不涉及", "goto": "lt-module-fault" }
+          "yes": {
+            "label": "✅ 涉及相机/云台",
+            "goto": "lt-camera-detail",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ 不涉及",
+            "goto": "lt-module-fault",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了链路测试报错或机身模块故障，正在定位具体模块，当前步骤：报错项是否涉及相机/云台？",
+            "expectedAnswers": {
+              "yes": [
+                "涉及",
+                "能",
+                "可以",
+                "正常",
+                "有",
+                "是"
+              ],
+              "no": [
+                "不涉及",
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：报错项包含相机或云台相关测试？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：检查报错项是否与相机出图或云台轴臂相关"
+          }
         },
         "lt-camera-detail": {
           "id": "lt-camera-detail",
@@ -394,8 +1114,63 @@
           "title": "相机出图是否正常？",
           "description": "使用APP拍摄照片，检查画面是否正常（无花屏/条纹/黑屏/撕裂）",
           "criteria": "照片画面清晰，无异常",
-          "yes": { "label": "✅ 出图正常", "goto": "lt-gimbal-check" },
-          "no": { "label": "❌ 出图异常", "goto": "lt-camera-fault" }
+          "yes": {
+            "label": "✅ 出图正常",
+            "goto": "lt-gimbal-check",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ 出图异常",
+            "goto": "lt-camera-fault",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了链路测试报错或机身模块故障，正在定位具体模块，当前步骤：相机出图是否正常？",
+            "expectedAnswers": {
+              "yes": [
+                "正常",
+                "能",
+                "可以",
+                "有",
+                "是"
+              ],
+              "no": [
+                "异常",
+                "不能",
+                "无法",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：照片画面清晰，无异常？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：使用APP拍摄照片，检查画面是否正常（无花屏/条纹/黑屏/撕裂）"
+          }
         },
         "lt-camera-fault": {
           "id": "lt-camera-fault",
@@ -411,9 +1186,67 @@
           "title": "云台轴臂绕动力测试是否通过？",
           "description": "运行 ET7KY08 绕动力多姿态测试，检查云台YAW/PITCH/ROLL三轴",
           "criteria": "ET7KY08 三轴测试均显示 PASS",
-          "tools": ["ET7KY08"],
-          "yes": { "label": "✅ PASS", "goto": "lt-module-fault" },
-          "no": { "label": "❌ NG", "goto": "lt-gimbal-fault" }
+          "tools": [
+            "ET7KY08"
+          ],
+          "yes": {
+            "label": "✅ PASS",
+            "goto": "lt-module-fault",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ NG",
+            "goto": "lt-gimbal-fault",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了链路测试报错或机身模块故障，正在定位具体模块，当前步骤：云台轴臂绕动力测试是否通过？",
+            "expectedAnswers": {
+              "yes": [
+                "能",
+                "可以",
+                "正常",
+                "有",
+                "是"
+              ],
+              "no": [
+                "NG",
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：ET7KY08 三轴测试均显示 PASS？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：运行 ET7KY08 绕动力多姿态测试，检查云台YAW/PITCH/ROLL三轴"
+          }
         },
         "lt-gimbal-fault": {
           "id": "lt-gimbal-fault",
@@ -447,8 +1280,63 @@
           "title": "云台故障类型",
           "description": "判断云台问题属于转动异常还是图像异常",
           "criteria": "根据主要症状选择分类",
-          "yes": { "label": "🔄 转动问题（不转/卡顿/异响）", "goto": "gm-rotation" },
-          "no": { "label": "🖼️ 图像问题（花屏/条纹/不清晰）", "goto": "gm-image" }
+          "yes": {
+            "label": "🔄 转动问题（不转/卡顿/异响）",
+            "goto": "gm-rotation",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "🖼️ 图像问题（花屏/条纹/不清晰）",
+            "goto": "gm-image",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了云台或相机相关故障，正在区分转动异常还是图像异常，当前步骤：云台故障类型",
+            "expectedAnswers": {
+              "yes": [
+                "能",
+                "可以",
+                "正常",
+                "有",
+                "是"
+              ],
+              "no": [
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：根据主要症状选择分类？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：判断云台问题属于转动异常还是图像异常"
+          }
         },
         "gm-rotation": {
           "id": "gm-rotation",
@@ -456,9 +1344,14 @@
           "title": "绕动力多姿态测试（ET7KY08）",
           "description": "运行 ET7KY08，按提示手动拨动云台各轴，检查YAW/PITCH/ROLL三轴转动",
           "criteria": "三轴均能顺畅转动，无卡顿或异响",
-          "tools": ["ET7KY08"],
+          "tools": [
+            "ET7KY08"
+          ],
           "estimatedTime": "3分钟",
-          "next": { "label": "测试完成", "goto": "gm-rotation-result" }
+          "next": {
+            "label": "测试完成",
+            "goto": "gm-rotation-result"
+          }
         },
         "gm-rotation-result": {
           "id": "gm-rotation-result",
@@ -466,9 +1359,67 @@
           "title": "绕动力测试是否PASS？",
           "description": "查看 ET7KY08 测试结果",
           "criteria": "YAW/PITCH/ROLL 均显示 PASS",
-          "tools": ["ET7KY08"],
-          "yes": { "label": "✅ PASS", "goto": "gm-link-test" },
-          "no": { "label": "❌ NG", "goto": "gm-arm-blocked" }
+          "tools": [
+            "ET7KY08"
+          ],
+          "yes": {
+            "label": "✅ PASS",
+            "goto": "gm-link-test",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ NG",
+            "goto": "gm-arm-blocked",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了云台或相机相关故障，正在区分转动异常还是图像异常，当前步骤：绕动力测试是否PASS？",
+            "expectedAnswers": {
+              "yes": [
+                "能",
+                "可以",
+                "正常",
+                "有",
+                "是"
+              ],
+              "no": [
+                "NG",
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：YAW/PITCH/ROLL 均显示 PASS？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：查看 ET7KY08 测试结果"
+          }
         },
         "gm-arm-blocked": {
           "id": "gm-arm-blocked",
@@ -485,9 +1436,14 @@
           "title": "整机链路测试（ET7KY13）",
           "description": "运行 ET7KY13，重点查看云台YAW/PITCH/ROLL三项",
           "criteria": "云台三项均显示 PASS",
-          "tools": ["ET7KY13"],
+          "tools": [
+            "ET7KY13"
+          ],
           "estimatedTime": "3分钟",
-          "next": { "label": "测试完成", "goto": "gm-link-result" }
+          "next": {
+            "label": "测试完成",
+            "goto": "gm-link-result"
+          }
         },
         "gm-link-result": {
           "id": "gm-link-result",
@@ -495,9 +1451,66 @@
           "title": "链路测试云台项是否正常？",
           "description": "检查 ET7KY13 中 YAW/PITCH/ROLL 测试结果",
           "criteria": "YAW/PITCH/ROLL 均显示 PASS",
-          "tools": ["ET7KY13"],
-          "yes": { "label": "✅ 正常", "goto": "gm-rotation-ok" },
-          "no": { "label": "❌ 异常", "goto": "gm-motor-hall" }
+          "tools": [
+            "ET7KY13"
+          ],
+          "yes": {
+            "label": "✅ 正常",
+            "goto": "gm-rotation-ok",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ 异常",
+            "goto": "gm-motor-hall",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了云台或相机相关故障，正在区分转动异常还是图像异常，当前步骤：链路测试云台项是否正常？",
+            "expectedAnswers": {
+              "yes": [
+                "正常",
+                "能",
+                "可以",
+                "有",
+                "是"
+              ],
+              "no": [
+                "异常",
+                "不能",
+                "无法",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：YAW/PITCH/ROLL 均显示 PASS？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：检查 ET7KY13 中 YAW/PITCH/ROLL 测试结果"
+          }
         },
         "gm-motor-hall": {
           "id": "gm-motor-hall",
@@ -522,8 +1535,63 @@
           "title": "出图是否存在异常？",
           "description": "使用APP拍摄照片，检查画面是否有花屏/条纹/黑屏/撕裂",
           "criteria": "画面清晰，无异常条纹或色块",
-          "yes": { "label": "❌ 有异常", "goto": "gm-image-persistent" },
-          "no": { "label": "✅ 画面正常", "goto": "gm-clarity-check" }
+          "yes": {
+            "label": "❌ 有异常",
+            "goto": "gm-image-persistent",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "✅ 画面正常",
+            "goto": "gm-clarity-check",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了云台或相机相关故障，正在区分转动异常还是图像异常，当前步骤：出图是否存在异常？",
+            "expectedAnswers": {
+              "yes": [
+                "有",
+                "能",
+                "可以",
+                "正常",
+                "是"
+              ],
+              "no": [
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：画面清晰，无异常条纹或色块？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：使用APP拍摄照片，检查画面是否有花屏/条纹/黑屏/撕裂"
+          }
         },
         "gm-image-persistent": {
           "id": "gm-image-persistent",
@@ -531,8 +1599,63 @@
           "title": "异常是否持续复现？",
           "description": "连续拍摄5张照片，检查异常是否每次都出现",
           "criteria": "5张照片中异常出现的次数",
-          "yes": { "label": "✅ 每次都出现", "goto": "gm-camera-damage" },
-          "no": { "label": "❌ 偶尔出现", "goto": "gm-fpc-damage" }
+          "yes": {
+            "label": "✅ 每次都出现",
+            "goto": "gm-camera-damage",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ 偶尔出现",
+            "goto": "gm-fpc-damage",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了云台或相机相关故障，正在区分转动异常还是图像异常，当前步骤：异常是否持续复现？",
+            "expectedAnswers": {
+              "yes": [
+                "能",
+                "可以",
+                "正常",
+                "有",
+                "是"
+              ],
+              "no": [
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：5张照片中异常出现的次数？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：连续拍摄5张照片，检查异常是否每次都出现"
+          }
         },
         "gm-camera-damage": {
           "id": "gm-camera-damage",
@@ -558,8 +1681,63 @@
           "title": "拍照清晰度是否OK？",
           "description": "放大照片，检查画面清晰度是否满足要求",
           "criteria": "画面清晰，细节可辨",
-          "yes": { "label": "✅ 清晰", "goto": "gm-spot-check" },
-          "no": { "label": "❌ 不清晰", "goto": "gm-clarity-bad" }
+          "yes": {
+            "label": "✅ 清晰",
+            "goto": "gm-spot-check",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ 不清晰",
+            "goto": "gm-clarity-bad",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了云台或相机相关故障，正在区分转动异常还是图像异常，当前步骤：拍照清晰度是否OK？",
+            "expectedAnswers": {
+              "yes": [
+                "能",
+                "可以",
+                "正常",
+                "有",
+                "是"
+              ],
+              "no": [
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：画面清晰，细节可辨？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：放大照片，检查画面清晰度是否满足要求"
+          }
         },
         "gm-clarity-bad": {
           "id": "gm-clarity-bad",
@@ -576,8 +1754,63 @@
           "title": "画面是否存在异色点/暗点？",
           "description": "全画面检查照片，看是否有固定位置的异色点或暗点",
           "criteria": "画面干净，无异色点/暗点",
-          "yes": { "label": "❌ 有异色点/暗点", "goto": "gm-clean-lens" },
-          "no": { "label": "✅ 画面干净", "goto": "gm-image-ok" }
+          "yes": {
+            "label": "❌ 有异色点/暗点",
+            "goto": "gm-clean-lens",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "✅ 画面干净",
+            "goto": "gm-image-ok",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了云台或相机相关故障，正在区分转动异常还是图像异常，当前步骤：画面是否存在异色点/暗点？",
+            "expectedAnswers": {
+              "yes": [
+                "有",
+                "能",
+                "可以",
+                "正常",
+                "是"
+              ],
+              "no": [
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：画面干净，无异色点/暗点？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：全画面检查照片，看是否有固定位置的异色点或暗点"
+          }
         },
         "gm-clean-lens": {
           "id": "gm-clean-lens",
@@ -585,7 +1818,10 @@
           "title": "清洁镜头",
           "description": "用无尘布+镜头清洁液擦拭镜头表面，去除污渍",
           "estimatedTime": "2分钟",
-          "next": { "label": "已清洁，重新拍照", "goto": "gm-recheck-spot" }
+          "next": {
+            "label": "已清洁，重新拍照",
+            "goto": "gm-recheck-spot"
+          }
         },
         "gm-recheck-spot": {
           "id": "gm-recheck-spot",
@@ -593,8 +1829,63 @@
           "title": "清洁后异色点是否消失？",
           "description": "重新拍摄照片，检查之前的异色点/暗点是否还在",
           "criteria": "异色点/暗点已消失",
-          "yes": { "label": "✅ 已消失", "goto": "gm-dirty-lens" },
-          "no": { "label": "❌ 仍在", "goto": "gm-camera-bad" }
+          "yes": {
+            "label": "✅ 已消失",
+            "goto": "gm-dirty-lens",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ 仍在",
+            "goto": "gm-camera-bad",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了云台或相机相关故障，正在区分转动异常还是图像异常，当前步骤：清洁后异色点是否消失？",
+            "expectedAnswers": {
+              "yes": [
+                "能",
+                "可以",
+                "正常",
+                "有",
+                "是"
+              ],
+              "no": [
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：异色点/暗点已消失？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：重新拍摄照片，检查之前的异色点/暗点是否还在"
+          }
         },
         "gm-dirty-lens": {
           "id": "gm-dirty-lens",
@@ -637,8 +1928,63 @@
           "title": "外观检查",
           "description": "检查电池外观：鼓包？变形？进水？拆卸痕迹？卡扣松动？触点变形？",
           "criteria": "电池外壳平整，无变形/进水/拆卸痕迹",
-          "yes": { "label": "❌ 外观异常", "goto": "bt-appearance-fault" },
-          "no": { "label": "✅ 外观正常", "goto": "bt-insert-plane" }
+          "yes": {
+            "label": "❌ 外观异常",
+            "goto": "bt-appearance-fault",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "✅ 外观正常",
+            "goto": "bt-insert-plane",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了电池相关故障，正在排查充电/续航/外观问题，当前步骤：外观检查",
+            "expectedAnswers": {
+              "yes": [
+                "能",
+                "可以",
+                "正常",
+                "有",
+                "是"
+              ],
+              "no": [
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：电池外壳平整，无变形/进水/拆卸痕迹？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：检查电池外观：鼓包？变形？进水？拆卸痕迹？卡扣松动？触点变形？"
+          }
         },
         "bt-appearance-fault": {
           "id": "bt-appearance-fault",
@@ -655,8 +2001,64 @@
           "title": "装入飞行器开机",
           "description": "将电池装入飞行器，按电源键3秒，观察电量指示灯",
           "criteria": "LED指示灯正常亮起",
-          "yes": { "label": "✅ LED正常", "goto": "bt-charge-test" },
-          "no": { "label": "❌ LED不亮", "goto": "bt-led-debug" }
+          "yes": {
+            "label": "✅ LED正常",
+            "goto": "bt-charge-test",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ LED不亮",
+            "goto": "bt-led-debug",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了电池相关故障，正在排查充电/续航/外观问题，当前步骤：装入飞行器开机",
+            "expectedAnswers": {
+              "yes": [
+                "正常",
+                "能",
+                "可以",
+                "有",
+                "是"
+              ],
+              "no": [
+                "不亮",
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：LED指示灯正常亮起？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：将电池装入飞行器，按电源键3秒，观察电量指示灯"
+          }
         },
         "bt-led-debug": {
           "id": "bt-led-debug",
@@ -664,8 +2066,63 @@
           "title": "按键无响应且LED不亮？",
           "description": "按下电源键无任何反应，LED完全不亮",
           "criteria": "确认按键手感正常，LED无任何反应",
-          "yes": { "label": "✅ 是", "goto": "bt-check-low-battery" },
-          "no": { "label": "❌ 按键有反应/LED微亮", "goto": "bt-low-power-shutdown" }
+          "yes": {
+            "label": "✅ 是",
+            "goto": "bt-check-low-battery",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ 按键有反应/LED微亮",
+            "goto": "bt-low-power-shutdown",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了电池相关故障，正在排查充电/续航/外观问题，当前步骤：按键无响应且LED不亮？",
+            "expectedAnswers": {
+              "yes": [
+                "是",
+                "能",
+                "可以",
+                "正常",
+                "有"
+              ],
+              "no": [
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：确认按键手感正常，LED无任何反应？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：按下电源键无任何反应，LED完全不亮"
+          }
         },
         "bt-check-low-battery": {
           "id": "bt-check-low-battery",
@@ -673,8 +2130,63 @@
           "title": "是否低电量状态？",
           "description": "判断电池是否处于低电量保护状态（长时间未充电）",
           "criteria": "电池长期未使用或电量极低",
-          "yes": { "label": "✅ 低电量", "goto": "bt-shutdown-protect" },
-          "no": { "label": "❌ 非低电量", "goto": "bt-fu-mode" }
+          "yes": {
+            "label": "✅ 低电量",
+            "goto": "bt-shutdown-protect",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ 非低电量",
+            "goto": "bt-fu-mode",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了电池相关故障，正在排查充电/续航/外观问题，当前步骤：是否低电量状态？",
+            "expectedAnswers": {
+              "yes": [
+                "能",
+                "可以",
+                "正常",
+                "有",
+                "是"
+              ],
+              "no": [
+                "不能",
+                "无法",
+                "异常",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：电池长期未使用或电量极低？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：判断电池是否处于低电量保护状态（长时间未充电）"
+          }
         },
         "bt-fu-mode": {
           "id": "bt-fu-mode",
@@ -709,8 +2221,63 @@
           "title": "连接充电器充电正常？",
           "description": "将电池接入充电管家，观察充电LED状态",
           "criteria": "LED正常亮起，有充电指示",
-          "yes": { "label": "✅ 正常充电", "goto": "bt-app-test" },
-          "no": { "label": "❌ 充电异常", "goto": "bt-charge-debug" }
+          "yes": {
+            "label": "✅ 正常充电",
+            "goto": "bt-app-test",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ 充电异常",
+            "goto": "bt-charge-debug",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了电池相关故障，正在排查充电/续航/外观问题，当前步骤：连接充电器充电正常？",
+            "expectedAnswers": {
+              "yes": [
+                "正常",
+                "能",
+                "可以",
+                "有",
+                "是"
+              ],
+              "no": [
+                "异常",
+                "不能",
+                "无法",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：LED正常亮起，有充电指示？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：将电池接入充电管家，观察充电LED状态"
+          }
         },
         "bt-charge-debug": {
           "id": "bt-charge-debug",
@@ -718,8 +2285,63 @@
           "title": "充电异常表现",
           "description": "观察充电LED的具体异常表现",
           "criteria": "LED状态特征",
-          "yes": { "label": "🚫 完全无响应", "goto": "bt-pf-fail" },
-          "no": { "label": "🔍 有其他异常表现", "goto": "bt-charge-detail" }
+          "yes": {
+            "label": "🚫 完全无响应",
+            "goto": "bt-pf-fail",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "🔍 有其他异常表现",
+            "goto": "bt-charge-detail",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了电池相关故障，正在排查充电/续航/外观问题，当前步骤：充电异常表现",
+            "expectedAnswers": {
+              "yes": [
+                "能",
+                "可以",
+                "正常",
+                "有",
+                "是"
+              ],
+              "no": [
+                "异常",
+                "不能",
+                "无法",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：LED状态特征？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：观察充电LED的具体异常表现"
+          }
         },
         "bt-pf-fail": {
           "id": "bt-pf-fail",
@@ -735,7 +2357,10 @@
           "type": "action",
           "title": "判断充电异常类型",
           "description": "根据LED表现判断：规律闪烁→触发保护；关机不能充但开机能充→充电电路损坏；单LED流水灯→FU模式",
-          "next": { "label": "已判断", "goto": "bt-charge-result" }
+          "next": {
+            "label": "已判断",
+            "goto": "bt-charge-result"
+          }
         },
         "bt-charge-result": {
           "id": "bt-charge-result",
@@ -751,9 +2376,66 @@
           "title": "APP/电池助手检测正常？",
           "description": "装入飞行器开机，运行电池助手定损检测",
           "criteria": "电池助手显示检测通过",
-          "tools": ["电池助手"],
-          "yes": { "label": "✅ 检测正常", "goto": "bt-flight-test" },
-          "no": { "label": "❌ 检测异常", "goto": "bt-detect-fault" }
+          "tools": [
+            "电池助手"
+          ],
+          "yes": {
+            "label": "✅ 检测正常",
+            "goto": "bt-flight-test",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ 检测异常",
+            "goto": "bt-detect-fault",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了电池相关故障，正在排查充电/续航/外观问题，当前步骤：APP/电池助手检测正常？",
+            "expectedAnswers": {
+              "yes": [
+                "正常",
+                "能",
+                "可以",
+                "有",
+                "是"
+              ],
+              "no": [
+                "异常",
+                "不能",
+                "无法",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：电池助手显示检测通过？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：装入飞行器开机，运行电池助手定损检测"
+          }
         },
         "bt-detect-fault": {
           "id": "bt-detect-fault",
@@ -770,8 +2452,63 @@
           "title": "低空飞测续航正常？",
           "description": "电池满电后进行低空悬停飞行测试，观察续航时间",
           "criteria": "续航时间达到正常标准",
-          "yes": { "label": "✅ 续航正常", "goto": "bt-ok" },
-          "no": { "label": "❌ 续航异常", "goto": "bt-flight-fault" }
+          "yes": {
+            "label": "✅ 续航正常",
+            "goto": "bt-ok",
+            "aiMapping": [
+              "是",
+              "能",
+              "可以",
+              "正常",
+              "亮了",
+              "有反应",
+              "开机了",
+              "通过",
+              "pass",
+              "合格",
+              "确认",
+              "是的"
+            ]
+          },
+          "no": {
+            "label": "❌ 续航异常",
+            "goto": "bt-flight-fault",
+            "aiMapping": [
+              "否",
+              "不能",
+              "无法",
+              "异常",
+              "不亮",
+              "没反应",
+              "坏了",
+              "没动静",
+              "失败",
+              "ng",
+              "NG",
+              "不合格"
+            ]
+          },
+          "ai": {
+            "contextPrompt": "用户报告了电池相关故障，正在排查充电/续航/外观问题，当前步骤：低空飞测续航正常？",
+            "expectedAnswers": {
+              "yes": [
+                "正常",
+                "能",
+                "可以",
+                "有",
+                "是"
+              ],
+              "no": [
+                "异常",
+                "不能",
+                "无法",
+                "没",
+                "否"
+              ]
+            },
+            "clarificationHint": "请确认：续航时间达到正常标准？",
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：电池满电后进行低空悬停飞行测试，观察续航时间"
+          }
         },
         "bt-flight-fault": {
           "id": "bt-flight-fault",

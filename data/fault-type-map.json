@@ -1,0 +1,258 @@
+{
+  "version": "2.0",
+  "faultTypes": [
+    {
+      "id": "power-on",
+      "label": "无法开机/电源问题",
+      "keywords": [
+        "无法开机",
+        "开不了机",
+        "没反应",
+        "不通电",
+        "电源键没反应",
+        "按开关没反应",
+        "按电源键",
+        "不开机",
+        "没电",
+        "电源"
+      ],
+      "trees": [
+        "tree-power-on"
+      ],
+      "caseTags": [
+        "电源",
+        "开机",
+        "无法开机",
+        "电池"
+      ],
+      "icon": "🔌",
+      "urgency": "high"
+    },
+    {
+      "id": "link-test",
+      "label": "链路测试报错/机身故障",
+      "keywords": [
+        "链路测试",
+        "ET7KY13",
+        "报错",
+        "NG",
+        "FAIL",
+        "测试失败",
+        "核心板",
+        "电调板",
+        "电机",
+        "GPS板",
+        "硬盘",
+        "TOF",
+        "机臂灯",
+        "指南针",
+        "SD卡槽"
+      ],
+      "trees": [
+        "tree-link-test"
+      ],
+      "caseTags": [
+        "链路",
+        "测试",
+        "核心板",
+        "电调板",
+        "机身"
+      ],
+      "icon": "🔧",
+      "urgency": "medium"
+    },
+    {
+      "id": "gimbal",
+      "label": "云台/相机故障",
+      "keywords": [
+        "云台",
+        "相机",
+        "花屏",
+        "条纹",
+        "不清晰",
+        "卡住",
+        "不转",
+        "异响",
+        "轴臂",
+        "绕动力",
+        "ET7KY08",
+        "YAW",
+        "PITCH",
+        "ROLL",
+        "图像异常",
+        "出图"
+      ],
+      "trees": [
+        "tree-gimbal"
+      ],
+      "caseTags": [
+        "云台",
+        "相机",
+        "图像",
+        "轴臂",
+        "绕动力"
+      ],
+      "icon": "📷",
+      "urgency": "medium"
+    },
+    {
+      "id": "battery",
+      "label": "电池问题",
+      "keywords": [
+        "电池",
+        "充电",
+        "鼓包",
+        "续航",
+        "充不进",
+        "电量",
+        "PF",
+        "充电异常",
+        "电池助手",
+        "压差",
+        "Shutdown",
+        "FU模式"
+      ],
+      "trees": [
+        "tree-battery"
+      ],
+      "caseTags": [
+        "电池",
+        "充电",
+        "续航",
+        "PF"
+      ],
+      "icon": "🔋",
+      "urgency": "high"
+    },
+    {
+      "id": "video",
+      "label": "图传/信号异常",
+      "keywords": [
+        "图传",
+        "黑屏",
+        "花屏",
+        "延迟",
+        "断图",
+        "无画面",
+        "信号弱",
+        "信号",
+        "APP连接",
+        "遥控"
+      ],
+      "trees": [
+        "tree-link-test"
+      ],
+      "caseTags": [
+        "图传",
+        "信号",
+        "画面",
+        "APP"
+      ],
+      "icon": "📺",
+      "urgency": "medium"
+    },
+    {
+      "id": "gps",
+      "label": "GPS/导航异常",
+      "keywords": [
+        "GPS",
+        "卫星",
+        "定位",
+        "信号弱",
+        "搜星",
+        "无法定位",
+        "导航",
+        "指南针校准"
+      ],
+      "trees": [
+        "tree-link-test"
+      ],
+      "caseTags": [
+        "GPS",
+        "导航",
+        "定位",
+        "卫星"
+      ],
+      "icon": "📡",
+      "urgency": "low"
+    },
+    {
+      "id": "flight",
+      "label": "飞行异常",
+      "keywords": [
+        "无法起飞",
+        "起飞失败",
+        "漂移",
+        "不稳",
+        "坠落",
+        "失控",
+        "动力",
+        "螺旋桨",
+        "桨叶",
+        "IMU",
+        "姿态"
+      ],
+      "trees": [],
+      "caseTags": [
+        "飞行",
+        "起飞",
+        "姿态",
+        "动力",
+        "螺旋桨"
+      ],
+      "icon": "✈️",
+      "urgency": "high"
+    },
+    {
+      "id": "damage-assessment",
+      "label": "外观检查/定损",
+      "keywords": [
+        "外观",
+        "定损",
+        "进水",
+        "防拆胶",
+        "SN",
+        "拍照",
+        "裂缝",
+        "凹陷",
+        "烧焦",
+        "部件缺失"
+      ],
+      "trees": [
+        "tree-damage-assessment"
+      ],
+      "caseTags": [
+        "定损",
+        "外观",
+        "进水",
+        "防拆胶"
+      ],
+      "icon": "🔍",
+      "urgency": "medium"
+    },
+    {
+      "id": "firmware",
+      "label": "固件/软件问题",
+      "keywords": [
+        "固件",
+        "升级",
+        "大包",
+        "DA2",
+        "版本",
+        "APP报错",
+        "校准失败"
+      ],
+      "trees": [
+        "tree-power-on"
+      ],
+      "caseTags": [
+        "固件",
+        "软件",
+        "升级",
+        "APP"
+      ],
+      "icon": "💾",
+      "urgency": "low"
+    }
+  ]
+}

@@ -592,6 +592,183 @@ def build_plain_summary(duration_seconds, flight_topic, gps_topic, motor_summary
     }
 
 
+def build_engineer_summary(flight_topic, gps_topic, motor_summary, battery_summary, anomalies, fallback_start):
+    priorities = []
+    do_not_misread = [
+        "MOT07-MOT12 会保留原始数据，但这台六轴 Hex X 先按 MOT01-MOT06 做实体电机统计。",
+        "没有 failsafe 只说明日志中未见保护触发，不等于飞机完全没有机械、电池或装配问题。",
+        "电机平均差不大时，不要优先把 MOT11/MOT12 当成故障电机；应先按真实接线和六轴布局复核。",
+    ]
+    time_windows = []
+
+    arm_events = transitions(flight_topic, "flag_arm", fallback_start)
+    arm_start = next((item["time_s"] for item in arm_events if item.get("value") == 1 and item.get("time_s") is not None), None)
+    arm_end = next((item["time_s"] for item in arm_events if item.get("value") == 0 and item.get("time_s") is not None and arm_start is not None and item["time_s"] > arm_start), None)
+    if arm_start is not None:
+        time_windows.append({
+            "label": "解锁开始",
+            "time_s": arm_start,
+            "why": "从这里开始看真实飞行段。",
+        })
+    if arm_end is not None:
+        time_windows.append({
+            "label": "落地锁定",
+            "time_s": arm_end,
+            "why": "这里之后一般不再按空中故障判断。",
+        })
+
+    failsafe_events = [
+        item for item in transitions(flight_topic, "failsafe", fallback_start)
+        if isinstance(item.get("value"), (int, float)) and item.get("value") != 0
+    ]
+    if failsafe_events:
+        first = failsafe_events[0]
+        priorities.append({
+            "level": "danger",
+            "title": "1. 先查 failsafe/保护触发",
+            "direction": "如果客户反馈断联、自动降落或突然不受控，先围绕保护触发时刻查。",
+            "reason": f"日志中 failsafe 出现非零值，首次记录约在 {first.get('time_s')}s。",
+            "check": "取该时刻前后 10 秒，对照遥控输入、GPS/GNSS、飞行模式和日志文本。",
+        })
+        time_windows.append({
+            "label": "failsafe 首次非零",
+            "time_s": first.get("time_s"),
+            "why": "优先复盘保护触发前后。",
+        })
+
+    voltage = battery_summary.get("raw_battery_voltage")
+    voltage_drop = None
+    voltage_drop_ratio = None
+    if voltage and voltage.get("start") and voltage.get("end"):
+        voltage_drop = round_value(voltage["start"] - voltage["end"])
+        voltage_drop_ratio = (voltage["start"] - voltage["end"]) / voltage["start"] if voltage["start"] else None
+        cell_note = ""
+        if voltage["start"] > 35:
+            cell_note = f"按 12S 粗略估算，结束约 {round_value(voltage['end'] / 12, 2)}V/节。"
+        level = "warning" if voltage_drop_ratio and voltage_drop_ratio > 0.08 else "info"
+        title_prefix = "2" if priorities else "1"
+        priorities.append({
+            "level": level,
+            "title": f"{title_prefix}. 电池/供电链路",
+            "direction": "这条线应优先给维修工程师看，尤其是飞手反馈动力变弱、低电压、返航或降落异常时。",
+            "reason": f"raw_battery_voltage 从 {voltage['start']}V 到 {voltage['end']}V，下降约 {voltage_drop}V。{cell_note}",
+            "check": "查满电状态、单节压差、内阻、鼓包老化、插头接触、负载压降和低电压保护/降落参数。",
+        })
+
+    mode_changes = transitions(flight_topic, "flight_mode", fallback_start)
+    in_air_mode_changes = [
+        item for item in mode_changes
+        if item.get("time_s") is not None and arm_start is not None and item["time_s"] >= arm_start and (arm_end is None or item["time_s"] <= arm_end)
+    ]
+    mode_names = sorted({item.get("meaning") for item in in_air_mode_changes if item.get("meaning")})
+    if len(in_air_mode_changes) > 6:
+        title_prefix = str(len(priorities) + 1)
+        priorities.append({
+            "level": "warning",
+            "title": f"{title_prefix}. 飞行模式切换链路",
+            "direction": "如果飞手没有主动切模式，就要查模式开关通道和飞控模式配置。",
+            "reason": f"解锁飞行段内检测到 {len(in_air_mode_changes)} 次模式变化，涉及 {' / '.join(mode_names) if mode_names else '未知模式'}。",
+            "check": "询问飞手是否主动切换；若否，复核 ch05、遥控器模式开关、飞控模式映射和接插件接触。",
+        })
+        for item in in_air_mode_changes[:6]:
+            time_windows.append({
+                "label": f"模式：{item.get('meaning', item.get('value'))}",
+                "time_s": item.get("time_s"),
+                "why": "与飞手操作记录对照。",
+            })
+
+    motor_spread = motor_summary.get("avgSpread")
+    active_count = motor_summary.get("activeCount")
+    title_prefix = str(len(priorities) + 1)
+    if isinstance(motor_spread, (int, float)):
+        if motor_spread <= 150:
+            priorities.append({
+                "level": "ok",
+                "title": f"{title_prefix}. 电机/桨叶暂不作为首要怀疑",
+                "direction": "除非客户明确反馈抖动、偏航、异响或某一路发热，否则先不要从 MOT11/MOT12 误判。",
+                "reason": f"按六轴实体电机统计，活跃电机 {active_count} 个，平均输出差约 {formatValueForText(motor_spread)}。",
+                "check": "若仍怀疑动力系统，再查 6 个真实电机、桨叶、夹头、机臂、载荷偏心和实际接线顺序。",
+            })
+        elif motor_spread <= 250:
+            priorities.append({
+                "level": "warning",
+                "title": f"{title_prefix}. 电机/桨叶需要结合现象复核",
+                "direction": "电机差异略大，但还不能单独定性为电机故障。",
+                "reason": f"按六轴实体电机统计，平均输出差约 {formatValueForText(motor_spread)}。",
+                "check": "重点看客户是否反馈抖动/偏航；现场检查桨叶、夹头、机臂、载荷偏心和电机温度。",
+            })
+        else:
+            priorities.append({
+                "level": "warning",
+                "title": f"{title_prefix}. 电机/桨叶/载荷需要重点复核",
+                "direction": "电机输出差异较大，需排除机械和载荷因素。",
+                "reason": f"按六轴实体电机统计，平均输出差约 {formatValueForText(motor_spread)}。",
+                "check": "检查桨叶变形、夹头松动、机臂变形、载荷偏心、电机轴承和实际电机接线。",
+            })
+    else:
+        priorities.append({
+            "level": "info",
+            "title": f"{title_prefix}. 电机数据不足",
+            "direction": "这份日志暂不能用电机平均差判断动力系统。",
+            "reason": "未得到可用的六轴实体电机平均输出差。",
+            "check": "需要复核 motors topic 是否存在，或补充同一故障时刻的完整日志。",
+        })
+
+    gps_fix = stats(gps_topic, "fixState")
+    gps_sv = stats(gps_topic, "numSV")
+    title_prefix = str(len(priorities) + 1)
+    if gps_fix and gps_fix.get("min") is not None:
+        if gps_fix["min"] >= 3:
+            sv_text = f"，卫星数约 {gps_sv['min']}-{gps_sv['max']} 颗" if gps_sv else ""
+            priorities.append({
+                "level": "ok",
+                "title": f"{title_prefix}. GPS/定位暂不作为首要怀疑",
+                "direction": "除非故障现象是漂移、定点不稳或返航异常，否则先放在供电/模式后面。",
+                "reason": f"fixState 全程不低于 3{sv_text}。",
+                "check": "若客户反馈漂移或返航异常，再截取对应时间段看 hAcc、vAcc、GNSS 健康和位置变化。",
+            })
+        else:
+            priorities.append({
+                "level": "warning",
+                "title": f"{title_prefix}. GPS/定位需要重点复核",
+                "direction": "如果故障现象涉及漂移、定点或返航，这条线要提前。",
+                "reason": f"fixState 最低到 {gps_fix['min']}，曾低于稳定定位状态。",
+                "check": "复核起飞前搜星等待、GNSS 健康、水平/垂直精度、天线安装和遮挡。",
+            })
+
+    if not priorities:
+        priorities.append({
+            "level": "info",
+            "title": "1. 先补充故障现象",
+            "direction": "日志能解析，但需要飞手描述才能锁定排查方向。",
+            "reason": "当前没有形成明显的保护、电池、电机或 GPS 单一指向。",
+            "check": "补充异常发生时间、当时模式、飞行动作、是否报警、是否低电压、是否漂移/抖动/偏航。",
+        })
+
+    danger_or_warning = any(item.get("level") in ("danger", "warning") for item in priorities)
+    if failsafe_events:
+        headline = "工程师先围绕保护触发时刻复盘，再查供电、遥控和定位。"
+    elif voltage_drop_ratio and voltage_drop_ratio > 0.08:
+        headline = "工程师先查电池/供电，再核对模式切换；电机暂不作为首要怀疑。"
+    elif danger_or_warning:
+        headline = "工程师按下面优先级复核，不要先被单个原始字段带偏。"
+    else:
+        headline = "工程师可先确认客户故障现象，再按供电、模式、电机、GPS 顺序排查。"
+
+    return {
+        "headline": headline,
+        "handoff": "给工程师的读法：先看优先级 1，再看对应证据和复核动作；后面的 Topic 表只用于定位细节。",
+        "priorities": priorities[:6],
+        "doNotMisread": do_not_misread,
+        "timeWindows": time_windows[:10],
+        "askPilot": [
+            "异常发生在起飞、悬停、切模式、返航还是降落阶段？大概第几秒？",
+            "LOITER/ALTHOLD 的切换是否由飞手主动操作？",
+            "当时是否有低电压提示、动力变弱、漂移、抖动、偏航或异响？",
+        ],
+    }
+
+
 def formatValueForText(value):
     if value is None:
         return "-"
@@ -631,6 +808,7 @@ def analyze(input_path):
             "conclusion": build_conclusion(anomalies, flight_topic),
         },
         "plainSummary": build_plain_summary(duration_seconds, flight_topic, gps_topic, motor_summary, battery_summary, anomalies, fallback_start),
+        "engineerSummary": build_engineer_summary(flight_topic, gps_topic, motor_summary, battery_summary, anomalies, fallback_start),
         "identity": extract_identity(important_messages),
         "timeline": build_timeline(flight_topic, mode_topic, important_messages, fallback_start),
         "anomalies": anomalies,

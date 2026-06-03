@@ -42,6 +42,27 @@ function summaryLabel(level) {
   return '可解析'
 }
 
+function engineerAccentClass(level) {
+  if (level === 'danger') return 'border-red-500'
+  if (level === 'warning') return 'border-yellow-500'
+  if (level === 'ok') return 'border-green-500'
+  return 'border-blue-500'
+}
+
+function engineerBadgeClass(level) {
+  if (level === 'danger') return 'bg-red-50 text-red-700'
+  if (level === 'warning') return 'bg-yellow-50 text-yellow-700'
+  if (level === 'ok') return 'bg-green-50 text-green-700'
+  return 'bg-blue-50 text-blue-700'
+}
+
+function engineerLabel(level) {
+  if (level === 'danger') return '优先处理'
+  if (level === 'warning') return '重点复核'
+  if (level === 'ok') return '暂不优先'
+  return '补充信息'
+}
+
 function confidenceText(value) {
   if (value === 'confirmed') return '日志确认'
   if (value === 'high-confidence inference') return '高可信推断'
@@ -103,6 +124,81 @@ function PlainSummary({ summary }) {
       </div>
 
       {summary.technicalHint && <p className="mt-4 text-xs text-gray-600">{summary.technicalHint}</p>}
+    </section>
+  )
+}
+
+function EngineerSummary({ summary }) {
+  if (!summary) return null
+
+  const priorities = summary.priorities || []
+  const doNotMisread = summary.doNotMisread || []
+  const timeWindows = summary.timeWindows || []
+  const askPilot = summary.askPilot || []
+
+  return (
+    <section className="rounded-lg border border-gray-200 bg-white p-5">
+      <div className="text-sm font-medium text-gray-500">工程师复核重点</div>
+      <h3 className="mt-3 text-xl font-semibold text-gray-950">{summary.headline}</h3>
+      {summary.handoff && <p className="mt-2 text-sm leading-6 text-gray-600">{summary.handoff}</p>}
+
+      {priorities.length > 0 && (
+        <div className="mt-5 space-y-5">
+          {priorities.map((item, index) => (
+            <div key={`${item.title}-${index}`} className={`border-l-4 pl-4 ${engineerAccentClass(item.level)}`}>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h4 className="text-base font-semibold text-gray-950">{item.title}</h4>
+                <span className={`rounded-full px-3 py-1 text-xs font-medium ${engineerBadgeClass(item.level)}`}>
+                  {engineerLabel(item.level)}
+                </span>
+              </div>
+              <div className="mt-3 space-y-2 text-sm leading-6 text-gray-700">
+                {item.direction && <p><span className="font-medium text-gray-950">方向：</span>{item.direction}</p>}
+                {item.reason && <p><span className="font-medium text-gray-950">依据：</span>{item.reason}</p>}
+                {item.check && <p><span className="font-medium text-gray-950">动作：</span>{item.check}</p>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {(timeWindows.length > 0 || askPilot.length > 0 || doNotMisread.length > 0) && (
+        <div className="mt-6 grid gap-5 border-t border-gray-100 pt-5 lg:grid-cols-3">
+          {timeWindows.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-gray-950">先看这些时间点</h4>
+              <div className="mt-3 space-y-2 text-sm text-gray-600">
+                {timeWindows.map((item, index) => (
+                  <div key={`${item.label}-${index}`}>
+                    <span className="font-mono text-gray-950">{formatValue(item.time_s)}s</span>
+                    <span className="mx-2 text-gray-300">|</span>
+                    <span className="font-medium text-gray-800">{item.label}</span>
+                    {item.why && <div className="mt-1 text-xs leading-5 text-gray-500">{item.why}</div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {askPilot.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-gray-950">需要问飞手</h4>
+              <ul className="mt-3 space-y-2 text-sm leading-6 text-gray-600">
+                {askPilot.map((item, index) => <li key={index}>{item}</li>)}
+              </ul>
+            </div>
+          )}
+
+          {doNotMisread.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-gray-950">不要误判</h4>
+              <ul className="mt-3 space-y-2 text-sm leading-6 text-gray-600">
+                {doNotMisread.map((item, index) => <li key={index}>{item}</li>)}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
     </section>
   )
 }
@@ -308,6 +404,7 @@ function FlightLogPage() {
                 </div>
 
                 <PlainSummary summary={report.plainSummary} />
+                <EngineerSummary summary={report.engineerSummary} />
 
                 {identityItems.length > 0 && (
                   <Section title="设备与固件信息">
