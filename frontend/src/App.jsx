@@ -1,8 +1,6 @@
 import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import HomePage from './pages/HomePage'
-import DiagnosisPage from './pages/DiagnosisPage'
-import ConversationPage from './pages/ConversationPage'
 import ImageDiagnosisPage from './pages/ImageDiagnosisPage'
 import HistoryPage from './pages/HistoryPage'
 import AuthPage from './pages/AuthPage'
@@ -17,8 +15,8 @@ function App() {
       <div className="min-h-screen bg-gray-50">
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/diagnosis" element={<DiagnosisPage />} />
-          <Route path="/conversation" element={<ConversationPage />} />
+          <Route path="/diagnosis" element={<Navigate to="/guide" replace />} />
+          <Route path="/conversation" element={<Navigate to="/guide" replace />} />
           <Route path="/image-diagnosis" element={<ImageDiagnosisPage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/auth" element={<AuthPage />} />

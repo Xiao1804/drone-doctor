@@ -172,8 +172,10 @@ function HomePage() {
     const startTime = Date.now()
 
     try {
-      const response = await axios.post(apiUrl('/api/diagnosis'), {
-        symptom,
+      // v2.0: 调用统一诊断API (quick模式)
+      const response = await axios.post(apiUrl('/api/diagnosis/unified'), {
+        mode: 'quick',
+        input: symptom,
         deviceType: selectedDevice?.id,
         faultType: selectedFault?.id
       })
@@ -186,14 +188,27 @@ function HomePage() {
 
       // 短暂停留让用户看到100%
       setTimeout(() => {
-        navigate('/diagnosis', {
-          state: {
-            result: response.data,
-            durationMs: Date.now() - startTime,
-            deviceType: selectedDevice?.id,
-            faultType: selectedFault?.id
-          }
-        })
+        const result = response.data
+        if (!result.fallback && result.matchedTree) {
+          // 高置信度匹配：跳转到决策树预览模式
+          navigate(`/guide/${result.matchedTree.id}?mode=preview`, {
+            state: {
+              unifiedResult: result,
+              durationMs: Date.now() - startTime,
+              deviceType: selectedDevice?.id,
+              faultType: selectedFault?.id
+            }
+          })
+        } else {
+          // 低置信度/无匹配：跳转到维修助手菜单，带提示
+          navigate('/guide', {
+            state: {
+              noMatch: true,
+              input: symptom,
+              intent: result.intent
+            }
+          })
+        }
       }, 500)
     } catch (error) {
       console.error('Diagnosis error:', error)
@@ -454,10 +469,10 @@ function HomePage() {
                 <span>🤖</span> AI智能诊断
               </button>
               <button
-                onClick={() => navigate('/conversation')}
+                onClick={() => navigate('/guide?mode=interactive')}
                 className="px-6 py-3 bg-[#FF6B00] text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors"
               >
-                对话诊断（推荐）
+                交互式诊断（推荐）
               </button>
               <button
                 onClick={() => navigate('/image-diagnosis')}
