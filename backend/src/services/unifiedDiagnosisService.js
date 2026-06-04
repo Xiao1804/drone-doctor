@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const {
   mapFrontendFaultToBackend,
   mapFrontendDeviceToBackend,
-} = require('../../../shared/enums');
+} = require('../shared/enums');
 
 // ========== 数据加载 ==========
 
