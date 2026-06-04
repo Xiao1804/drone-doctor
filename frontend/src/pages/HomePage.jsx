@@ -4,9 +4,9 @@ import axios from 'axios'
 import { apiUrl } from '../config/api'
 import DiagnosisCounter, { getRemainingCount, incrementDiagnosisCount } from '../components/DiagnosisCounter'
 import { trackDiagnosisStart } from '../utils/tracking'
-import { DEVICE_TYPES, FAULT_TYPES } from '../../../shared/enums'
+import { DEVICE_TYPES, FAULT_TYPES } from '../shared/enums'
 
-// 机型选项与故障类型从共享枚举导入（shared/enums.js）
+// 机型选项与故障类型从共享枚举导入（src/shared/enums.js）
 // 如需修改枚举值，请同步更新 shared/enums.js 和后端引用
 
 // 小知识文案
