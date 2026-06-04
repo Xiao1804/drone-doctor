@@ -19,6 +19,8 @@ const flightLogRoutes = require('./routes/flightLog');
 const diagnosisAgentRoutes = require('./routes/diagnosisAgent');
 const unifiedDiagnosisRoutes = require('./routes/unifiedDiagnosis');
 
+const { errorHandler } = require('./middleware/errorHandler');
+
 const app = express();
 
 const DEFAULT_ALLOWED_ORIGINS = [
@@ -76,15 +78,7 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.use((err, req, res, next) => {
-  const isDev = process.env.NODE_ENV !== 'production';
-  console.error(`[ERROR] ${req.method} ${req.path}:`, err);
-  if (isDev) {
-    res.status(500).json({ error: err.message, stack: err.stack });
-  } else {
-    res.status(500).json({ error: 'Something went wrong!' });
-  }
-});
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
@@ -92,6 +86,8 @@ const HOST = '0.0.0.0';
 async function startServer() {
   try {
     await initDatabase();
+    // 加载已批准的决策树变更
+    await decisionTreeRoutes.loadApprovedChanges();
     app.listen(PORT, HOST, () => {
       console.log(`DroneDoctor API running on ${HOST}:${PORT}`);
     });

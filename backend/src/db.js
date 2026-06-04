@@ -145,6 +145,22 @@ async function initDatabase() {
     await db.query(`CREATE INDEX IF NOT EXISTS idx_events_event ON events(event)`);
     await db.query(`CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at)`);
 
+    // 决策树变更请求表（审批管控）
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS tree_change_requests (
+        id SERIAL PRIMARY KEY,
+        tree_id TEXT NOT NULL,
+        proposed_by TEXT NOT NULL,
+        changes JSONB NOT NULL DEFAULT '{}',
+        status TEXT DEFAULT 'pending',
+        reviewed_by TEXT,
+        reviewed_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_tcr_tree_id ON tree_change_requests(tree_id)`);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_tcr_status ON tree_change_requests(status)`);
+
     // 初始化向量表（Phase 1 新增）
     try {
       const { initVectorTables } = require('./services/vectorService');
@@ -205,6 +221,22 @@ async function initDatabase() {
         `);
         db.run(`CREATE INDEX IF NOT EXISTS idx_events_event ON events(event)`);
         db.run(`CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at)`);
+
+        // 决策树变更请求表（审批管控）
+        db.run(`
+          CREATE TABLE IF NOT EXISTS tree_change_requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            tree_id TEXT NOT NULL,
+            proposed_by TEXT NOT NULL,
+            changes TEXT DEFAULT '{}',
+            status TEXT DEFAULT 'pending',
+            reviewed_by TEXT,
+            reviewed_at TEXT,
+            created_at TEXT DEFAULT (datetime('now'))
+          )
+        `);
+        db.run(`CREATE INDEX IF NOT EXISTS idx_tcr_tree_id ON tree_change_requests(tree_id)`);
+        db.run(`CREATE INDEX IF NOT EXISTS idx_tcr_status ON tree_change_requests(status)`);
 
         db.run('SELECT 1', (err) => {
           if (err) {

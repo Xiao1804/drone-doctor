@@ -2,6 +2,10 @@ const fs = require('fs').promises;
 const path = require('path');
 const axios = require('axios');
 const crypto = require('crypto');
+const {
+  mapFrontendFaultToBackend,
+  mapFrontendDeviceToBackend,
+} = require('../../../shared/enums');
 
 // ========== 数据加载 ==========
 
@@ -117,7 +121,8 @@ class IntentParserService {
 
     return {
       brand: ruleResult.brand,
-      model: ruleResult.model || structuredHints.model,
+      model: ruleResult.model || structuredHints.model || structuredHints.deviceType,
+      deviceType: ruleResult.deviceType || mapFrontendDeviceToBackend(structuredHints.deviceType),
       faultType,
       faultTypeLabel: faultTypeConfig?.label || '未知故障',
       keywords: ruleResult.keywords,
@@ -149,6 +154,7 @@ class IntentParserService {
       mini: ['mini 4', 'mini4', 'mini 3', 'mini3', 'mini 2', 'mini2'],
       phantom: ['phantom', '精灵'],
       inspire: ['inspire', '悟'],
+      t30: ['t30', 't40', 't50', '极飞'],
     };
     for (const [model, kws] of Object.entries(modelPatterns)) {
       if (kws.some(k => text.includes(k))) {
@@ -167,9 +173,11 @@ class IntentParserService {
       }
     }
 
-    result.faultType = hints.faultType || bestMatch.faultType;
+    result.faultType = hints.faultType ? mapFrontendFaultToBackend(hints.faultType) || hints.faultType : bestMatch.faultType;
     result.confidence = hints.faultType ? 0.95 : bestMatch.score;
     result.keywords = [...new Set(bestMatch.matchedKeywords)];
+    // 保存前端传入的 deviceType 到结果中，供后续会话使用
+    result.deviceType = hints.deviceType ? mapFrontendDeviceToBackend(hints.deviceType) || hints.deviceType : null;
 
     return result;
   }
@@ -338,7 +346,7 @@ class TreeExecutorService {
 // ========== DiagnosisGeneratorService ==========
 
 class DiagnosisGeneratorService {
-  async generate(path, tree, intent, cases) {
+  async generate(path, tree, intent, cases, branchHistory = []) {
     const terminalNode = tree.nodes[path[path.length - 1]];
 
     // Collect steps from path
@@ -359,18 +367,10 @@ class DiagnosisGeneratorService {
       }
     }
 
-    // Related cases
-    const relatedCases = cases.filter(
-      c => c.relatedTrees?.includes(tree.id) || path.some(nid => c.relatedNodes?.includes(nid))
-    );
+    // 基于路径和分支历史的确定性结论推导（替代硬编码概率）
+    const possibleCauses = this.inferCausesFromPath(path, tree, branchHistory, cases);
 
-    const possibleCauses = relatedCases.slice(0, 5).map((c, i) => ({
-      cause: c.possibleCauses?.[0]?.cause || c.symptom,
-      probability: ['45%', '25%', '15%', '10%', '5%'][i] || '5%',
-      description: c.possibleCauses?.[0]?.description || '',
-    }));
-
-    const confidence = this.calculateConfidence(path, tree, intent, relatedCases);
+    const confidence = this.calculateConfidence(path, tree, branchHistory);
 
     return {
       faultType: tree.category,
@@ -382,18 +382,109 @@ class DiagnosisGeneratorService {
       terminalConclusion: terminalNode?.conclusion,
       terminalRecommendation: terminalNode?.recommendation,
       confidence,
-      relatedCases: relatedCases.map(c => ({ id: c.id, symptom: c.symptom })),
+      relatedCases: cases.filter(
+        c => c.relatedTrees?.includes(tree.id) || path.some(nid => c.relatedNodes?.includes(nid))
+      ).map(c => ({ id: c.id, symptom: c.symptom })),
       relatedTreeId: tree.id,
     };
   }
 
-  calculateConfidence(path, tree, intent, cases) {
-    let score = 0.5;
+  /**
+   * 基于决策树路径和分支历史推断可能原因
+   * 纯流程驱动，无权重依赖
+   */
+  inferCausesFromPath(path, tree, branchHistory, cases) {
+    const causes = [];
     const terminalNode = tree.nodes[path[path.length - 1]];
-    if (terminalNode?.type === 'terminal') score += 0.2;
-    score += (intent.confidence || 0) * 0.15;
-    if (cases.length > 0) score += Math.min(cases.length * 0.05, 0.1);
-    if (path.length >= 3) score += 0.05;
+
+    // 优先级1：终端节点结论（已确认）
+    if (terminalNode?.type === 'terminal' && terminalNode.conclusion) {
+      causes.push({
+        cause: terminalNode.conclusion,
+        probability: '已确认',
+        description: terminalNode.recommendation || '',
+        source: 'terminal',
+      });
+    }
+
+    // 优先级2：从分支历史中推导高可能性原因
+    const seenCauses = new Set(causes.map(c => c.cause));
+    for (const bh of branchHistory) {
+      const node = tree.nodes[bh.nodeId];
+      if (!node || node.type !== 'question') continue;
+
+      // 根据分支方向提取线索（使用 label 文本，去除 emoji 前缀）
+      const branchInfo = bh.branch === 'yes' ? node.yes : node.no;
+      if (branchInfo?.label) {
+        const cleanLabel = branchInfo.label.replace(/^[✅❌🔄🖼️]+\s*/, '').trim();
+        if (cleanLabel && !seenCauses.has(cleanLabel)) {
+          causes.push({
+            cause: cleanLabel,
+            probability: '高可能性',
+            description: node.title,
+            source: 'branch',
+          });
+          seenCauses.add(cleanLabel);
+        }
+      }
+
+      // 从节点 criteria 中提取线索
+      if (node.criteria && !seenCauses.has(node.criteria)) {
+        causes.push({
+          cause: node.criteria,
+          probability: '排查方向',
+          description: node.title,
+          source: 'criteria',
+        });
+        seenCauses.add(node.criteria);
+      }
+
+      if (causes.length >= 3) break;
+    }
+
+    // 优先级3：路径过短时的 fallback（仅当无法从路径推导时）
+    if (causes.length === 0 && path.length < 3) {
+      const relatedCases = cases.filter(
+        c => c.relatedTrees?.includes(tree.id) || path.some(nid => c.relatedNodes?.includes(nid))
+      );
+      for (const c of relatedCases.slice(0, 3)) {
+        const causeText = c.possibleCauses?.[0]?.cause || c.symptom;
+        if (!seenCauses.has(causeText)) {
+          causes.push({
+            cause: causeText,
+            probability: '待确认',
+            description: c.possibleCauses?.[0]?.description || '',
+            source: 'case',
+          });
+          seenCauses.add(causeText);
+        }
+        if (causes.length >= 3) break;
+      }
+    }
+
+    return causes.slice(0, 3);
+  }
+
+  calculateConfidence(path, tree, branchHistory = []) {
+    const terminalNode = tree.nodes[path[path.length - 1]];
+    let score = 0.5;
+
+    // 基于路径完整性评分
+    if (terminalNode?.type === 'terminal') {
+      score = 0.95;
+    } else if (path.length >= 3) {
+      score = 0.7;
+    } else {
+      score = 0.5;
+    }
+
+    // 基于分支确定性加分（每个 question 分支 +0.05，最多 +0.15）
+    const questionBranches = branchHistory.filter(bh => {
+      const node = tree.nodes[bh.nodeId];
+      return node && node.type === 'question';
+    });
+    score += Math.min(questionBranches.length * 0.05, 0.15);
+
     return Math.min(Math.round(score * 100) / 100, 0.98);
   }
 
@@ -423,6 +514,10 @@ function createSession(intent) {
     lastActivityAt: now,
     status: 'active',
     intent,
+    context: {
+      deviceType: intent.deviceType || null,
+      model: intent.model || null,
+    },
     treeExecution: null,
     diagnosis: null,
     messages: [],
@@ -501,7 +596,8 @@ async function quickDiagnose(input, structuredHints = {}) {
     predictedPath.path,
     tree,
     intent,
-    faultCases
+    faultCases,
+    [] // quick 模式无分支历史
   );
 
   return {
@@ -595,7 +691,7 @@ async function interactiveDiagnose(sessionId, input, userAnswer, structuredHints
     session.status = 'completed';
 
     // Generate diagnosis
-    const diagnosis = await diagnosisGenerator.generate(exec.path, tree, session.intent, faultCases);
+    const diagnosis = await diagnosisGenerator.generate(exec.path, tree, session.intent, faultCases, exec.branchHistory);
     session.diagnosis = diagnosis;
 
     return formatInteractiveResponse(session, result.terminalNode, tree, true, diagnosis);

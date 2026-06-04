@@ -26,7 +26,8 @@
         "电池"
       ],
       "icon": "🔌",
-      "urgency": "high"
+      "urgency": "high",
+      "frontendId": "power"
     },
     {
       "id": "link-test",
@@ -59,7 +60,8 @@
         "机身"
       ],
       "icon": "🔧",
-      "urgency": "medium"
+      "urgency": "medium",
+      "frontendId": "other"
     },
     {
       "id": "gimbal",
@@ -93,7 +95,8 @@
         "绕动力"
       ],
       "icon": "📷",
-      "urgency": "medium"
+      "urgency": "medium",
+      "frontendId": "gimbal"
     },
     {
       "id": "battery",
@@ -122,7 +125,8 @@
         "PF"
       ],
       "icon": "🔋",
-      "urgency": "high"
+      "urgency": "high",
+      "frontendId": "battery"
     },
     {
       "id": "video",
@@ -149,7 +153,8 @@
         "APP"
       ],
       "icon": "📺",
-      "urgency": "medium"
+      "urgency": "medium",
+      "frontendId": "video"
     },
     {
       "id": "gps",
@@ -174,7 +179,8 @@
         "卫星"
       ],
       "icon": "📡",
-      "urgency": "low"
+      "urgency": "low",
+      "frontendId": "gps"
     },
     {
       "id": "flight",
@@ -201,7 +207,8 @@
         "螺旋桨"
       ],
       "icon": "✈️",
-      "urgency": "high"
+      "urgency": "high",
+      "frontendId": "power"
     },
     {
       "id": "damage-assessment",
@@ -228,7 +235,8 @@
         "防拆胶"
       ],
       "icon": "🔍",
-      "urgency": "medium"
+      "urgency": "medium",
+      "frontendId": "other"
     },
     {
       "id": "firmware",
@@ -252,7 +260,8 @@
         "APP"
       ],
       "icon": "💾",
-      "urgency": "low"
+      "urgency": "low",
+      "frontendId": "other"
     }
   ]
 }

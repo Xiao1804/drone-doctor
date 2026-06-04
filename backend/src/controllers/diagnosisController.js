@@ -1,27 +1,22 @@
-const axios = require('axios');
 const fs = require('fs').promises;
+const path = require('path');
+const axios = require('axios');
+const crypto = require('crypto');
 const sessionService = require('../services/sessionService');
-const { resolveFaultCasesFile } = require('../utils/faultCasesFile');
-const { generateEmbedding } = require('../services/embeddingService');
-const { searchSimilarCases } = require('../services/vectorService');
+const { run } = require('../db');
 
-const FAULT_CASES_FILE = resolveFaultCasesFile();
+// ========== 内联诊断服务（原 DiagnosisService.js 核心逻辑，已内联避免维护负担）==========
 
-// 加载故障案例库
+const FAULT_CASES_FILE = path.join(__dirname, '../../data/fault-cases-enhanced.json');
 let faultCases = [];
 let faultCasesLoading = null;
-const loadFaultCases = async () => {
-  // 如果正在加载，返回同一个 Promise
+
+async function loadFaultCases() {
   if (faultCasesLoading) return faultCasesLoading;
-  
   faultCasesLoading = (async () => {
     try {
-      const data = await fs.readFile(
-        FAULT_CASES_FILE,
-        'utf-8'
-      );
+      const data = await fs.readFile(FAULT_CASES_FILE, 'utf-8');
       const allCases = JSON.parse(data);
-      // 只加载已审核通过的案例
       faultCases = allCases.filter(c => c.reviewStatus === 'approved');
       console.log(`Loaded ${faultCases.length} approved fault cases (total: ${allCases.length})`);
       return faultCases;
@@ -33,164 +28,14 @@ const loadFaultCases = async () => {
       faultCasesLoading = null;
     }
   })();
-  
   return faultCasesLoading;
-};
-
-// 初始化时加载
-loadFaultCases();
-
-// AI诊断（Phase 1: 语义检索增强版）
-exports.diagnose = async (req, res) => {
-  try {
-    const { symptom, model, context } = req.body;
-
-    if (!symptom) {
-      return res.status(400).json({ error: '请输入故障现象' });
-    }
-
-    // 确保案例库已加载
-    if (faultCases.length === 0) {
-      await loadFaultCases();
-    }
-
-    console.log('Input symptom:', symptom);
-
-    // ========== 1. 语义检索（Phase 1 新增）==========
-    let semanticMatches = [];
-    let matchedResults = [];
-    let useSemanticSearch = false;
-
-    try {
-      // 生成用户输入的 embedding
-      const queryEmbedding = await generateEmbedding(symptom);
-      // 语义检索
-      semanticMatches = await searchSimilarCases(queryEmbedding, 5);
-
-      if (semanticMatches.length > 0) {
-        useSemanticSearch = true;
-        console.log(`[Semantic] Found ${semanticMatches.length} matches:`);
-        semanticMatches.forEach(m => {
-          console.log(`  [${(m.similarity * 100).toFixed(0)}%] ${m.case_id}: ${m.content.substring(0, 50)}...`);
-        });
-
-        // 将语义检索结果转为 matchedResults 格式（兼容原有逻辑）
-        matchedResults = semanticMatches.map(m => {
-          const caseData = faultCases.find(c => c.id === m.case_id);
-          return {
-            case: caseData || { id: m.case_id, symptom: m.content, faultType: m.metadata?.faultType || '未知' },
-            score: m.similarity,
-            reason: `语义相似度: ${(m.similarity * 100).toFixed(0)}%`
-          };
-        }).filter(r => r.case); // 过滤掉找不到的案例
-      }
-    } catch (semanticErr) {
-      console.warn('[Semantic] Semantic search failed, falling back to keyword:', semanticErr.message);
-    }
-
-    // ========== 2. 关键词匹配 Fallback ==========
-    if (matchedResults.length === 0) {
-      matchedResults = matchCasesSmart(symptom, faultCases);
-      console.log(`[Keyword] Smart matched ${matchedResults.length} cases`);
-    }
-
-    if (matchedResults.length > 0) {
-      matchedResults.slice(0, 5).forEach(r => {
-        console.log(`  [${(r.score * 100).toFixed(0)}%] ${r.case.id}: ${r.case.symptom} (${r.reason})`);
-      });
-    } else {
-      console.log('No cases matched');
-    }
-
-    // ========== 3. 调用AI API（带推理链 CoT）==========
-    const aiResponse = await callBaiduAI(symptom, model, context, matchedResults);
-
-    // ========== 4. 计算置信度 ==========
-    const confidence = calculateConfidence(symptom, matchedResults, aiResponse);
-
-    // ========== 5. 返回诊断结果 ==========
-    const diagnosisId = `diag_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-
-    // 自动埋点：诊断完成事件
-    try {
-      const { run } = require('../db');
-      await run(
-        "INSERT INTO events (event, data, ip) VALUES (?, ?, ?)",
-        [
-          'diagnosis_complete',
-          JSON.stringify({
-            diagnosis_id: diagnosisId,
-            device_type: req.body.deviceType || '',
-            fault_type: req.body.faultType || '',
-            steps_count: aiResponse.steps?.length || 0,
-            difficulty: aiResponse.difficulty || '1',
-            search_method: useSemanticSearch ? 'semantic' : 'keyword',
-            confidence: Math.round(confidence * 100) / 100
-          }),
-          req.ip || ''
-        ]
-      );
-    } catch (trackErr) {
-      console.warn('[Track] diagnosis_complete event failed:', trackErr.message);
-    }
-
-    res.json({
-      success: true,
-      diagnosisId,
-      diagnosis: aiResponse,
-      matchedCasesCount: matchedResults.length,
-      topMatchScore: matchedResults[0]?.score || 0,
-      semanticMatches: semanticMatches.map(m => ({
-        caseId: m.case_id,
-        content: m.content.substring(0, 100),
-        similarity: Math.round(m.similarity * 100) / 100,
-        metadata: m.metadata
-      })),
-      confidence: Math.round(confidence * 100) / 100,
-      searchMethod: useSemanticSearch ? 'semantic' : 'keyword',
-      timestamp: new Date().toISOString()
-    });
-
-  } catch (error) {
-    console.error('Diagnosis error:', error);
-    res.status(500).json({ error: '诊断失败，请稍后重试' });
-  }
-};
-
-/**
- * 计算诊断置信度
- * 基于：案例匹配质量 + AI输出完整性 + 症状描述丰富度
- */
-function calculateConfidence(symptom, matchedResults, aiResponse) {
-  let score = 0.5; // 基础分
-
-  // 1. 案例匹配质量（最高+0.3）
-  if (matchedResults.length > 0) {
-    const topScore = matchedResults[0].score;
-    if (topScore >= 0.9) score += 0.3;
-    else if (topScore >= 0.7) score += 0.2;
-    else if (topScore >= 0.5) score += 0.1;
-  }
-
-  // 2. AI输出完整性（最高+0.1）
-  if (aiResponse.possibleCauses && aiResponse.possibleCauses.length >= 3) {
-    score += 0.05;
-  }
-  if (aiResponse.steps && aiResponse.steps.length >= 3) {
-    score += 0.05;
-  }
-
-  // 3. 症状描述丰富度（最高+0.1）
-  const symptomLen = symptom.length;
-  if (symptomLen >= 20) score += 0.1;
-  else if (symptomLen >= 10) score += 0.05;
-
-  return Math.min(score, 1.0);
 }
 
-// ========== 同义词映射表 ==========
+function getFaultCases() {
+  return faultCases;
+}
+
 const SYNONYM_MAP = {
-  // 故障现象同义词
   '无法起飞': ['飞不起来', '不能起飞', '起飞失败', '启动不了', '不能启动'],
   'GPS信号弱': ['定位不准', '搜星少', 'GPS丢失', '无GPS', '卫星信号差'],
   '电机不转': ['马达不转', '螺旋桨不动', '电机卡住', '电机故障'],
@@ -211,7 +56,6 @@ const SYNONYM_MAP = {
   'IMU': ['惯性测量单元'],
 };
 
-// 计算编辑距离（Levenshtein Distance）
 function levenshteinDistance(a, b) {
   const matrix = [];
   for (let i = 0; i <= b.length; i++) matrix[i] = [i];
@@ -226,19 +70,15 @@ function levenshteinDistance(a, b) {
   return matrix[b.length][a.length];
 }
 
-// 计算相似度（0-1，1为完全匹配）
 function similarity(a, b) {
   const maxLen = Math.max(a.length, b.length);
   if (maxLen === 0) return 1;
-  const distance = levenshteinDistance(a, b);
-  return 1 - distance / maxLen;
+  return 1 - levenshteinDistance(a, b) / maxLen;
 }
 
-// 扩展关键词（包含同义词）
 function expandKeywords(keywords) {
   const expanded = new Set(keywords);
   for (const keyword of keywords) {
-    // 查找该关键词的同义词
     for (const [canonical, synonyms] of Object.entries(SYNONYM_MAP)) {
       if (canonical === keyword || synonyms.includes(keyword)) {
         expanded.add(canonical);
@@ -249,22 +89,16 @@ function expandKeywords(keywords) {
   return Array.from(expanded);
 }
 
-// 智能匹配案例（含模糊匹配和同义词扩展）
 function matchCasesSmart(symptom, cases) {
   const results = [];
-  
   for (const c of cases) {
     let maxScore = 0;
     let matchReason = '';
-    
-    // 1. 精确包含匹配（最高分）
     for (const keyword of c.keywords) {
       if (symptom.includes(keyword)) {
         maxScore = Math.max(maxScore, 1.0);
         matchReason = `精确匹配: "${keyword}"`;
       }
-      
-      // 2. 同义词扩展匹配
       const expanded = expandKeywords([keyword]);
       for (const syn of expanded) {
         if (syn !== keyword && symptom.includes(syn)) {
@@ -273,96 +107,45 @@ function matchCasesSmart(symptom, cases) {
         }
       }
     }
-    
-    // 3. 模糊匹配（编辑距离，用于处理错别字/近似表达）
     if (maxScore < 0.7) {
       for (const keyword of c.keywords) {
-        // 检查 symptom 中每个词与 keyword 的相似度
         const symptomWords = symptom.split(/[\s,，.。!！?？]+/);
         for (const word of symptomWords) {
           if (word.length >= 2 && keyword.length >= 2) {
             const sim = similarity(word, keyword);
             if (sim >= 0.75) {
               maxScore = Math.max(maxScore, sim * 0.8);
-              matchReason = `模糊匹配: "${word}"≈"${keyword}" (相似度${(sim*100).toFixed(0)}%)`;
+              matchReason = `模糊匹配: "${word}"≈"${keyword}" (相似度${(sim * 100).toFixed(0)}%)`;
             }
           }
         }
       }
     }
-    
     if (maxScore > 0) {
       results.push({ case: c, score: maxScore, reason: matchReason });
     }
   }
-  
-  // 按匹配分数降序排序
   results.sort((a, b) => b.score - a.score);
-  
   return results;
 }
 
-// ========== 模型配置（从环境变量读取，不再硬编码） ==========
 function getModelConfig() {
   const kimiModel = process.env.KIMI_MODEL || 'moonshot-v1-8k';
-  // kimi-for-coding 是代码专用模型，不适合故障诊断对话，回退到通用模型
   const effectiveKimiModel = kimiModel === 'kimi-for-coding' ? 'moonshot-v1-8k' : kimiModel;
-  
   return {
     kimi: {
       apiKey: process.env.KIMI_API_KEY,
       apiBase: process.env.KIMI_API_BASE || 'https://api.moonshot.cn/v1',
       model: effectiveKimiModel,
-      visionModel: process.env.KIMI_VISION_MODEL || 'moonshot-v1-8k'
     },
     qwen: {
       apiKey: process.env.QWEN_API_KEY,
       apiBase: process.env.QWEN_API_BASE || 'https://dashscope.aliyuncs.com/compatible-mode/v1',
       model: process.env.QWEN_MODEL || 'qwen-plus',
-      visionModel: process.env.QWEN_VISION_MODEL || 'qwen-vl-plus'
     },
-    baidu: {
-      apiKey: process.env.BAIDU_API_KEY,
-      secretKey: process.env.BAIDU_SECRET_KEY
-    }
   };
 }
 
-// 提取关键词
-function extractKeywords(text) {
-  const keywords = [];
-  const patterns = [
-    // 故障现象
-    '无法起飞', 'GPS信号弱', '电机不转', '图传黑屏', '云台卡住',
-    '电池鼓包', '续航短', '避障异常', '喷头电机异常', '管路堵塞',
-    '电机异响', '飞行不稳', '图传延迟', '返航失败', '指南针异常',
-    'IMU异常', '电池无法充电', '飞行姿态异常', '掉高', '信号中断',
-    // 大疆品牌
-    'Mavic', 'Air', 'Mini', 'Phantom', 'T30', 'T40', 'Matrice', 'Inspire',
-    // 道通品牌
-    'EVO', 'Nano', 'Lite', 'Autel', '道通',
-    // 极飞品牌
-    'XAG', '极飞', 'P100', 'P80', 'V40', 'P系列',
-    // 零零科技
-    'Hover', 'Camera', '零零', 'ZeroTech',
-    // 普宙
-    'GDU', 'Byrd', '普宙',
-    // 哈博森
-    'Hubsan', 'Zino', '哈博森',
-    // 亿航
-    'EHang', '亿航', '载人'
-  ];
-  
-  patterns.forEach(pattern => {
-    if (text.includes(pattern)) {
-      keywords.push(pattern);
-    }
-  });
-  
-  return keywords;
-}
-
-// 调用AI API（支持重试机制）
 async function callAIWithRetry(apiCallFn, maxRetries = 2) {
   let lastError;
   for (let i = 0; i <= maxRetries; i++) {
@@ -371,433 +154,62 @@ async function callAIWithRetry(apiCallFn, maxRetries = 2) {
     } catch (error) {
       lastError = error;
       console.error(`[AI Retry ${i + 1}/${maxRetries + 1}]`, error.response?.data?.error?.message || error.message);
-      if (i < maxRetries) {
-        await new Promise(r => setTimeout(r, 1000 * (i + 1))); // 指数退避
-      }
+      if (i < maxRetries) await new Promise(r => setTimeout(r, 1000 * (i + 1)));
     }
   }
   throw lastError;
 }
 
-// 调用AI API（优先Kimi，其次Qwen，最后百度）
-async function callBaiduAI(symptom, model, context, matchedCases) {
-  const config = getModelConfig();
-
-  // 1. 优先使用 Kimi API
-  if (config.kimi.apiKey) {
-    try {
-      return await callAIWithRetry(() => callKimiAPI(symptom, model, context, matchedCases, config.kimi));
-    } catch (error) {
-      console.error('Kimi API failed after retries:', error.message);
-    }
-  }
-
-  // 2. 尝试 Qwen API
-  if (config.qwen.apiKey) {
-    try {
-      return await callAIWithRetry(() => callQwenAPI(symptom, model, context, matchedCases, config.qwen));
-    } catch (error) {
-      console.error('Qwen API failed after retries:', error.message);
-    }
-  }
-
-  // 3. 尝试百度API
-  if (config.baidu.apiKey && config.baidu.secretKey) {
-    try {
-      return await callAIWithRetry(() => callBaiduAIV2(symptom, model, context, matchedCases, config.baidu));
-    } catch (error) {
-      console.error('Baidu API failed after retries:', error.message);
-    }
-  }
-
-  // 4. 所有API失败，降级到案例库
-  console.warn('[AI] All APIs failed, falling back to case-based diagnosis');
-  return generateResultFromCases(symptom, matchedCases);
-}
-
-// 调用通义千问API（使用配置对象）
-async function callQwenAPI(symptom, model, context, matchedCases, config) {
-  const { systemPrompt, userPrompt } = buildPromptV2(symptom, model, context, matchedCases);
-
-  const response = await axios.post(
-    `${config.apiBase}/chat/completions`,
-    {
-      model: config.model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      temperature: 0.2,
-      max_tokens: 2500,
-      response_format: { type: 'json_object' }
-    },
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${config.apiKey}`
-      },
-      timeout: 30000
-    }
-  );
-
-  const aiResult = response.data.choices[0].message.content;
-  return parseAIResponse(aiResult);
-}
-
-// 调用Kimi API（使用配置对象）
-async function callKimiAPI(symptom, model, context, matchedCases, config) {
-  const { systemPrompt, userPrompt } = buildPromptV2(symptom, model, context, matchedCases);
-
-  const response = await axios.post(
-    `${config.apiBase}/chat/completions`,
-    {
-      model: config.model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      temperature: 0.2,
-      max_tokens: 2500
-    },
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${config.apiKey}`
-      },
-      timeout: 30000
-    }
-  );
-
-  const aiResult = response.data.choices[0].message.content;
-  return parseAIResponse(aiResult);
-}
-
-// 调用百度API V2
-async function callBaiduAIV2(symptom, model, context, matchedCases, config) {
-  // 获取access_token
-  const tokenResponse = await axios.post(
-    `https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${config.apiKey}&client_secret=${config.secretKey}`
-  );
-  const accessToken = tokenResponse.data.access_token;
-
-  const { systemPrompt, userPrompt } = buildPromptV2(symptom, model, context, matchedCases);
-
-  const response = await axios.post(
-    `https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions?access_token=${accessToken}`,
-    {
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      temperature: 0.2,
-      max_tokens: 2500
-    }
-  );
-
-  return parseAIResponse(response.data.result);
-}
-
-// 构建prompt
-function buildPrompt(symptom, model, context, matchedCases) {
-  // 识别品牌
-  const brandInfo = identifyBrand(symptom, model);
-  
-  let prompt = `你是一位专业的无人机故障诊断专家，拥有10年维修经验，熟悉多个品牌的无人机维修。
-
-用户输入:
-- 故障现象: ${symptom}
-- 无人机型号: ${model || '未指定'}
-- 补充信息: ${context || '无'}
-${brandInfo ? `- 品牌识别: ${brandInfo.brand}（${brandInfo.description}）` : ''}
-
-请按照以下步骤进行诊断:
-
-1. 品牌与型号识别
-   - 识别无人机品牌（大疆/道通/极飞/零零科技/普宙/哈博森/亿航等）
-   - 识别具体型号
-   - 考虑品牌特有的故障特点和维修方法
-
-2. 故障现象分析
-   - 提取关键故障现象
-   - 判断故障类型(动力系统/导航系统/图传系统/云台系统/电源系统/传感器系统/喷洒系统/雷达系统/遥控器系统/其他)
-
-3. 可能原因列举
-   - 列出3-5个最可能的原因
-   - 按概率从高到低排序
-   - 每个原因包含概率和描述
-   - 考虑品牌特有的故障原因
-
-4. 排查步骤生成
-   - 生成5步以内的排查步骤
-   - 每步包含:步骤编号、操作、判断标准、解决方案、所需工具、预计时间
-   - 针对品牌特点提供具体建议
-
-5. 所需工具与时间
-   - 列出所需工具
-   - 预估维修总时间
-
-6. 难度评估
-   - 评估维修难度(1-5星)
-   - 判断是否需要专业维修
-`;
-
-  if (matchedCases.length > 0) {
-    prompt += `\n参考案例:\n`;
-    matchedCases.slice(0, 3).forEach((c, index) => {
-      prompt += `\n案例${index + 1}: ${c.symptom}\n`;
-      prompt += `适用机型: ${c.applicableModels.join('、')}\n`;
-      prompt += `故障类型: ${c.faultType}\n`;
-      prompt += `可能原因: ${c.possibleCauses.map(cause => cause.cause).join('、')}\n`;
-      if (c.tags && c.tags.length > 0) {
-        prompt += `标签: ${c.tags.join('、')}\n`;
-      }
-    });
-  }
-
-  prompt += `\n请输出结构化的诊断结果，格式如下:
-{
-  "brand": "品牌名称",
-  "model": "具体型号",
-  "faultType": "故障类型",
-  "possibleCauses": [
-    {"cause": "原因", "probability": "概率", "description": "描述"}
-  ],
-  "steps": [
-    {"step": 1, "operation": "操作", "criteria": "判断标准", "solution": "解决方案", "tools": [], "estimatedTime": "预计时间"}
-  ],
-  "requiredTools": ["工具列表"],
-  "totalEstimatedTime": "总预计时间",
-  "difficulty": "难度等级",
-  "needProfessionalRepair": true/false
-}`;
-
-  return prompt;
-}
-
-// 构建Prompt V2（Phase 1增强版：分离system/user，添加CoT推理链，结构化参考案例）
-function buildPromptV2(symptom, model, context, matchedCases) {
-  const brandInfo = identifyBrand(symptom, model);
-  
-  // 构建参考案例文本（带匹配分数排序）
-  let casesText = '';
-  if (matchedCases.length > 0) {
-    const topCases = matchedCases.slice(0, 3);
-    casesText = topCases.map((item, index) => {
-      const c = item.case || item;
-      const score = item.score ? `（匹配度${(item.score * 100).toFixed(0)}%）` : '';
-      return `
-案例${index + 1}${score}:
-- 症状: ${c.symptom}
-- 适用机型: ${Array.isArray(c.applicableModels) ? c.applicableModels.join('、') : c.applicableModels}
-- 故障类型: ${c.faultType}
-- 常见原因: ${Array.isArray(c.possibleCauses) ? c.possibleCauses.map(ca => ca.cause || ca).join('、') : c.possibleCauses}
-- 排查要点: ${Array.isArray(c.troubleshootingSteps) ? c.troubleshootingSteps.slice(0, 2).map(s => s.operation || s).join('；') : ''}`;
-    }).join('\n');
-  }
-
-  const systemPrompt = `你是一位拥有10年经验的资深无人机维修工程师，擅长各类消费级和行业级无人机的故障诊断与维修。
-
-【诊断原则】
-1. 先分析品牌和型号特点，不同品牌故障模式差异很大
-2. 按概率排序可能原因，最可能的原因排第一
-3. 排查步骤要具体可操作，避免泛泛而谈
-4. 考虑用户动手能力，太难的操作建议送修
-5. 安全第一，涉及电池、电机等高危部件要谨慎
-
-【输出要求】
-- 必须输出有效的JSON格式
-- 概率用百分比表示（如"80%"）
-- 排查步骤中的estimatedTime用"X分钟"格式
-- difficulty用数字1-5表示
-- needProfessionalRepair用布尔值true/false
-- thinking字段必须包含你的推理过程（3-5句话）`;
-
-  const userPrompt = `请对以下无人机故障进行专业诊断。
-
-【用户输入】
-- 故障现象: ${symptom}
-- 无人机型号: ${model || '未指定'}
-- 补充信息: ${context || '无'}
-${brandInfo ? `- 品牌识别: ${brandInfo.brand}（${brandInfo.description}）` : ''}
-
-${casesText ? `【参考案例库】\n${casesText}\n` : ''}
-
-【诊断流程】
-请先在心里分析（这些分析要写在 thinking 字段中）：
-1. 这是什么品牌/型号的无人机？该品牌有什么常见故障模式？
-2. 这个故障现象最可能涉及哪个系统？
-3. 参考案例中的故障与用户描述是否相似？相似度如何？
-4. 如果参考案例和用户描述有差异，差异点是什么？
-5. 综合判断：最可能的故障原因是什么？置信度如何？
-
-然后输出以下JSON格式的诊断结果：
-{
-  "thinking": [
-    "推理步骤1：...",
-    "推理步骤2：...",
-    "推理步骤3：..."
-  ],
-  "brand": "识别出的品牌（如不确定填\"未知\"）",
-  "model": "识别出的型号（如不确定填\"未知\"）",
-  "faultType": "故障类型（动力系统/导航系统/图传系统/云台系统/电源系统/传感器系统/遥控器系统/其他）",
-  "analysis": "简要分析（2-3句话说明最可能的故障原因）",
-  "possibleCauses": [
-    {"cause": "原因描述", "probability": "概率如80%", "description": "为什么是这个原因的简要解释"}
-  ],
-  "steps": [
-    {"step": 1, "operation": "具体操作", "criteria": "判断这一步是否解决的标准", "solution": "如果这一步确认问题，如何解决", "tools": ["所需工具"], "estimatedTime": "预计时间如5分钟"}
-  ],
-  "requiredTools": ["工具列表"],
-  "totalEstimatedTime": "总预计时间如30分钟",
-  "difficulty": "数字1-5",
-  "needProfessionalRepair": true/false,
-  "safetyNotes": "安全注意事项（如有）"
-}`;
-
-  return { systemPrompt, userPrompt };
-}
 function identifyBrand(symptom, model) {
   const brands = {
-    '大疆': {
-      keywords: ['Mavic', 'Air', 'Mini', 'Phantom', 'T30', 'T40', 'Matrice', 'Inspire', 'DJI', '大疆'],
-      description: '全球领先的民用无人机品牌，产品线覆盖消费级和行业级'
-    },
-    '道通': {
-      keywords: ['EVO', 'Nano', 'Lite', 'Autel', '道通'],
-      description: '美国品牌，主打EVO系列，图传系统独特'
-    },
-    '极飞': {
-      keywords: ['XAG', '极飞', 'P100', 'P80', 'V40', 'P系列'],
-      description: '农业无人机领导者，专注植保领域'
-    },
-    '零零科技': {
-      keywords: ['Hover', 'Camera', '零零', 'ZeroTech'],
-      description: '主打便携式自拍无人机，折叠设计独特'
-    },
-    '普宙': {
-      keywords: ['GDU', 'Byrd', '普宙'],
-      description: '可折叠机臂设计，主打便携性'
-    },
-    '哈博森': {
-      keywords: ['Hubsan', 'Zino', '哈博森'],
-      description: '性价比品牌，主打入门级市场'
-    },
-    '亿航': {
-      keywords: ['EHang', '亿航', '载人'],
-      description: '载人无人机先驱，专注空中交通'
-    }
+    '大疆(DJI)': { keywords: ['Mavic', 'Air', 'Mini', 'Phantom', 'T30', 'T40', 'Matrice', 'Inspire', 'DJI', '大疆'] },
+    '道通(Autel)': { keywords: ['EVO', 'Nano', 'Lite', 'Autel', '道通'] },
+    '极飞(XAG)': { keywords: ['XAG', '极飞', 'P100', 'P80', 'V40'] },
+    '哈博森(Hubsan)': { keywords: ['Hubsan', 'Zino', '哈博森'] },
   };
-  
   const text = `${symptom} ${model || ''}`;
-  
   for (const [brand, info] of Object.entries(brands)) {
-    for (const keyword of info.keywords) {
-      if (text.includes(keyword)) {
-        return {
-          brand: brand,
-          description: info.description
-        };
-      }
-    }
+    if (info.keywords.some(kw => text.includes(kw))) return { brand, description: info.description || '' };
   }
-  
   return null;
 }
 
-// 解析AI响应（优化版：支持markdown代码块、多重容错、字段补全）
-function parseAIResponse(aiResult) {
-  let parsed = null;
-  const errors = [];
-
-  // 策略1: 尝试提取 markdown JSON 代码块
-  try {
-    const codeBlockMatch = aiResult.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (codeBlockMatch) {
-      parsed = JSON.parse(codeBlockMatch[1].trim());
-    }
-  } catch (e) { errors.push('codeBlock:' + e.message); }
-
-  // 策略2: 尝试提取最外层的大括号（找匹配的括号对）
-  if (!parsed) {
-    try {
-      const firstBrace = aiResult.indexOf('{');
-      const lastBrace = aiResult.lastIndexOf('}');
-      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-        parsed = JSON.parse(aiResult.slice(firstBrace, lastBrace + 1));
-      }
-    } catch (e) { errors.push('braceExtract:' + e.message); }
+function buildPromptV2(symptom, model, context, matchedCases) {
+  const brandInfo = identifyBrand(symptom, model);
+  let casesText = '';
+  if (matchedCases.length > 0) {
+    casesText = matchedCases.slice(0, 3).map((item, index) => {
+      const c = item.case || item;
+      const score = item.score ? `（匹配度${(item.score * 100).toFixed(0)}%）` : '';
+      return `案例${index + 1}${score}:\n- 症状: ${c.symptom}\n- 适用机型: ${Array.isArray(c.applicableModels) ? c.applicableModels.join('、') : c.applicableModels}\n- 故障类型: ${c.faultType}\n- 常见原因: ${Array.isArray(c.possibleCauses) ? c.possibleCauses.map(ca => ca.cause || ca).join('、') : c.possibleCauses}`;
+    }).join('\n');
   }
-
-  // 策略3: 尝试整个字符串作为JSON
-  if (!parsed) {
-    try {
-      parsed = JSON.parse(aiResult.trim());
-    } catch (e) { errors.push('directParse:' + e.message); }
-  }
-
-  // 策略4: 尝试修复常见JSON错误后再解析
-  if (!parsed) {
-    try {
-      let fixed = aiResult;
-      // 去除markdown标记
-      fixed = fixed.replace(/```json\s*/g, '').replace(/```\s*$/g, '');
-      // 去除首尾的非JSON字符
-      const jsonStart = fixed.indexOf('{');
-      const jsonEnd = fixed.lastIndexOf('}');
-      if (jsonStart !== -1 && jsonEnd !== -1) {
-        fixed = fixed.slice(jsonStart, jsonEnd + 1);
-        // 修复尾随逗号
-        fixed = fixed.replace(/,\s*([}\]])/g, '$1');
-        // 修复单引号
-        fixed = fixed.replace(/'/g, '"');
-        parsed = JSON.parse(fixed);
-      }
-    } catch (e) { errors.push('fixAndParse:' + e.message); }
-  }
-
-  if (!parsed) {
-    console.error('[parseAIResponse] All parsing strategies failed:', errors.join('; '));
-    console.error('[parseAIResponse] Raw response preview:', aiResult.substring(0, 500));
-    return createDefaultResponse(aiResult);
-  }
-
-  // 字段补全：确保返回结构包含所有必要字段
-  return normalizeDiagnosisResponse(parsed, aiResult);
+  const systemPrompt = `你是一位拥有10年经验的资深无人机维修工程师。请输出JSON格式诊断结果。概率用百分比，estimatedTime用"X分钟"，difficulty用1-5，needProfessionalRepair用布尔值。thinking字段必须包含推理过程。`;
+  const userPrompt = `请对以下无人机故障进行专业诊断。\n\n故障现象: ${symptom}\n型号: ${model || '未指定'}\n补充信息: ${context || '无'}\n${brandInfo ? `品牌识别: ${brandInfo.brand}` : ''}\n\n${casesText ? `【参考案例】\n${casesText}\n` : ''}\n请输出JSON格式诊断结果，包含 thinking, brand, model, faultType, analysis, possibleCauses, steps, requiredTools, totalEstimatedTime, difficulty, needProfessionalRepair, safetyNotes 字段。`;
+  return { systemPrompt, userPrompt };
 }
 
-// 创建默认响应结构
 function createDefaultResponse(rawResponse) {
   return {
     thinking: ['无法解析AI返回内容，使用默认响应'],
-    brand: '未知',
-    model: '未知',
-    faultType: '未知',
-    analysis: 'AI返回的格式不正确，无法解析诊断结果',
-    possibleCauses: [
-      { cause: '解析失败', probability: '100%', description: 'AI输出格式不符合预期，请重试' }
-    ],
-    steps: [
-      { step: 1, operation: '请重新描述故障现象', criteria: '获得有效诊断', solution: '重新提交问题', tools: [], estimatedTime: '-' }
-    ],
-    requiredTools: [],
-    totalEstimatedTime: '-',
-    difficulty: '1',
-    needProfessionalRepair: true,
-    safetyNotes: '',
-    rawResponse: rawResponse.substring(0, 1000)
+    brand: '未知', model: '未知', faultType: '未知',
+    analysis: 'AI返回格式不正确，无法解析诊断结果',
+    possibleCauses: [{ cause: '解析失败', probability: '100%', description: 'AI输出格式不符合预期，请重试' }],
+    steps: [{ step: 1, operation: '请重新描述故障现象', criteria: '获得有效诊断', solution: '重新提交问题', tools: [], estimatedTime: '-' }],
+    requiredTools: [], totalEstimatedTime: '-', difficulty: '1',
+    needProfessionalRepair: true, safetyNotes: '',
+    rawResponse: (rawResponse || '').substring(0, 1000)
   };
 }
 
-// 规范化诊断响应（补全缺失字段，保留thinking）
 function normalizeDiagnosisResponse(parsed, rawResponse) {
   const defaults = createDefaultResponse(rawResponse);
-  
   const normalized = {
-    thinking: Array.isArray(parsed.thinking) ? parsed.thinking : (parsed.thinking ? [parsed.thinking] : ['根据案例库和用户描述进行分析']),
-    brand: parsed.brand || parsed.品牌 || defaults.brand,
-    model: parsed.model || parsed.型号 || defaults.model,
-    faultType: parsed.faultType || parsed.fault_type || parsed.故障类型 || defaults.faultType,
-    analysis: parsed.analysis || parsed.分析 || defaults.analysis,
+    thinking: Array.isArray(parsed.thinking) ? parsed.thinking : (parsed.thinking ? [parsed.thinking] : defaults.thinking),
+    brand: parsed.brand || defaults.brand,
+    model: parsed.model || defaults.model,
+    faultType: parsed.faultType || parsed.fault_type || defaults.faultType,
+    analysis: parsed.analysis || defaults.analysis,
     possibleCauses: Array.isArray(parsed.possibleCauses) ? parsed.possibleCauses.map(c => ({
       cause: c.cause || c.原因 || '未知原因',
       probability: c.probability || c.概率 || '未知',
@@ -815,61 +227,107 @@ function normalizeDiagnosisResponse(parsed, rawResponse) {
     totalEstimatedTime: parsed.totalEstimatedTime || parsed.total_estimated_time || defaults.totalEstimatedTime,
     difficulty: String(parsed.difficulty || parsed.难度 || defaults.difficulty),
     needProfessionalRepair: !!parsed.needProfessionalRepair || parsed.need_professional_repair || defaults.needProfessionalRepair,
-    safetyNotes: parsed.safetyNotes || parsed.safety_notes || parsed.安全注意事项 || ''
+    safetyNotes: parsed.safetyNotes || parsed.safety_notes || ''
   };
-
-  // 如果原始解析有额外字段，保留它们
   return { ...parsed, ...normalized };
 }
 
-// 基于案例库生成结果（兼容新旧格式）
-function generateResultFromCases(symptom, matchedCases) {
-  console.log('generateResultFromCases called with:');
-  console.log('  symptom:', symptom);
-  console.log('  matchedCases.length:', matchedCases.length);
-  
-  if (matchedCases.length === 0) {
-    console.log('  No matched cases, returning default');
-    return {
-      brand: '未知',
-      model: '未知',
-      faultType: '未知',
-      analysis: '案例库中未找到匹配案例，请提供更详细的故障描述',
-      possibleCauses: [
-        { cause: '案例库中未找到匹配案例', probability: '100%', description: '请提供更详细的故障描述，包括品牌、型号和具体现象' }
-      ],
-      steps: [
-        {
-          step: 1,
-          operation: '联系专业维修人员',
-          criteria: '无法自行解决',
-          solution: '建议联系大疆官方售后或专业维修店',
-          tools: [],
-          estimatedTime: '-'
-        }
-      ],
-      requiredTools: [],
-      totalEstimatedTime: '-',
-      difficulty: '1',
-      needProfessionalRepair: true,
-      safetyNotes: ''
-    };
+function parseAIResponse(aiResult) {
+  let parsed = null;
+  const errors = [];
+  try {
+    const codeBlockMatch = aiResult.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (codeBlockMatch) parsed = JSON.parse(codeBlockMatch[1].trim());
+  } catch (e) { errors.push('codeBlock:' + e.message); }
+  if (!parsed) {
+    try {
+      const firstBrace = aiResult.indexOf('{');
+      const lastBrace = aiResult.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        parsed = JSON.parse(aiResult.slice(firstBrace, lastBrace + 1));
+      }
+    } catch (e) { errors.push('braceExtract:' + e.message); }
   }
+  if (!parsed) {
+    try { parsed = JSON.parse(aiResult.trim()); } catch (e) { errors.push('directParse:' + e.message); }
+  }
+  if (!parsed) {
+    try {
+      let fixed = aiResult.replace(/```json\s*/g, '').replace(/```\s*$/g, '');
+      const jsonStart = fixed.indexOf('{');
+      const jsonEnd = fixed.lastIndexOf('}');
+      if (jsonStart !== -1 && jsonEnd !== -1) {
+        fixed = fixed.slice(jsonStart, jsonEnd + 1).replace(/,\s*([}\]])/g, '$1').replace(/'/g, '"');
+        parsed = JSON.parse(fixed);
+      }
+    } catch (e) { errors.push('fixAndParse:' + e.message); }
+  }
+  if (!parsed) {
+    console.error('[parseAIResponse] All parsing strategies failed:', errors.join('; '));
+    return createDefaultResponse(aiResult);
+  }
+  return normalizeDiagnosisResponse(parsed, aiResult);
+}
 
-  // 兼容 matchCasesSmart 返回的格式 {case, score, reason}
+async function callKimiAPI(symptom, model, context, matchedCases, config) {
+  const { systemPrompt, userPrompt } = buildPromptV2(symptom, model, context, matchedCases);
+  const response = await axios.post(
+    `${config.apiBase}/chat/completions`,
+    { model: config.model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], temperature: 0.2, max_tokens: 2500 },
+    { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.apiKey}` }, timeout: 30000 }
+  );
+  return parseAIResponse(response.data.choices[0].message.content);
+}
+
+async function callQwenAPI(symptom, model, context, matchedCases, config) {
+  const { systemPrompt, userPrompt } = buildPromptV2(symptom, model, context, matchedCases);
+  const response = await axios.post(
+    `${config.apiBase}/chat/completions`,
+    { model: config.model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], temperature: 0.2, max_tokens: 2500, response_format: { type: 'json_object' } },
+    { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.apiKey}` }, timeout: 30000 }
+  );
+  return parseAIResponse(response.data.choices[0].message.content);
+}
+
+async function callBaiduAI(symptom, model, context, matchedCases) {
+  const config = getModelConfig();
+  if (config.kimi.apiKey) {
+    try { return await callAIWithRetry(() => callKimiAPI(symptom, model, context, matchedCases, config.kimi)); } catch (e) { console.error('Kimi failed:', e.message); }
+  }
+  if (config.qwen.apiKey) {
+    try { return await callAIWithRetry(() => callQwenAPI(symptom, model, context, matchedCases, config.qwen)); } catch (e) { console.error('Qwen failed:', e.message); }
+  }
+  console.warn('[AI] All APIs failed, falling back to case-based diagnosis');
+  return generateResultFromCases(symptom, matchedCases);
+}
+
+function calculateConfidence(symptom, matchedResults, aiResponse) {
+  let score = 0.5;
+  if (matchedResults.length > 0) {
+    const topScore = matchedResults[0].score;
+    if (topScore >= 0.9) score += 0.3;
+    else if (topScore >= 0.7) score += 0.2;
+    else if (topScore >= 0.5) score += 0.1;
+  }
+  if (aiResponse.possibleCauses && aiResponse.possibleCauses.length >= 3) score += 0.05;
+  if (aiResponse.steps && aiResponse.steps.length >= 3) score += 0.05;
+  const symptomLen = symptom.length;
+  if (symptomLen >= 20) score += 0.1;
+  else if (symptomLen >= 10) score += 0.05;
+  return Math.min(score, 1.0);
+}
+
+function generateResultFromCases(symptom, matchedCases) {
+  if (matchedCases.length === 0) {
+    return createDefaultResponse('');
+  }
   const bestMatchRaw = matchedCases[0];
   const bestMatch = bestMatchRaw.case || bestMatchRaw;
-  console.log('  Returning best match:', bestMatch.id, bestMatch.symptom);
-  
   return {
-    brand: bestMatch.brand || '未知',
-    model: bestMatch.model || '未知',
-    faultType: bestMatch.faultType || '未知',
+    brand: bestMatch.brand || '未知', model: bestMatch.model || '未知', faultType: bestMatch.faultType || '未知',
     analysis: `根据案例库匹配，最可能的故障是：${bestMatch.symptom}`,
     possibleCauses: Array.isArray(bestMatch.possibleCauses) ? bestMatch.possibleCauses : [{ cause: '未知', probability: '100%', description: '' }],
-    steps: Array.isArray(bestMatch.troubleshootingSteps) ? bestMatch.troubleshootingSteps : [
-      { step: 1, operation: '参考案例排查', criteria: '问题解决', solution: '按参考案例步骤操作', tools: [], estimatedTime: '-' }
-    ],
+    steps: Array.isArray(bestMatch.troubleshootingSteps) ? bestMatch.troubleshootingSteps : [{ step: 1, operation: '参考案例排查', criteria: '问题解决', solution: '按参考案例步骤操作', tools: [], estimatedTime: '-' }],
     requiredTools: Array.isArray(bestMatch.requiredTools) ? bestMatch.requiredTools : [],
     totalEstimatedTime: bestMatch.totalEstimatedTime || '-',
     difficulty: String(bestMatch.difficulty || '1'),
@@ -878,10 +336,137 @@ function generateResultFromCases(symptom, matchedCases) {
   };
 }
 
+/**
+ * 单轮快速诊断（已内联原 DiagnosisService.diagnose）
+ */
+async function diagnoseLegacy(symptom, model, context, deviceType) {
+  if (!symptom) throw new Error('请输入故障现象');
+  if (faultCases.length === 0) await loadFaultCases();
+
+  let matchedResults = matchCasesSmart(symptom, faultCases);
+  console.log(`[Keyword] Smart matched ${matchedResults.length} cases`);
+  if (matchedResults.length > 0) {
+    matchedResults.slice(0, 5).forEach(r => console.log(`  [${(r.score * 100).toFixed(0)}%] ${r.case.id}: ${r.case.symptom} (${r.reason})`));
+  }
+
+  const aiResponse = await callBaiduAI(symptom, model, context, matchedResults);
+  const confidence = calculateConfidence(symptom, matchedResults, aiResponse);
+
+  return {
+    aiResponse,
+    matchedResults,
+    semanticMatches: [],
+    confidence: Math.round(confidence * 100) / 100,
+    searchMethod: 'keyword',
+    fromCache: false,
+  };
+}
+
+/**
+ * 多轮对话最终诊断（已内联原 DiagnosisService.generateFinalDiagnosis）
+ */
+async function generateFinalDiagnosisLegacy(symptom, model, fullContext, matchedResults, conversationContext = '') {
+  const config = getModelConfig();
+  if (!config.kimi.apiKey && !config.qwen.apiKey) {
+    console.warn('[Final Diagnosis] No AI API configured, using case-based fallback');
+    return generateResultFromCases(symptom, matchedResults);
+  }
+  try {
+    const { systemPrompt, userPrompt } = buildPromptV2(symptom, model, fullContext, matchedResults);
+    const enhancedUserPrompt = conversationContext ? `${userPrompt}\n\n【完整对话记录】\n${conversationContext}\n\n请根据以上所有信息，给出最终诊断结果。` : userPrompt;
+    let response;
+    if (config.kimi.apiKey) {
+      response = await callAIWithRetry(() => axios.post(
+        `${config.kimi.apiBase}/chat/completions`,
+        { model: config.kimi.model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: enhancedUserPrompt }], temperature: 0.2, max_tokens: 2500 },
+        { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.kimi.apiKey}` }, timeout: 30000 }
+      ));
+    } else {
+      response = await callAIWithRetry(() => axios.post(
+        `${config.qwen.apiBase}/chat/completions`,
+        { model: config.qwen.model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: enhancedUserPrompt }], temperature: 0.2, max_tokens: 2500, response_format: { type: 'json_object' } },
+        { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.qwen.apiKey}` }, timeout: 30000 }
+      ));
+    }
+    const aiResult = response.data.choices[0].message.content;
+    return parseAIResponse(aiResult);
+  } catch (error) {
+    console.error('Generate final diagnosis error:', error.response?.data || error.message);
+    return generateResultFromCases(symptom, matchedResults);
+  }
+}
+
+// 初始化加载案例库
+loadFaultCases();
+
+// AI诊断（Phase 1: 语义检索增强版）
+exports.diagnose = async (req, res, next) => {
+  try {
+    const { symptom, model, context, deviceType } = req.body;
+
+    if (!symptom) {
+      return res.status(400).json({ error: '请输入故障现象' });
+    }
+
+    // 调用诊断服务（已内联）
+    const result = await diagnoseLegacy(symptom, model, context, deviceType);
+    const { aiResponse, matchedResults, semanticMatches, confidence, searchMethod, fromCache } = result;
+
+    const diagnosisId = `diag_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+    // 自动埋点：诊断完成事件
+    try {
+      await run(
+        "INSERT INTO events (event, data, ip) VALUES (?, ?, ?)",
+        [
+          'diagnosis_complete',
+          JSON.stringify({
+            diagnosis_id: diagnosisId,
+            device_type: deviceType || '',
+            fault_type: req.body.faultType || '',
+            steps_count: aiResponse.steps?.length || 0,
+            difficulty: aiResponse.difficulty || '1',
+            search_method: searchMethod,
+            confidence: confidence,
+            from_cache: !!fromCache
+          }),
+          req.ip || ''
+        ]
+      );
+    } catch (trackErr) {
+      console.warn('[Track] diagnosis_complete event failed:', trackErr.message);
+    }
+
+    res.json({
+      success: true,
+      diagnosisId,
+      diagnosis: aiResponse,
+      matchedCasesCount: matchedResults.length,
+      topMatchScore: matchedResults[0]?.score || 0,
+      semanticMatches: semanticMatches.map(m => ({
+        caseId: m.case_id,
+        content: m.content.substring(0, 100),
+        similarity: Math.round(m.similarity * 100) / 100,
+        metadata: m.metadata
+      })),
+      confidence: confidence,
+      searchMethod: searchMethod,
+      fromCache: !!fromCache,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Diagnosis error:', error);
+    res.status(500).json({ error: '诊断失败，请稍后重试' });
+  }
+};
+
+
 // 获取故障案例
 exports.getCase = async (req, res) => {
   try {
     const { id } = req.params;
+    const faultCases = getFaultCases();
     const caseData = faultCases.find(c => c.id === id);
     
     if (!caseData) {
@@ -903,6 +488,7 @@ exports.searchCases = async (req, res) => {
   try {
     const { keyword, faultType } = req.query;
     
+    const faultCases = getFaultCases();
     let results = faultCases;
     
     if (keyword) {
@@ -928,13 +514,14 @@ exports.searchCases = async (req, res) => {
 };
 
 // 导出案例库（用于调试）
-exports.getFaultCases = () => faultCases;
+exports.getFaultCases = () => getFaultCases();
 
 // 测试案例匹配（优化版：使用 matchCasesSmart）
 exports.testMatch = async (req, res) => {
   try {
     const { symptom } = req.query;
     
+    const faultCases = getFaultCases();
     // 确保案例库已加载
     if (faultCases.length === 0) {
       await loadFaultCases();
@@ -978,6 +565,7 @@ exports.startConversation = async (req, res) => {
       return res.status(400).json({ error: '请输入故障现象' });
     }
 
+    const faultCases = getFaultCases();
     // 确保案例库已加载
     if (faultCases.length === 0) {
       await loadFaultCases();
@@ -1159,7 +747,7 @@ exports.continueConversation = async (req, res) => {
       console.log('[Conversation] Info complete, generating diagnosis...');
       const collectedInfo = sessionService.getCollectedInfo(sessionId);
       const fullSymptom = `${collectedInfo.brand || ''} ${collectedInfo.model || ''} ${collectedInfo.symptom || ''}`;
-      const matchedResults = matchCasesSmart(fullSymptom, faultCases);
+      const matchedResults = matchCasesSmart(fullSymptom, getFaultCases());
       
       const diagnosis = await generateFinalDiagnosis(sessionId, model, matchedResults);
 
@@ -1614,7 +1202,7 @@ ${conversationHistory.length > 0 ? conversationHistory.map(msg => `${msg.role ==
 }
 
 /**
- * 生成最终诊断（优化版：使用结构化信息 + buildPromptV2）
+ * 生成最终诊断（调用 DiagnosisService）
  */
 async function generateFinalDiagnosis(sessionId, model, matchedResults = []) {
   const session = sessionService.getSession(sessionId);
@@ -1622,9 +1210,6 @@ async function generateFinalDiagnosis(sessionId, model, matchedResults = []) {
     throw new Error('Session not found');
   }
 
-  const config = getModelConfig();
-  
-  // 构建完整的上下文
   const collectedInfo = sessionService.getCollectedInfo(sessionId);
   const fullContext = Object.entries(collectedInfo)
     .map(([k, v]) => {
@@ -1633,76 +1218,11 @@ async function generateFinalDiagnosis(sessionId, model, matchedResults = []) {
     })
     .join('\n');
 
-  // 构建症状描述
   const symptom = collectedInfo.symptom || session.conversationHistory[0]?.content || '';
   const droneModel = model || collectedInfo.model || '';
+  const conversationContext = sessionService.getConversationContext(sessionId);
 
-  if (!config.kimi.apiKey && !config.qwen.apiKey) {
-    console.warn('[Final Diagnosis] No AI API configured, using case-based fallback');
-    return generateResultFromCases(symptom, matchedResults);
-  }
-
-  try {
-    const { systemPrompt, userPrompt } = buildPromptV2(symptom, droneModel, fullContext, matchedResults);
-    
-    // 添加多轮对话上下文到 user prompt
-    const conversationContext = sessionService.getConversationContext(sessionId);
-    const enhancedUserPrompt = `${userPrompt}\n\n【完整对话记录】\n${conversationContext}\n\n请根据以上所有信息，给出最终诊断结果。`;
-
-    let response;
-    
-    // 优先使用 Kimi
-    if (config.kimi.apiKey) {
-      response = await callAIWithRetry(() => axios.post(
-        `${config.kimi.apiBase}/chat/completions`,
-        {
-          model: config.kimi.model,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: enhancedUserPrompt }
-          ],
-          temperature: 0.2,
-          max_tokens: 2500
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${config.kimi.apiKey}`
-          },
-          timeout: 30000
-        }
-      ));
-    } else {
-      // 使用 Qwen
-      response = await callAIWithRetry(() => axios.post(
-        `${config.qwen.apiBase}/chat/completions`,
-        {
-          model: config.qwen.model,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: enhancedUserPrompt }
-          ],
-          temperature: 0.2,
-          max_tokens: 2500,
-          response_format: { type: 'json_object' }
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${config.qwen.apiKey}`
-          },
-          timeout: 30000
-        }
-      ));
-    }
-
-    const aiResult = response.data.choices[0].message.content;
-    return parseAIResponse(aiResult);
-
-  } catch (error) {
-    console.error('Generate final diagnosis error:', error.response?.data || error.message);
-    return generateResultFromCases(symptom, matchedResults);
-  }
+  return generateFinalDiagnosisLegacy(symptom, droneModel, fullContext, matchedResults, conversationContext);
 }
 
 /**

@@ -4,26 +4,10 @@ import axios from 'axios'
 import { apiUrl } from '../config/api'
 import DiagnosisCounter, { getRemainingCount, incrementDiagnosisCount } from '../components/DiagnosisCounter'
 import { trackDiagnosisStart } from '../utils/tracking'
+import { DEVICE_TYPES, FAULT_TYPES } from '../../../shared/enums'
 
-// 机型选项
-const DEVICE_OPTIONS = [
-  { id: 'mavic', label: 'Mavic 系列', icon: '✈️' },
-  { id: 'air', label: 'Air 系列', icon: '🛫' },
-  { id: 'mini', label: 'Mini 系列', icon: '🛩️' },
-  { id: 'phantom', label: 'Phantom 系列', icon: '🚁' },
-  { id: 't30', label: 'T30/T40（植保）', icon: '🌾' },
-  { id: 'other', label: '其他机型', icon: '📡' }
-]
-
-// 故障类型选项
-const FAULT_OPTIONS = [
-  { id: 'power', label: '无法起飞', icon: '🚫' },
-  { id: 'video', label: '图传异常', icon: '📺' },
-  { id: 'gimbal', label: '云台故障', icon: '🔄' },
-  { id: 'battery', label: '电池问题', icon: '🔋' },
-  { id: 'gps', label: 'GPS 信号异常', icon: '📡' },
-  { id: 'other', label: '其他故障', icon: '❓' }
-]
+// 机型选项与故障类型从共享枚举导入（shared/enums.js）
+// 如需修改枚举值，请同步更新 shared/enums.js 和后端引用
 
 // 小知识文案
 const TIPS = [
@@ -368,7 +352,7 @@ function HomePage() {
                     <h3 className="text-lg font-semibold text-black mb-1">选择你的无人机机型</h3>
                     <p className="text-sm text-gray-500 mb-6">选择最接近的系列</p>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {DEVICE_OPTIONS.map(device => (
+                      {DEVICE_TYPES.map(device => (
                         <button
                           key={device.id}
                           onClick={() => handleSelectDevice(device)}
@@ -391,7 +375,7 @@ function HomePage() {
                     <h3 className="text-lg font-semibold text-black mb-1">选择故障类型</h3>
                     <p className="text-sm text-gray-500 mb-6">已选：{selectedDevice?.icon} {selectedDevice?.label}</p>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {FAULT_OPTIONS.map(fault => (
+                      {FAULT_TYPES.map(fault => (
                         <button
                           key={fault.id}
                           onClick={() => handleSelectFault(fault)}
