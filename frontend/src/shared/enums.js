@@ -78,18 +78,16 @@ function getDeviceTypeById(id) {
   return DEVICE_TYPES.find(d => d.id === id) || null;
 }
 
-// CommonJS 导出（兼容 Node.js 后端）
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    DEVICE_TYPES,
-    FAULT_TYPES,
-    FAULT_TYPE_MAPPING,
-    DEVICE_TYPE_MAPPING,
-    BACKEND_TO_FRONTEND_FAULT,
-    mapFrontendFaultToBackend,
-    mapBackendFaultToFrontend,
-    mapFrontendDeviceToBackend,
-    getFaultTypeById,
-    getDeviceTypeById
-  };
-}
+// ESM 导出（供前端 Vite 构建使用）
+export {
+  DEVICE_TYPES,
+  FAULT_TYPES,
+  FAULT_TYPE_MAPPING,
+  DEVICE_TYPE_MAPPING,
+  BACKEND_TO_FRONTEND_FAULT,
+  mapFrontendFaultToBackend,
+  mapBackendFaultToFrontend,
+  mapFrontendDeviceToBackend,
+  getFaultTypeById,
+  getDeviceTypeById
+};
