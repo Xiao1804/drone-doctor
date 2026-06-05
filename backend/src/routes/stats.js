@@ -1,6 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const { query } = require('../db');
+const freeUsageService = require('../services/freeUsageService');
+
+// GET /api/stats/free-usage - 当前用户免费使用次数状态
+router.get('/free-usage', async (req, res) => {
+  try {
+    const result = await freeUsageService.checkLimit(req);
+    res.json({
+      allowed: result.allowed,
+      used: result.used,
+      remaining: result.remaining,
+      limit: result.limit
+    });
+  } catch (error) {
+    console.error('Free usage stats error:', error);
+    res.status(500).json({ error: '获取使用次数失败' });
+  }
+});
 
 // GET /api/stats/total-diagnoses - 总诊断次数
 router.get('/total-diagnoses', async (req, res) => {

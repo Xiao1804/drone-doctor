@@ -3,6 +3,7 @@ const path = require('path');
 const axios = require('axios');
 const crypto = require('crypto');
 const sessionService = require('../services/sessionService');
+const freeUsageService = require('../services/freeUsageService');
 const { run } = require('../db');
 
 // ========== 内联诊断服务（原 DiagnosisService.js 核心逻辑，已内联避免维护负担）==========
@@ -437,6 +438,11 @@ exports.diagnose = async (req, res, next) => {
       console.warn('[Track] diagnosis_complete event failed:', trackErr.message);
     }
 
+    // 消耗免费诊断次数
+    if (req.freeUsage?.identifier) {
+      await freeUsageService.incrementUsage(req.freeUsage.identifier);
+    }
+
     res.json({
       success: true,
       diagnosisId,
@@ -606,6 +612,11 @@ exports.startConversation = async (req, res) => {
         options: inquiryResponse.followUp.options
       });
 
+      // 消耗免费诊断次数
+      if (req.freeUsage?.identifier) {
+        await freeUsageService.incrementUsage(req.freeUsage.identifier);
+      }
+
       res.json({
         success: true,
         sessionId,
@@ -642,6 +653,11 @@ exports.startConversation = async (req, res) => {
         options: nextMissing.options
       });
 
+      // 消耗免费诊断次数
+      if (req.freeUsage?.identifier) {
+        await freeUsageService.incrementUsage(req.freeUsage.identifier);
+      }
+
       res.json({
         success: true,
         sessionId,
@@ -663,6 +679,11 @@ exports.startConversation = async (req, res) => {
       });
 
       sessionService.setDiagnosisResult(sessionId, diagnosis);
+
+      // 消耗免费诊断次数
+      if (req.freeUsage?.identifier) {
+        await freeUsageService.incrementUsage(req.freeUsage.identifier);
+      }
 
       res.json({
         success: true,

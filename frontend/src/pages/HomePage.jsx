@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
-import DiagnosisCounter, { getRemainingCount, incrementDiagnosisCount } from '../components/DiagnosisCounter'
+import DiagnosisCounter, { getRemainingCount, incrementDiagnosisCount, refreshFreeUsage } from '../components/DiagnosisCounter'
+import { isFreeLimitError, getFreeLimitMessage } from '../utils/freeUsage'
 import { trackDiagnosisStart } from '../utils/tracking'
 import { DEVICE_TYPES, FAULT_TYPES } from '../shared/enums'
 
@@ -51,6 +52,9 @@ function HomePage() {
   const [agentQuery, setAgentQuery] = useState('')
   const [agentLoading, setAgentLoading] = useState(false)
   const [agentResult, setAgentResult] = useState(null)
+
+  // 付费墙弹窗
+  const [showPaywall, setShowPaywall] = useState(false)
 
   useEffect(() => {
     const userData = localStorage.getItem('user')
@@ -133,7 +137,7 @@ function HomePage() {
   const handleSubmitDiagnosis = async () => {
     const remaining = getRemainingCount()
     if (remaining <= 0) {
-      alert('今日免费诊断次数已用完，明天再来！')
+      setShowPaywall(true)
       return
     }
 
@@ -169,6 +173,7 @@ function HomePage() {
 
       // 增加次数
       incrementDiagnosisCount()
+      refreshFreeUsage()
 
       // 短暂停留让用户看到100%
       setTimeout(() => {
@@ -196,7 +201,12 @@ function HomePage() {
       }, 500)
     } catch (error) {
       console.error('Diagnosis error:', error)
-      alert('诊断失败，请稍后重试')
+      if (isFreeLimitError(error)) {
+        refreshFreeUsage()
+        setShowPaywall(true)
+      } else {
+        alert('诊断失败，请稍后重试')
+      }
       setLoading(false)
     }
   }
@@ -207,7 +217,7 @@ function HomePage() {
 
     const remaining = getRemainingCount()
     if (remaining <= 0) {
-      alert('今日免费诊断次数已用完，明天再来！')
+      setShowPaywall(true)
       return
     }
 
@@ -223,12 +233,18 @@ function HomePage() {
       if (response.data.success) {
         setAgentResult(response.data.data)
         incrementDiagnosisCount()
+        refreshFreeUsage()
       } else {
         alert('诊断失败：' + (response.data.error || '未知错误'))
       }
     } catch (error) {
       console.error('Agent diagnosis error:', error)
-      alert('智能体诊断失败，请稍后重试')
+      if (isFreeLimitError(error)) {
+        refreshFreeUsage()
+        setShowPaywall(true)
+      } else {
+        alert('智能体诊断失败，请稍后重试')
+      }
     } finally {
       setAgentLoading(false)
     }
@@ -706,6 +722,37 @@ function HomePage() {
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 免费次数用完弹窗 */}
+      {showPaywall && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-8 text-center">
+            <div className="text-5xl mb-4">🔒</div>
+            <h3 className="text-xl font-bold text-black mb-2">今日免费次数已用完</h3>
+            <p className="text-gray-600 mb-6">{getFreeLimitMessage()}</p>
+            <div className="space-y-3">
+              <button
+                onClick={() => {
+                  setShowPaywall(false)
+                  navigate('/#pricing')
+                  setTimeout(() => {
+                    document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
+                  }, 100)
+                }}
+                className="w-full py-3 bg-[#FF6B00] text-white rounded-xl font-medium hover:bg-[#FF8533] transition-colors"
+              >
+                查看会员方案
+              </button>
+              <button
+                onClick={() => setShowPaywall(false)}
+                className="w-full py-3 border-2 border-gray-200 rounded-xl font-medium hover:border-black transition-colors"
+              >
+                暂时不用
+              </button>
             </div>
           </div>
         </div>

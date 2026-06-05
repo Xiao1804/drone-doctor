@@ -161,6 +161,21 @@ async function initDatabase() {
     await db.query(`CREATE INDEX IF NOT EXISTS idx_tcr_tree_id ON tree_change_requests(tree_id)`);
     await db.query(`CREATE INDEX IF NOT EXISTS idx_tcr_status ON tree_change_requests(status)`);
 
+    // 免费使用次数记录表（匿名用户 + 登录用户每日诊断次数限制）
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS free_usage (
+        id SERIAL PRIMARY KEY,
+        identifier TEXT NOT NULL,
+        identifier_type TEXT NOT NULL,
+        usage_date TEXT NOT NULL,
+        count INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(identifier, usage_date)
+      )
+    `);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_free_usage_identifier ON free_usage(identifier, identifier_type, usage_date)`);
+
     // 初始化向量表（Phase 1 新增）
     try {
       const { initVectorTables } = require('./services/vectorService');
@@ -237,6 +252,21 @@ async function initDatabase() {
         `);
         db.run(`CREATE INDEX IF NOT EXISTS idx_tcr_tree_id ON tree_change_requests(tree_id)`);
         db.run(`CREATE INDEX IF NOT EXISTS idx_tcr_status ON tree_change_requests(status)`);
+
+        // 免费使用次数记录表（匿名用户 + 登录用户每日诊断次数限制）
+        db.run(`
+          CREATE TABLE IF NOT EXISTS free_usage (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            identifier TEXT NOT NULL,
+            identifier_type TEXT NOT NULL,
+            usage_date TEXT NOT NULL,
+            count INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now')),
+            UNIQUE(identifier, usage_date)
+          )
+        `);
+        db.run(`CREATE INDEX IF NOT EXISTS idx_free_usage_identifier ON free_usage(identifier, identifier_type, usage_date)`);
 
         db.run('SELECT 1', (err) => {
           if (err) {

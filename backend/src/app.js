@@ -23,6 +23,9 @@ const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 
+// 信任代理（nginx 反向代理场景）
+app.set('trust proxy', true);
+
 const DEFAULT_ALLOWED_ORIGINS = [
   'http://localhost:5173',
   'http://localhost:3000'

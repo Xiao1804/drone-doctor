@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
+import { isFreeLimitError, getFreeLimitMessage } from '../utils/freeUsage'
 
 // ── Types ──
 // question:  yes / no 分支
@@ -50,6 +51,41 @@ export default function GuidePage() {
   const [interactiveDiagnosis, setInteractiveDiagnosis] = useState(null)
   const [interactiveLoading, setInteractiveLoading] = useState(false)
   const [freeTextInput, setFreeTextInput] = useState('')
+  const [showPaywall, setShowPaywall] = useState(false)
+
+  // 付费墙弹窗组件（局部）
+  const PaywallModal = () => {
+    if (!showPaywall) return null
+    return (
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-8 text-center">
+          <div className="text-5xl mb-4">🔒</div>
+          <h3 className="text-xl font-bold text-black mb-2">今日免费次数已用完</h3>
+          <p className="text-gray-600 mb-6">{getFreeLimitMessage()}</p>
+          <div className="space-y-3">
+            <button
+              onClick={() => {
+                setShowPaywall(false)
+                navigate('/#pricing')
+                setTimeout(() => {
+                  document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
+                }, 100)
+              }}
+              className="w-full py-3 bg-[#FF6B00] text-white rounded-xl font-medium hover:bg-[#FF8533] transition-colors"
+            >
+              查看会员方案
+            </button>
+            <button
+              onClick={() => setShowPaywall(false)}
+              className="w-full py-3 border-2 border-gray-200 rounded-xl font-medium hover:border-black transition-colors"
+            >
+              暂时不用
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   // Load tree list on mount (always needed for terminal navigation)
   useEffect(() => {
@@ -109,9 +145,12 @@ export default function GuidePage() {
           }
         } catch (err) {
           console.error('Interactive start failed:', err)
-          alert('启动交互式诊断失败，将使用本地决策树')
-          // Fallback to wizard mode
-          setMode('wizard')
+          if (isFreeLimitError(err)) {
+            setShowPaywall(true)
+          } else {
+            alert('启动交互式诊断失败，将使用本地决策树')
+            setMode('wizard')
+          }
         } finally {
           setInteractiveLoading(false)
         }
@@ -180,6 +219,9 @@ export default function GuidePage() {
       }
     } catch (err) {
       console.error('Interactive step failed:', err)
+      if (isFreeLimitError(err)) {
+        setShowPaywall(true)
+      }
     } finally {
       setInteractiveLoading(false)
       setFreeTextInput('')
@@ -191,6 +233,7 @@ export default function GuidePage() {
     const { intent, matchedTree, predictedPath, diagnosis, confidence, suggestedActions } = previewData
     return (
       <div className="min-h-screen bg-gray-50">
+        <PaywallModal />
         <nav className="bg-white border-b border-gray-100">
           <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
             <button onClick={() => navigate('/')} className="text-gray-600 hover:text-black">← 返回首页</button>
@@ -321,6 +364,7 @@ export default function GuidePage() {
     if (interactiveLoading || (!interactiveNode && !interactiveDiagnosis)) {
       return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <PaywallModal />
           <div className="text-center">
             <div className="text-4xl mb-4 animate-spin">⏳</div>
             <p className="text-gray-600">启动交互式诊断...</p>
@@ -334,6 +378,7 @@ export default function GuidePage() {
       const terminalNode = interactiveNode
       return (
         <div className="min-h-screen bg-gray-50">
+          <PaywallModal />
           <nav className="bg-white border-b border-gray-100">
             <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
               <button onClick={() => navigate('/guide')} className="text-gray-600 hover:text-black">← 返回</button>
@@ -372,6 +417,7 @@ export default function GuidePage() {
     // Active interactive step
     return (
       <div className="min-h-screen bg-gray-50">
+        <PaywallModal />
         <nav className="bg-white border-b border-gray-100">
           <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
             <button onClick={() => { navigate('/guide'); setMode('menu'); setSessionId(null); }} className="text-gray-600 hover:text-black">← 退出</button>
@@ -454,6 +500,7 @@ export default function GuidePage() {
     const noMatch = location.state?.noMatch
     return (
       <div className="min-h-screen bg-gray-50">
+        <PaywallModal />
         <nav className="bg-white border-b border-gray-100">
           <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
             <button onClick={() => navigate('/')} className="flex items-center gap-2 text-gray-600 hover:text-black">
@@ -504,6 +551,7 @@ export default function GuidePage() {
   if (loading || !currentTree || !currentNode) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <PaywallModal />
         <div className="text-center">
           <div className="text-4xl mb-4 animate-spin">⏳</div>
           <p className="text-gray-600">加载向导中...</p>
@@ -521,6 +569,7 @@ export default function GuidePage() {
 
     return (
       <div className="min-h-screen bg-gray-50">
+        <PaywallModal />
         <nav className="bg-white border-b border-gray-100">
           <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
             <button onClick={handleBack} className="text-gray-600 hover:text-black">← 上一步</button>
@@ -644,6 +693,7 @@ export default function GuidePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <PaywallModal />
       {/* Nav */}
       <nav className="bg-white border-b border-gray-100">
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">

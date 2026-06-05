@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { quickDiagnose, interactiveDiagnose, loadData } = require('../services/unifiedDiagnosisService');
+const { freeUsageLimit } = require('../middleware/freeUsageLimit');
+const freeUsageService = require('../services/freeUsageService');
 
 // 确保数据已加载
 loadData().catch(err => console.error('[UnifiedDiagnosis] Failed to load data:', err.message));
@@ -21,7 +23,7 @@ loadData().catch(err => console.error('[UnifiedDiagnosis] Failed to load data:',
  *   model?: string           // 具体型号
  * }
  */
-router.post('/', async (req, res) => {
+router.post('/', freeUsageLimit, async (req, res) => {
   try {
     const {
       mode = 'quick',
@@ -45,9 +47,17 @@ router.post('/', async (req, res) => {
 
     if (mode === 'quick') {
       const result = await quickDiagnose(input, structuredHints);
+      // quick 模式消耗免费次数
+      if (req.freeUsage?.identifier) {
+        await freeUsageService.incrementUsage(req.freeUsage.identifier);
+      }
       res.json(result);
     } else if (mode === 'interactive') {
       const result = await interactiveDiagnose(sessionId, input, userAnswer, structuredHints);
+      // interactive 模式仅首次启动（无 sessionId）消耗次数，继续对话不消耗
+      if (!sessionId && req.freeUsage?.identifier) {
+        await freeUsageService.incrementUsage(req.freeUsage.identifier);
+      }
       res.json(result);
     } else {
       res.status(400).json({ error: 'mode 参数必须是 quick 或 interactive' });

@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const agentService = require('../services/agentDiagnosisService');
+const { freeUsageLimit } = require('../middleware/freeUsageLimit');
+const freeUsageService = require('../services/freeUsageService');
 
 /**
  * 智能体诊断路由
@@ -35,7 +37,7 @@ const agentService = require('../services/agentDiagnosisService');
  * }
  */
 
-router.post('/', async (req, res) => {
+router.post('/', freeUsageLimit, async (req, res) => {
   try {
     const { query, history = [], context = {}, mode = 'single' } = req.body;
 
@@ -73,6 +75,11 @@ router.post('/', async (req, res) => {
         intent: diagnosis.intent,
         pilot: diagnosis.pilot,
       };
+    }
+
+    // 消耗免费次数
+    if (req.freeUsage?.identifier) {
+      await freeUsageService.incrementUsage(req.freeUsage.identifier);
     }
 
     res.json({

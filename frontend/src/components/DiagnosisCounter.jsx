@@ -2,46 +2,50 @@
  * 全局诊断次数指示器
  * 右上角固定定位，全流程可见
  * 状态：●●●○○ 蓝色(3次) → ●●○○○ 蓝色(2次) → ●○○○○ 橙色(1次) → ○○○○○ 灰色(0次)
+ *
+ * v2.0 更新：
+ * - 优先从后端 /api/stats/free-usage 获取真实剩余次数
+ * - localStorage 仅作为展示 fallback
+ * - 诊断成功后调用 refreshFreeUsage() 同步最新状态
  */
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { trackPaywallSeen } from '../utils/tracking'
+import { fetchFreeUsageState, syncLocalCount } from '../utils/freeUsage'
 
 const MAX_FREE = 3
 const STORAGE_KEY = 'dd_diagnosis_count'
 const STORAGE_DATE_KEY = 'dd_diagnosis_date'
 
+// 全局刷新回调（供外部诊断成功后调用）
+let globalRefreshFn = null
+
 /**
- * 获取今日已用次数（每日自动重置）
+ * 从 localStorage 快速读取（同步，用于非关键路径）
  */
-function getTodayUsedCount() {
+function getTodayUsedCountFromLocal() {
   const today = new Date().toISOString().slice(0, 10)
   const savedDate = localStorage.getItem(STORAGE_DATE_KEY)
-
   if (savedDate !== today) {
-    // 新的一天，重置计数
     localStorage.setItem(STORAGE_DATE_KEY, today)
     localStorage.setItem(STORAGE_KEY, '0')
     return 0
   }
-
   return parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10)
 }
 
 /**
- * 增加今日已用次数
+ * 增加 localStorage 计数（向后兼容）
  */
 export function incrementDiagnosisCount() {
   const today = new Date().toISOString().slice(0, 10)
   const savedDate = localStorage.getItem(STORAGE_DATE_KEY)
-
   if (savedDate !== today) {
     localStorage.setItem(STORAGE_DATE_KEY, today)
     localStorage.setItem(STORAGE_KEY, '1')
     return 1
   }
-
   const current = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10)
   const next = current + 1
   localStorage.setItem(STORAGE_KEY, String(next))
@@ -49,19 +53,52 @@ export function incrementDiagnosisCount() {
 }
 
 /**
- * 获取剩余次数
+ * 从 localStorage 获取剩余次数（向后兼容，HomePage 快速预检用）
  */
 export function getRemainingCount() {
-  return Math.max(0, MAX_FREE - getTodayUsedCount())
+  return Math.max(0, MAX_FREE - getTodayUsedCountFromLocal())
+}
+
+/**
+ * 外部调用：刷新次数显示（诊断成功后应调用）
+ */
+export function refreshFreeUsage() {
+  if (globalRefreshFn) {
+    globalRefreshFn()
+  }
 }
 
 export default function DiagnosisCounter({ showUpgradeHint = false }) {
-  const [used, setUsed] = useState(0)
+  const [used, setUsed] = useState(getTodayUsedCountFromLocal())
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  useEffect(() => {
-    setUsed(getTodayUsedCount())
+  const syncFromBackend = useCallback(async () => {
+    setLoading(true)
+    try {
+      const state = await fetchFreeUsageState()
+      setUsed(state.used)
+      // 同步 localStorage，保持前后端一致
+      syncLocalCount(state.used)
+    } catch (e) {
+      // fallback 到 localStorage
+      setUsed(getTodayUsedCountFromLocal())
+    } finally {
+      setLoading(false)
+    }
   }, [])
+
+  useEffect(() => {
+    // 组件挂载时从后端拉取真实数据
+    syncFromBackend()
+    // 注册全局刷新函数
+    globalRefreshFn = syncFromBackend
+    return () => {
+      if (globalRefreshFn === syncFromBackend) {
+        globalRefreshFn = null
+      }
+    }
+  }, [syncFromBackend])
 
   const remaining = Math.max(0, MAX_FREE - used)
   const isLow = remaining === 1
@@ -104,6 +141,10 @@ export default function DiagnosisCounter({ showUpgradeHint = false }) {
               ? '今日已用完'
               : `今日剩余 ${remaining} 次`}
           </span>
+          {/* 刷新按钮（仅在 loading 时显示小 spinner） */}
+          {loading && (
+            <span className="w-3 h-3 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+          )}
         </div>
       </div>
 
@@ -113,7 +154,7 @@ export default function DiagnosisCounter({ showUpgradeHint = false }) {
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
               <p className="text-sm font-medium text-gray-900">
-                ⚡ 这是你今天最后一次免费诊断
+                这是你今天最后一次免费诊断
               </p>
               <p className="text-xs text-gray-500 mt-1">
                 升级会员，无限次诊断 + 完整知识库，仅需 39元/月（每天1.3元）
@@ -123,7 +164,6 @@ export default function DiagnosisCounter({ showUpgradeHint = false }) {
               onClick={() => {
                 trackPaywallSeen({ remainingFree: 0 })
                 navigate('/#pricing')
-                // 滚动到定价区域
                 setTimeout(() => {
                   document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
                 }, 100)

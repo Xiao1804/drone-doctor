@@ -64,8 +64,12 @@ uploads/
 backend/uploads/
 
 # Docs
+docs/
 .docs/
 opc-doc/
+
+# Frontend (backend build doesn't need it)
+frontend/
 
 # AI plan
 AI_ENGINEERING_PLAN.md
