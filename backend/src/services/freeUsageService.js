@@ -51,6 +51,11 @@ async function getTodayUsage(identifier) {
 }
 
 async function incrementUsage(identifier) {
+  // 管理员不记录使用次数
+  if (identifier.type === 'admin') {
+    return;
+  }
+
   const today = getToday();
 
   try {
@@ -88,6 +93,28 @@ async function incrementUsage(identifier) {
 }
 
 async function checkLimit(req) {
+  // 管理员豁免免费次数限制
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.slice(7);
+    try {
+      const jwt = require('jsonwebtoken');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'drone-doctor-secret-key-2024');
+      if (decoded && decoded.role === 'admin') {
+        return {
+          allowed: true,
+          used: 0,
+          remaining: Infinity,
+          limit: MAX_FREE_DAILY,
+          identifier: { type: 'admin', value: decoded.userId },
+          isAdmin: true
+        };
+      }
+    } catch (e) {
+      // token 无效，继续正常检查
+    }
+  }
+
   const identifier = getIdentifier(req);
   const used = await getTodayUsage(identifier);
   const remaining = Math.max(0, MAX_FREE_DAILY - used);
