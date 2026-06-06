@@ -101,17 +101,22 @@ export default function DiagnosisCounter({ showUpgradeHint = false }) {
   }, [syncFromBackend])
 
   const remaining = Math.max(0, MAX_FREE - used)
-  const isLow = remaining === 1
-  const isExhausted = remaining === 0
+  const isAdmin = remaining === Infinity || remaining > MAX_FREE
+  const isLow = !isAdmin && remaining === 1
+  const isExhausted = !isAdmin && remaining === 0
 
   // 颜色状态
-  const colorClass = isExhausted
+  const colorClass = isAdmin
+    ? 'text-green-500'
+    : isExhausted
     ? 'text-gray-400'
     : isLow
     ? 'text-orange-500'
     : 'text-blue-500'
 
-  const dotColor = isExhausted
+  const dotColor = isAdmin
+    ? 'bg-green-500'
+    : isExhausted
     ? 'bg-gray-300'
     : isLow
     ? 'bg-orange-500'
@@ -137,7 +142,9 @@ export default function DiagnosisCounter({ showUpgradeHint = false }) {
           </div>
           {/* 文案 */}
           <span className={`text-sm font-medium ${colorClass} transition-colors duration-300`}>
-            {isExhausted
+            {isAdmin
+              ? '管理员·无限次'
+              : isExhausted
               ? '今日已用完'
               : `今日剩余 ${remaining} 次`}
           </span>
