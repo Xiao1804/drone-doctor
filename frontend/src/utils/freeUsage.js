@@ -6,12 +6,24 @@ const STORAGE_KEY = 'dd_diagnosis_count'
 const STORAGE_DATE_KEY = 'dd_diagnosis_date'
 
 /**
+ * 获取当前登录用户的 token
+ */
+function getAuthToken() {
+  return localStorage.getItem('token')
+}
+
+/**
  * 从后端获取真实的免费使用状态
  * 已登录用户和未登录用户都适用
  */
 export async function fetchFreeUsageState() {
   try {
-    const res = await axios.get(apiUrl('/api/stats/free-usage'), { timeout: 5000 })
+    const token = getAuthToken()
+    const headers = token ? { Authorization: `Bearer ${token}` } : {}
+    const res = await axios.get(apiUrl('/api/stats/free-usage'), { 
+      headers,
+      timeout: 5000 
+    })
     return {
       used: res.data.used,
       remaining: res.data.remaining,
