@@ -7,6 +7,18 @@ const freeUsageService = require('../services/freeUsageService');
 // 确保数据已加载
 loadData().catch(err => console.error('[UnifiedDiagnosis] Failed to load data:', err.message));
 
+function consumesFreeUsage(req) {
+  const mode = req.body?.mode || 'quick';
+  return mode === 'quick' || (mode === 'interactive' && !req.body?.sessionId);
+}
+
+async function freeUsageLimitOnStart(req, res, next) {
+  if (!consumesFreeUsage(req)) {
+    return next();
+  }
+  return freeUsageLimit(req, res, next);
+}
+
 /**
  * POST /api/diagnosis/unified
  * 统一诊断入口
@@ -23,7 +35,7 @@ loadData().catch(err => console.error('[UnifiedDiagnosis] Failed to load data:',
  *   model?: string           // 具体型号
  * }
  */
-router.post('/', freeUsageLimit, async (req, res) => {
+router.post('/', freeUsageLimitOnStart, async (req, res) => {
   try {
     const {
       mode = 'quick',

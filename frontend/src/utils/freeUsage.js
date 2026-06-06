@@ -38,6 +38,15 @@ export async function fetchFreeUsageState() {
 }
 
 /**
+ * 诊断开始前获取可用次数，并同步本地展示缓存。
+ */
+export async function checkFreeUsageBeforeDiagnosis() {
+  const state = await fetchFreeUsageState()
+  syncLocalCount(state.used)
+  return state
+}
+
+/**
  * 同步 localStorage 计数（用于前端展示一致性）
  */
 export function syncLocalCount(used) {

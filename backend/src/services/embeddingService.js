@@ -79,11 +79,35 @@ async function generateEmbedding(texts) {
 
 /**
  * 将向量数组转为 PostgreSQL vector 字符串格式
+ * 带严格输入校验，防止 SQL 注入
  * @param {number[]} vector
  * @returns {string} '[0.1,0.2,...]'
  */
 function vectorToSql(vector) {
-  return '[' + vector.map(v => Number(v).toFixed(6)).join(',') + ']';
+  // 校验：必须是数组
+  if (!Array.isArray(vector)) {
+    throw new Error(`vectorToSql: expected array, got ${typeof vector}`);
+  }
+
+  // 校验：维度必须匹配
+  if (vector.length !== EMBEDDING_DIM) {
+    throw new Error(
+      `vectorToSql: expected dimension ${EMBEDDING_DIM}, got ${vector.length}`
+    );
+  }
+
+  // 校验：每个元素必须是有限数字
+  const formatted = vector.map((v, i) => {
+    const num = Number(v);
+    if (!Number.isFinite(num)) {
+      throw new Error(
+        `vectorToSql: element at index ${i} is not a finite number (got ${v})`
+      );
+    }
+    return num.toFixed(6);
+  });
+
+  return '[' + formatted.join(',') + ']';
 }
 
 /**

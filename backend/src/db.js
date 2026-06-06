@@ -286,5 +286,6 @@ module.exports = {
   query,
   run,
   initDatabase,
-  isPostgres
+  isPostgres,
+  now
 };

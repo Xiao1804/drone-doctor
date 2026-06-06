@@ -20,6 +20,14 @@ class ImageRecognitionService {
     this.xiaomiApiBase = process.env.XIAOMI_API_BASE || 'https://token-plan-cn.xiaomimimo.com';
     this.xiaomiVisionModel = process.env.XIAOMI_VISION_MODEL || 'mimo-v2.5';
     this.xiaomiClaudeModel = process.env.XIAOMI_CLAUDE_MODEL || 'claude-3-5-sonnet-20241022';
+    
+    // 调试日志：输出配置状态（仅在非生产环境）
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('🔧 Vision API 配置状态:');
+      console.log('  Qwen:', this.qwenApiKey ? '✅ 已配置' : '❌ 未配置', `(${this.qwenApiBase})`);
+      console.log('  Kimi:', this.kimiApiKey ? '✅ 已配置' : '❌ 未配置', `(${this.kimiApiBase})`);
+      console.log('  Xiaomi:', this.xiaomiApiKey ? '✅ 已配置' : '❌ 未配置', `(${this.xiaomiApiBase})`);
+    }
   }
 
   /**
@@ -42,10 +50,9 @@ class ImageRecognitionService {
       // 根据场景构建prompt
       const prompt = this.buildPrompt(scenario);
       
-      // Fallback 链：Qwen → Kimi → Xiaomi(OpenAI兼容) → Xiaomi(Anthropic)
+      // Fallback 链：Xiaomi mimo (OpenAI兼容) → Xiaomi mimo (Anthropic) → Qwen → Kimi
+      // 优先使用已验证可用的 Xiaomi mimo
       const providers = [
-        { key: this.qwenApiKey, fn: () => this.recognizeWithQwen(base64Image, mimeType, prompt, scenario) },
-        { key: this.kimiApiKey, fn: () => this.recognizeWithKimi(base64Image, mimeType, prompt, scenario) },
         { key: this.xiaomiApiKey, fn: async () => {
           try {
             return await this.recognizeWithOpenAICompatible(base64Image, mimeType, prompt, scenario);
@@ -53,7 +60,9 @@ class ImageRecognitionService {
             console.warn('Xiaomi OpenAI format failed, trying Anthropic format:', openAiErr.message);
             return await this.recognizeWithAnthropic(base64Image, mimeType, prompt, scenario);
           }
-        }}
+        }},
+        { key: this.qwenApiKey, fn: () => this.recognizeWithQwen(base64Image, mimeType, prompt, scenario) },
+        { key: this.kimiApiKey, fn: () => this.recognizeWithKimi(base64Image, mimeType, prompt, scenario) }
       ];
 
       for (const provider of providers) {
@@ -76,24 +85,24 @@ class ImageRecognitionService {
   }
 
   /**
-   * 使用通义千问VL API识别图片
+   * 使用通义千问VL API识别图片（OpenAI 兼容格式）
    */
   async recognizeWithQwen(base64Image, mimeType, prompt, scenario) {
     const response = await axios.post(
-      'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation',
+      `${this.qwenApiBase}/chat/completions`,
       {
         model: this.qwenVisionModel,
-        input: {
-          messages: [
-            {
-              role: 'user',
-              content: [
-                { image: `data:${mimeType};base64,${base64Image}` },
-                { text: prompt }
-              ]
-            }
-          ]
-        }
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64Image}` } },
+              { type: 'text', text: prompt }
+            ]
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 2000
       },
       {
         headers: {
@@ -104,7 +113,7 @@ class ImageRecognitionService {
       }
     );
 
-    const result = response.data.output.choices[0].message.content[0].text;
+    const result = response.data.choices[0].message.content;
     return this.parseResult(result, scenario);
   }
 

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
-import DiagnosisCounter, { getRemainingCount, incrementDiagnosisCount, refreshFreeUsage } from '../components/DiagnosisCounter'
-import { isFreeLimitError, getFreeLimitMessage } from '../utils/freeUsage'
+import DiagnosisCounter, { incrementDiagnosisCount, refreshFreeUsage } from '../components/DiagnosisCounter'
+import { checkFreeUsageBeforeDiagnosis, isFreeLimitError, getFreeLimitMessage } from '../utils/freeUsage'
 import { trackDiagnosisStart } from '../utils/tracking'
 import { DEVICE_TYPES, FAULT_TYPES } from '../shared/enums'
 
@@ -135,12 +135,6 @@ function HomePage() {
 
   // 提交诊断
   const handleSubmitDiagnosis = async () => {
-    const remaining = getRemainingCount()
-    if (remaining <= 0) {
-      setShowPaywall(true)
-      return
-    }
-
     const faultText = selectedFault?.id === 'other'
       ? customFault
       : selectedFault?.label || ''
@@ -148,12 +142,19 @@ function HomePage() {
     const symptom = `${selectedDevice?.label || ''} ${faultText} ${extraDescription}`.trim()
     if (!symptom) return
 
+    const usageState = await checkFreeUsageBeforeDiagnosis()
+    if (!usageState.allowed) {
+      refreshFreeUsage()
+      setShowPaywall(true)
+      return
+    }
+
     // 埋点
     trackDiagnosisStart({
       source: 'hero',
       deviceType: selectedDevice?.id || '',
       faultType: selectedFault?.id || '',
-      remainingFree: remaining
+      remainingFree: usageState.remaining
     })
 
     setLoading(true)
@@ -215,8 +216,9 @@ function HomePage() {
   const handleAgentDiagnose = async () => {
     if (!agentQuery.trim()) return
 
-    const remaining = getRemainingCount()
-    if (remaining <= 0) {
+    const usageState = await checkFreeUsageBeforeDiagnosis()
+    if (!usageState.allowed) {
+      refreshFreeUsage()
       setShowPaywall(true)
       return
     }

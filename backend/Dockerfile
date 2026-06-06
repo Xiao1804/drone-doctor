@@ -51,23 +51,14 @@ ENV LOCAL_MODEL_PATH=/app/models
 # 先复制 package.json + package-lock.json，充分利用缓存层
 COPY backend/package*.json ./
 
-# 使用 npm ci 替代 npm install --omit=dev
-# - 严格遵循 package-lock.json，安装速度更快、行为更可预测
-# - 自动忽略 devDependencies，无需额外参数
+# 使用 npm install --omit=dev，兼容 package-lock 与 package.json 临时不同步的服务器热修场景
+# - 只安装生产依赖
 # - 使用 BuildKit 缓存挂载 /root/.npm，跨构建复用 npm 缓存，即使 --no-cache 也能大幅加速
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
-    npm ci
+    npm install --omit=dev
 
-# 验证 sharp 安装：确保 libvips 预编译二进制正确加载
-# 如果输出 libvips: undefined，说明 sharp 回退到了源码编译，构建应该失败以便排查
-RUN node -e "
-const s = require('sharp');
-console.log('[Dockerfile] sharp version:', s.versions.sharp, '| libvips version:', s.versions.libvips);
-if (!s.versions.libvips) {
-  console.error('[Dockerfile] ERROR: libvips not loaded. Check SHARP_DIST_BASE_URL or network connectivity.');
-  process.exit(1);
-}
-"
+# 验证 sharp 安装：确保 vips 版本可读取
+RUN node -e "const s = require('sharp'); const vips = s.versions.vips || s.versions.libvips; console.log('[Dockerfile] sharp version:', s.versions.sharp, '| vips version:', vips); if (!vips) { console.error('[Dockerfile] ERROR: vips version not detected.'); process.exit(1); }"
 
 # ═══════════════════════════════════════════════════════════════
 # 4. 应用代码（变更最频繁，放在最后以最大化缓存命中）
