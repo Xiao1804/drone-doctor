@@ -1,0 +1,189 @@
+import React, { useState } from 'react'
+import axios from 'axios'
+import { apiUrl } from '../config/api'
+import { showToast } from './Toast'
+
+const FEEDBACK_TYPES = [
+  '诊断不准确',
+  '看不懂步骤',
+  '不会操作',
+  '页面/功能出错',
+  '想要新增功能',
+  '其他',
+]
+
+const RATING_OPTIONS = [
+  { value: 'helpful', label: '有帮助' },
+  { value: 'not_helpful', label: '没帮助' },
+  { value: 'unclear', label: '看不懂' },
+  { value: 'none', label: '暂不选择' },
+]
+
+function getCurrentUser() {
+  try {
+    return JSON.parse(localStorage.getItem('user') || 'null')
+  } catch {
+    return null
+  }
+}
+
+export default function FeedbackWidget() {
+  const [open, setOpen] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [form, setForm] = useState({
+    type: '诊断不准确',
+    rating: 'none',
+    content: '',
+    contact: '',
+  })
+
+  const user = getCurrentUser()
+
+  const updateField = (key, value) => {
+    setForm(prev => ({ ...prev, [key]: value }))
+  }
+
+  const resetForm = () => {
+    setForm({
+      type: '诊断不准确',
+      rating: 'none',
+      content: '',
+      contact: '',
+    })
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    if (!form.content.trim()) {
+      showToast('请填写反馈内容', 'warning')
+      return
+    }
+
+    setSubmitting(true)
+    try {
+      await axios.post(apiUrl('/api/feedback'), {
+        type: form.type,
+        rating: form.rating,
+        content: form.content.trim(),
+        contact: form.contact.trim(),
+        page: window.location.pathname + window.location.search,
+      })
+
+      showToast('反馈已提交，感谢你的建议', 'success')
+      resetForm()
+      setOpen(false)
+    } catch (error) {
+      console.error('Feedback submit error:', error)
+      showToast(error.response?.data?.error || '反馈提交失败，请稍后重试', 'error')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="fixed right-6 bottom-6 z-50 px-4 py-3 bg-black text-white rounded-full shadow-lg hover:bg-[#FF6B00] transition-colors text-sm font-medium"
+      >
+        反馈
+      </button>
+
+      {open && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-4">
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">提交反馈</h3>
+                <p className="text-sm text-gray-500 mt-1">告诉我们哪里不准、哪里看不懂，或你希望增加什么功能。</p>
+              </div>
+              <button
+                onClick={() => setOpen(false)}
+                className="text-gray-400 hover:text-gray-700 text-xl"
+                aria-label="关闭反馈弹窗"
+              >
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">反馈类型</label>
+                  <select
+                    value={form.type}
+                    onChange={(e) => updateField('type', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#FF6B00]"
+                  >
+                    {FEEDBACK_TYPES.map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">这次体验</label>
+                  <select
+                    value={form.rating}
+                    onChange={(e) => updateField('rating', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#FF6B00]"
+                  >
+                    {RATING_OPTIONS.map(option => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">反馈内容</label>
+                <textarea
+                  value={form.content}
+                  onChange={(e) => updateField('content', e.target.value)}
+                  rows={5}
+                  maxLength={3000}
+                  placeholder="例如：系统建议查 GPS，但我的 APP 报的是电池通信异常。"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#FF6B00] resize-none"
+                />
+                <div className="text-xs text-gray-400 text-right mt-1">{form.content.length}/3000</div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">联系方式（选填）</label>
+                <input
+                  value={form.contact}
+                  onChange={(e) => updateField('contact', e.target.value)}
+                  maxLength={200}
+                  placeholder={user?.email || '邮箱 / 微信 / 电话'}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#FF6B00]"
+                />
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-500">
+                当前页面：{window.location.pathname || '/'}
+              </div>
+
+              <div className="flex gap-3 justify-end pt-2">
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:border-gray-400"
+                >
+                  取消
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="px-5 py-2 bg-[#FF6B00] text-white rounded-lg text-sm font-medium hover:bg-orange-600 disabled:opacity-50"
+                >
+                  {submitting ? '提交中...' : '提交反馈'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
