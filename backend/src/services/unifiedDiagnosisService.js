@@ -607,18 +607,31 @@ async function quickDiagnose(input, structuredHints = {}) {
   // 1. Intent parse
   const intent = await intentParser.parse(input, structuredHints);
 
-  // 1.5 语义检索（向量搜索最相似案例）
+  // 1.5 语义检索（向量搜索最相似案例，带超时保护，不阻塞主流程）
   let semanticMatches = [];
   try {
-    const queryEmbedding = await embeddingService.generateEmbedding(input);
-    if (queryEmbedding && queryEmbedding.length > 0) {
-      const rawMatches = await vectorService.searchSimilarCases(queryEmbedding, 5);
-      semanticMatches = (rawMatches || []).map(m => ({
-        caseId: m.case_id,
-        content: m.content,
-        similarity: m.similarity,
-        metadata: m.metadata,
-      }));
+    const VECTOR_SEARCH_TIMEOUT = 8000; // 8秒超时
+    const vectorSearchPromise = (async () => {
+      const queryEmbedding = await embeddingService.generateEmbedding(input);
+      if (queryEmbedding && queryEmbedding.length > 0) {
+        const rawMatches = await vectorService.searchSimilarCases(queryEmbedding, 5);
+        return (rawMatches || []).map(m => ({
+          caseId: m.case_id,
+          content: m.content,
+          similarity: m.similarity,
+          metadata: m.metadata,
+        }));
+      }
+      return [];
+    })();
+
+    semanticMatches = await Promise.race([
+      vectorSearchPromise,
+      new Promise(resolve => setTimeout(() => resolve([]), VECTOR_SEARCH_TIMEOUT)),
+    ]);
+
+    if (semanticMatches.length > 0) {
+      console.log(`[QuickDiagnose] Vector search found ${semanticMatches.length} matches`);
     }
   } catch (err) {
     console.warn('[QuickDiagnose] Vector search failed, falling back to keyword:', err.message);
@@ -901,3 +914,14 @@ module.exports = {
   TreeExecutorService,
   DiagnosisGeneratorService,
 };
+
+// 后台预热 embedding 模型（不阻塞启动）
+(async () => {
+  try {
+    console.log('[UnifiedDiagnosis] Warming up embedding model...');
+    await embeddingService.initEmbedder();
+    console.log('[UnifiedDiagnosis] Embedding model ready');
+  } catch (err) {
+    console.warn('[UnifiedDiagnosis] Embedding model warmup failed (will lazy-load):', err.message);
+  }
+})();
