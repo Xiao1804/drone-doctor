@@ -10,8 +10,9 @@ router.get('/free-usage', async (req, res) => {
     res.json({
       allowed: result.allowed,
       used: result.used,
-      remaining: result.remaining,
-      limit: result.limit
+      remaining: result.isAdmin ? null : result.remaining,
+      limit: result.limit,
+      isAdmin: !!result.isAdmin,
     });
   } catch (error) {
     console.error('Free usage stats error:', error);
