@@ -4,7 +4,7 @@
  * @version 2.0
  */
 
-import enumsData from '../../../shared/enums.json';
+import enumsData from '../../shared/enums.json';
 
 export const DEVICE_TYPES = enumsData.DEVICE_TYPES;
 export const FAULT_TYPES = enumsData.FAULT_TYPES;
