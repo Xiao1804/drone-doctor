@@ -1,18 +1,30 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { query, run } = require('../db');
+const { JWT_SECRET } = require('../config');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'drone-doctor-secret-key-2024';
 const JWT_EXPIRES_IN = '7d';
+const USERNAME_REGEX = /^[a-zA-Z0-9_\-\u4e00-\u9fa5]{3,20}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
- * 用户服务（SQLite 版本）
+ * 用户服务
  */
 class UserService {
   /**
    * 注册用户
    */
   async register(username, email, password) {
+    username = String(username || '').trim();
+    email = String(email || '').trim().toLowerCase();
+
+    if (!USERNAME_REGEX.test(username)) {
+      throw new Error('用户名只能包含中文、字母、数字、下划线或短横线，长度为3-20个字符');
+    }
+    if (!EMAIL_REGEX.test(email)) {
+      throw new Error('邮箱格式不正确');
+    }
+
     const existingUser = await query('SELECT id FROM users WHERE username = ?', [username]);
     if (existingUser.rows.length > 0) {
       throw new Error('用户名已存在');
@@ -25,8 +37,9 @@ class UserService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const userCount = await query('SELECT COUNT(*) as count FROM users');
-    const role = Number(userCount.rows[0].count) === 0 ? 'admin' : 'user';
+
+    // 安全策略：公开注册永远创建普通用户。管理员应通过受控脚本或数据库后台创建。
+    const role = 'user';
 
     await run(
       `INSERT INTO users (id, username, email, password, role, created_at, updated_at, diagnosis_count, favorite_count, is_active)
@@ -45,9 +58,10 @@ class UserService {
    * 登录
    */
   async login(usernameOrEmail, password) {
+    const login = String(usernameOrEmail || '').trim();
     const result = await query(
       'SELECT * FROM users WHERE (username = ? OR email = ?) AND is_active = 1',
-      [usernameOrEmail, usernameOrEmail]
+      [login, login.toLowerCase()]
     );
 
     if (result.rows.length === 0) {
@@ -121,13 +135,28 @@ class UserService {
    * 更新用户信息
    */
   async updateUser(userId, updates) {
-    const protectedFields = ['id', 'password', 'role', 'created_at'];
+    const allowedFields = {
+      username: 'username',
+      email: 'email',
+    };
     const fields = [];
     const values = [];
 
-    for (const [key, value] of Object.entries(updates)) {
-      if (protectedFields.includes(key)) continue;
-      const dbField = this.toSnakeCase(key);
+    for (const [key, rawValue] of Object.entries(updates || {})) {
+      const dbField = allowedFields[key];
+      if (!dbField) continue;
+
+      let value = String(rawValue || '').trim();
+      if (key === 'email') {
+        value = value.toLowerCase();
+        if (!EMAIL_REGEX.test(value)) {
+          throw new Error('邮箱格式不正确');
+        }
+      }
+      if (key === 'username' && !USERNAME_REGEX.test(value)) {
+        throw new Error('用户名只能包含中文、字母、数字、下划线或短横线，长度为3-20个字符');
+      }
+
       fields.push(`${dbField} = ?`);
       values.push(value);
     }
@@ -265,15 +294,8 @@ class UserService {
       lastLoginAt: row.last_login_at,
       diagnosisCount: row.diagnosis_count,
       favoriteCount: row.favorite_count,
-      isActive: row.is_active === 1
+      isActive: row.is_active === 1 || row.is_active === true
     };
-  }
-
-  /**
-   * camelCase 转 snake_case
-   */
-  toSnakeCase(str) {
-    return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
   }
 }
 

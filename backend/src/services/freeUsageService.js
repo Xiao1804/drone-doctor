@@ -1,5 +1,7 @@
 const { query, run, isPostgres } = require('../db');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const { JWT_SECRET } = require('../config');
 
 const MAX_FREE_DAILY = 3;
 
@@ -11,19 +13,24 @@ function hashIp(ip) {
   return crypto.createHash('sha256').update(ip || 'unknown').digest('hex').slice(0, 32);
 }
 
-function getIdentifier(req) {
+function decodeAuthUser(req) {
   const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.slice(7);
-    try {
-      const jwt = require('jsonwebtoken');
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'drone-doctor-secret-key-2024');
-      if (decoded && decoded.userId) {
-        return { type: 'user', value: decoded.userId };
-      }
-    } catch (e) {
-      // token 无效，fallback 到 IP
-    }
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null;
+  }
+
+  const token = authHeader.slice(7);
+  try {
+    return jwt.verify(token, JWT_SECRET);
+  } catch (e) {
+    return null;
+  }
+}
+
+function getIdentifier(req) {
+  const decoded = decodeAuthUser(req);
+  if (decoded && decoded.userId) {
+    return { type: 'user', value: decoded.userId };
   }
 
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim()
@@ -94,25 +101,16 @@ async function incrementUsage(identifier) {
 
 async function checkLimit(req) {
   // 管理员豁免免费次数限制
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.slice(7);
-    try {
-      const jwt = require('jsonwebtoken');
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'drone-doctor-secret-key-2024');
-      if (decoded && decoded.role === 'admin') {
-        return {
-          allowed: true,
-          used: 0,
-          remaining: Infinity,
-          limit: MAX_FREE_DAILY,
-          identifier: { type: 'admin', value: decoded.userId },
-          isAdmin: true
-        };
-      }
-    } catch (e) {
-      // token 无效，继续正常检查
-    }
+  const decoded = decodeAuthUser(req);
+  if (decoded && decoded.role === 'admin') {
+    return {
+      allowed: true,
+      used: 0,
+      remaining: Infinity,
+      limit: MAX_FREE_DAILY,
+      identifier: { type: 'admin', value: decoded.userId },
+      isAdmin: true
+    };
   }
 
   const identifier = getIdentifier(req);

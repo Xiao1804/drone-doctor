@@ -1,4 +1,11 @@
 const imageRecognitionService = require('../services/imageRecognitionService');
+const freeUsageService = require('../services/freeUsageService');
+
+async function consumeFreeUsage(req) {
+  if (req.freeUsage?.identifier) {
+    await freeUsageService.incrementUsage(req.freeUsage.identifier);
+  }
+}
 
 /**
  * 上传并识别图片
@@ -24,6 +31,8 @@ exports.recognizeImage = async (req, res) => {
     
     // 删除临时文件
     await imageRecognitionService.deleteFile(imagePath);
+
+    await consumeFreeUsage(req);
 
     res.json({
       success: true,
@@ -87,6 +96,10 @@ exports.recognizeBatch = async (req, res) => {
           await imageRecognitionService.deleteFile(file.path);
         }
       }
+    }
+
+    if (results.some(item => item.success)) {
+      await consumeFreeUsage(req);
     }
 
     res.json({
