@@ -1,12 +1,7 @@
 /**
  * 全局诊断次数指示器
  * 右上角固定定位，全流程可见
- * 状态：●●●○○ 蓝色(3次) → ●●○○○ 蓝色(2次) → ●○○○○ 橙色(1次) → ○○○○○ 灰色(0次)
- *
- * v2.0 更新：
- * - 优先从后端 /api/stats/free-usage 获取真实剩余次数
- * - localStorage 仅作为展示 fallback
- * - 诊断成功后调用 refreshFreeUsage() 同步最新状态
+ * 状态：普通用户显示剩余免费次数；管理员显示无限次
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
@@ -70,6 +65,7 @@ export function refreshFreeUsage() {
 
 export default function DiagnosisCounter({ showUpgradeHint = false }) {
   const [used, setUsed] = useState(getTodayUsedCountFromLocal())
+  const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
@@ -77,11 +73,13 @@ export default function DiagnosisCounter({ showUpgradeHint = false }) {
     setLoading(true)
     try {
       const state = await fetchFreeUsageState()
-      setUsed(state.used)
-      // 同步 localStorage，保持前后端一致
-      syncLocalCount(state.used)
+      setIsAdmin(!!state.isAdmin)
+      setUsed(state.isAdmin ? 0 : state.used)
+      // 同步 localStorage，保持前后端一致。管理员只保留 0，避免旧匿名次数污染展示。
+      syncLocalCount(state.isAdmin ? 0 : state.used)
     } catch (e) {
       // fallback 到 localStorage
+      setIsAdmin(false)
       setUsed(getTodayUsedCountFromLocal())
     } finally {
       setLoading(false)
@@ -100,8 +98,7 @@ export default function DiagnosisCounter({ showUpgradeHint = false }) {
     }
   }, [syncFromBackend])
 
-  const remaining = Math.max(0, MAX_FREE - used)
-  const isAdmin = remaining === Infinity || remaining > MAX_FREE
+  const remaining = isAdmin ? Infinity : Math.max(0, MAX_FREE - used)
   const isLow = !isAdmin && remaining === 1
   const isExhausted = !isAdmin && remaining === 0
 
@@ -135,7 +132,7 @@ export default function DiagnosisCounter({ showUpgradeHint = false }) {
               <div
                 key={i}
                 className={`w-2 h-2 rounded-full transition-colors duration-300 ${
-                  i < remaining ? dotColor : dotEmptyColor
+                  isAdmin || i < remaining ? dotColor : dotEmptyColor
                 }`}
               />
             ))}
