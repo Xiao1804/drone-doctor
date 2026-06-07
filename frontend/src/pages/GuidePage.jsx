@@ -31,6 +31,9 @@ export default function GuidePage() {
 
   const [mode, setMode] = useState(initialMode)
 
+  // 当 interactive 模式没有 treeId 时，默认使用 'general'
+  const effectiveTreeId = treeId || (mode === 'interactive' ? 'general' : null)
+
   // ── Shared Data ──
   const [trees, setTrees] = useState([])
   const [currentTree, setCurrentTree] = useState(null)
@@ -104,9 +107,9 @@ export default function GuidePage() {
 
   // ── Wizard mode: load specific tree ──
   useEffect(() => {
-    if (treeId && (mode === 'wizard' || mode === 'interactive')) {
+    if (effectiveTreeId && (mode === 'wizard' || mode === 'interactive')) {
       setLoading(true)
-      axios.get(apiUrl(`/api/decision-trees/${treeId}`))
+      axios.get(apiUrl(`/api/decision-trees/${effectiveTreeId}`))
         .then(res => {
           setCurrentTree(res.data)
           setCurrentNodeId(res.data.startNode)
@@ -121,11 +124,11 @@ export default function GuidePage() {
           setLoading(false)
         })
     }
-  }, [treeId, mode, navigate])
+  }, [effectiveTreeId, mode, navigate])
 
   // ── Interactive mode: start via unified API ──
   useEffect(() => {
-    if (mode === 'interactive' && treeId && !sessionId && !interactiveLoading) {
+    if (mode === 'interactive' && effectiveTreeId && !sessionId && !interactiveLoading) {
       const startInteractive = async () => {
         setInteractiveLoading(true)
         try {
@@ -161,7 +164,7 @@ export default function GuidePage() {
       }
       startInteractive()
     }
-  }, [mode, treeId, sessionId, interactiveLoading, location.state])
+  }, [mode, effectiveTreeId, sessionId, interactiveLoading, location.state])
 
   const currentNode = currentTree?.nodes?.[currentNodeId]
 
