@@ -5,7 +5,7 @@
  */
 
 const path = require('path');
-const enumsData = require(path.join(__dirname, '../../../shared/enums.json'));
+const enumsData = require(path.join(__dirname, '../../shared/enums.json'));
 
 const DEVICE_TYPES = enumsData.DEVICE_TYPES;
 const FAULT_TYPES = enumsData.FAULT_TYPES;
