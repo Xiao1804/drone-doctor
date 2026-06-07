@@ -25,8 +25,9 @@ function ProfilePage() {
       return
     }
 
-    setUser(JSON.parse(userData))
-    setFormData({ ...formData, email: JSON.parse(userData).email })
+    const parsedUser = JSON.parse(userData)
+    setUser(parsedUser)
+    setFormData(prev => ({ ...prev, email: parsedUser.email }))
     setLoading(false)
   }, [navigate])
 
@@ -106,6 +107,8 @@ function ProfilePage() {
     if (window.confirm('确定要退出登录吗？')) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
+      localStorage.removeItem('dd_diagnosis_count')
+      localStorage.removeItem('dd_diagnosis_date')
       navigate('/')
     }
   }
@@ -117,6 +120,8 @@ function ProfilePage() {
       </div>
     )
   }
+
+  const isAdmin = user?.role === 'admin' || user?.isAdmin
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -145,7 +150,7 @@ function ProfilePage() {
               <div>
                 <h2 className="text-xl font-bold">{user?.username}</h2>
                 <p className="text-white/80 text-sm">{user?.email}</p>
-                {user?.isAdmin && (
+                {isAdmin && (
                   <span className="inline-block mt-1 px-2 py-0.5 bg-white/20 rounded text-xs">
                     管理员
                   </span>
@@ -311,6 +316,23 @@ function ProfilePage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
+
+            {isAdmin && (
+              <button
+                onClick={() => navigate('/admin/feedback')}
+                className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50"
+              >
+                <div className="flex items-center space-x-3">
+                  <svg className="w-5 h-5 text-[#FF6B00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                  </svg>
+                  <span className="text-gray-900">用户反馈管理</span>
+                </div>
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            )}
 
             <button
               onClick={handleLogout}
