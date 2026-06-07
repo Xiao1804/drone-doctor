@@ -7,6 +7,8 @@ import AuthPage from './pages/AuthPage'
 import ProfilePage from './pages/ProfilePage'
 import GuidePage from './pages/GuidePage'
 import FlightLogPage from './pages/FlightLogPage'
+import AdminFeedbackPage from './pages/AdminFeedbackPage'
+import FeedbackWidget from './components/FeedbackWidget'
 import ToastContainer from './components/Toast'
 import './index.css'
 
@@ -15,6 +17,7 @@ function App() {
     <Router>
       <div className="min-h-screen bg-gray-50">
         <ToastContainer />
+        <FeedbackWidget />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/diagnosis" element={<Navigate to="/guide" replace />} />
@@ -26,6 +29,7 @@ function App() {
           <Route path="/guide" element={<GuidePage />} />
           <Route path="/guide/:treeId" element={<GuidePage />} />
           <Route path="/flight-log" element={<FlightLogPage />} />
+          <Route path="/admin/feedback" element={<AdminFeedbackPage />} />
         </Routes>
       </div>
     </Router>
