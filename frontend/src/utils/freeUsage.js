@@ -20,15 +20,16 @@ export async function fetchFreeUsageState() {
   try {
     const token = getAuthToken()
     const headers = token ? { Authorization: `Bearer ${token}` } : {}
-    const res = await axios.get(apiUrl('/api/stats/free-usage'), { 
+    const res = await axios.get(apiUrl('/api/stats/free-usage'), {
       headers,
-      timeout: 5000 
+      timeout: 5000,
     })
     return {
-      used: res.data.used,
-      remaining: res.data.remaining,
-      limit: res.data.limit,
-      allowed: res.data.allowed
+      used: Number(res.data.used || 0),
+      remaining: res.data.isAdmin ? Infinity : Number(res.data.remaining || 0),
+      limit: Number(res.data.limit || MAX_FREE),
+      allowed: !!res.data.allowed,
+      isAdmin: !!res.data.isAdmin,
     }
   } catch (error) {
     // 后端不可用时 fallback 到 localStorage
@@ -37,14 +38,15 @@ export async function fetchFreeUsageState() {
     if (savedDate !== today) {
       localStorage.setItem(STORAGE_DATE_KEY, today)
       localStorage.setItem(STORAGE_KEY, '0')
-      return { used: 0, remaining: MAX_FREE, limit: MAX_FREE, allowed: true }
+      return { used: 0, remaining: MAX_FREE, limit: MAX_FREE, allowed: true, isAdmin: false }
     }
     const used = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10)
     return {
       used,
       remaining: Math.max(0, MAX_FREE - used),
       limit: MAX_FREE,
-      allowed: used < MAX_FREE
+      allowed: used < MAX_FREE,
+      isAdmin: false,
     }
   }
 }
@@ -54,7 +56,11 @@ export async function fetchFreeUsageState() {
  */
 export async function checkFreeUsageBeforeDiagnosis() {
   const state = await fetchFreeUsageState()
-  syncLocalCount(state.used)
+  if (state.isAdmin) {
+    syncLocalCount(0)
+  } else {
+    syncLocalCount(state.used)
+  }
   return state
 }
 
@@ -65,6 +71,15 @@ export function syncLocalCount(used) {
   const today = new Date().toISOString().slice(0, 10)
   localStorage.setItem(STORAGE_DATE_KEY, today)
   localStorage.setItem(STORAGE_KEY, String(used))
+}
+
+/**
+ * 清空本地免费次数展示缓存。
+ * 登录、退出、切换账号后调用，避免旧账号/匿名状态污染新账号展示。
+ */
+export function clearLocalUsageCache() {
+  localStorage.removeItem(STORAGE_KEY)
+  localStorage.removeItem(STORAGE_DATE_KEY)
 }
 
 /**
