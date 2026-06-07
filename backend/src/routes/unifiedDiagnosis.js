@@ -112,7 +112,7 @@ router.get('/intent', async (req, res) => {
 router.get('/session/:sessionId', async (req, res) => {
   try {
     const { getSession } = require('../services/unifiedDiagnosisService');
-    const session = getSession(req.params.sessionId);
+    const session = await getSession(req.params.sessionId);
     if (!session) {
       return res.status(404).json({ error: '会话不存在或已过期' });
     }

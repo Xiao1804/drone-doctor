@@ -6,6 +6,15 @@ const {
   mapFrontendFaultToBackend,
   mapFrontendDeviceToBackend,
 } = require('../shared/enums');
+const vectorService = require('./vectorService');
+const embeddingService = require('./embeddingService');
+const {
+  createSession: createSessionDB,
+  getSession: getSessionDB,
+  updateSession: updateSessionDB,
+  deleteSession: deleteSessionDB,
+  cleanupExpiredSessions,
+} = require('../db');
 
 // ========== 数据加载 ==========
 
@@ -346,7 +355,7 @@ class TreeExecutorService {
 // ========== DiagnosisGeneratorService ==========
 
 class DiagnosisGeneratorService {
-  async generate(path, tree, intent, cases, branchHistory = []) {
+  async generate(path, tree, intent, cases, branchHistory = [], semanticMatches = []) {
     const terminalNode = tree.nodes[path[path.length - 1]];
 
     // Collect steps from path
@@ -370,7 +379,27 @@ class DiagnosisGeneratorService {
     // 基于路径和分支历史的确定性结论推导（替代硬编码概率）
     const possibleCauses = this.inferCausesFromPath(path, tree, branchHistory, cases);
 
-    const confidence = this.calculateConfidence(path, tree, branchHistory);
+    // 将语义检索的高相似度案例补充到可能原因中
+    if (semanticMatches && semanticMatches.length > 0) {
+      const seenCauses = new Set(possibleCauses.map(c => c.cause));
+      for (const match of semanticMatches.filter(m => m.similarity > 0.7).slice(0, 2)) {
+        const caseData = cases.find(c => String(c.id) === String(match.caseId));
+        if (caseData) {
+          const causeText = caseData.possibleCauses?.[0]?.cause || caseData.symptom || match.content?.slice(0, 50);
+          if (causeText && !seenCauses.has(causeText)) {
+            possibleCauses.push({
+              cause: causeText,
+              probability: `语义匹配 ${(match.similarity * 100).toFixed(0)}%`,
+              description: caseData.possibleCauses?.[0]?.description || '',
+              source: 'semantic',
+            });
+            seenCauses.add(causeText);
+          }
+        }
+      }
+    }
+
+    const confidence = this.calculateConfidence(path, tree, branchHistory, semanticMatches);
 
     return {
       faultType: tree.category,
@@ -465,7 +494,7 @@ class DiagnosisGeneratorService {
     return causes.slice(0, 3);
   }
 
-  calculateConfidence(path, tree, branchHistory = []) {
+  calculateConfidence(path, tree, branchHistory = [], semanticMatches = []) {
     const terminalNode = tree.nodes[path[path.length - 1]];
     let score = 0.5;
 
@@ -485,6 +514,16 @@ class DiagnosisGeneratorService {
     });
     score += Math.min(questionBranches.length * 0.05, 0.15);
 
+    // 语义检索高相似度案例加分（最高 +0.1）
+    if (semanticMatches && semanticMatches.length > 0) {
+      const bestSimilarity = Math.max(...semanticMatches.map(m => m.similarity || 0));
+      if (bestSimilarity > 0.85) {
+        score += 0.1;
+      } else if (bestSimilarity > 0.7) {
+        score += 0.05;
+      }
+    }
+
     return Math.min(Math.round(score * 100) / 100, 0.98);
   }
 
@@ -500,53 +539,56 @@ class DiagnosisGeneratorService {
   }
 }
 
-// ========== 会话存储 ==========
+// ========== 会话存储（数据库持久化） ==========
 
-const sessions = new Map();
 const SESSION_TTL_MS = 30 * 60 * 1000; // 30分钟
 
-function createSession(intent) {
+/**
+ * 创建诊断会话（持久化到数据库）
+ */
+async function createSession(intent) {
   const id = crypto.randomUUID();
-  const now = Date.now();
-  const session = {
+  const sessionData = {
     id,
-    createdAt: now,
-    lastActivityAt: now,
     status: 'active',
     intent,
     context: {
       deviceType: intent.deviceType || null,
       model: intent.model || null,
     },
-    treeExecution: null,
-    diagnosis: null,
+    treeExecution: {},
+    diagnosis: {},
     messages: [],
   };
-  sessions.set(id, session);
+  const session = await createSessionDB(sessionData);
   return session;
 }
 
-function getSession(id) {
-  const session = sessions.get(id);
-  if (!session) return null;
-  if (Date.now() - session.lastActivityAt > SESSION_TTL_MS) {
-    sessions.delete(id);
-    return null;
-  }
-  session.lastActivityAt = Date.now();
-  return session;
+/**
+ * 获取诊断会话（从数据库读取，自动检查过期）
+ */
+async function getSession(id) {
+  return getSessionDB(id, SESSION_TTL_MS);
 }
 
-function cleanupSessions() {
-  const now = Date.now();
-  for (const [id, session] of sessions) {
-    if (now - session.lastActivityAt > SESSION_TTL_MS) {
-      sessions.delete(id);
-    }
+/**
+ * 更新会话状态（持久化到数据库）
+ */
+async function updateSession(id, updates) {
+  return updateSessionDB(id, updates);
+}
+
+/**
+ * 清理过期会话
+ */
+async function cleanupSessions() {
+  const count = await cleanupExpiredSessions(SESSION_TTL_MS);
+  if (count > 0) {
+    console.log(`[UnifiedDiagnosis] Cleaned up ${count} expired sessions`);
   }
 }
 
-// 每10分钟清理一次
+// 每10分钟清理一次过期会话
 setInterval(cleanupSessions, 10 * 60 * 1000);
 
 // ========== 统一诊断入口 ==========
@@ -565,6 +607,23 @@ async function quickDiagnose(input, structuredHints = {}) {
   // 1. Intent parse
   const intent = await intentParser.parse(input, structuredHints);
 
+  // 1.5 语义检索（向量搜索最相似案例）
+  let semanticMatches = [];
+  try {
+    const queryEmbedding = await embeddingService.generateEmbedding(input);
+    if (queryEmbedding && queryEmbedding.length > 0) {
+      const rawMatches = await vectorService.searchSimilarCases(queryEmbedding, 5);
+      semanticMatches = (rawMatches || []).map(m => ({
+        caseId: m.case_id,
+        content: m.content,
+        similarity: m.similarity,
+        metadata: m.metadata,
+      }));
+    }
+  } catch (err) {
+    console.warn('[QuickDiagnose] Vector search failed, falling back to keyword:', err.message);
+  }
+
   // 2. Tree route
   const route = treeRouter.route(intent);
 
@@ -576,6 +635,7 @@ async function quickDiagnose(input, structuredHints = {}) {
       matchedTree: null,
       predictedPath: null,
       diagnosis: null,
+      semanticMatches,
       confidence: intent.confidence,
       confidenceReason: route.reason,
       suggestedActions: [
@@ -591,13 +651,14 @@ async function quickDiagnose(input, structuredHints = {}) {
   // 3. Predict path (simple: shortest path from startNode to terminal)
   const predictedPath = predictPath(tree, tree.startNode);
 
-  // 4. Generate diagnosis
+  // 4. Generate diagnosis（传入语义匹配案例以增强诊断质量）
   const diagnosis = await diagnosisGenerator.generate(
     predictedPath.path,
     tree,
     intent,
     faultCases,
-    [] // quick 模式无分支历史
+    [], // quick 模式无分支历史
+    semanticMatches // 语义检索结果
   );
 
   return {
@@ -614,6 +675,7 @@ async function quickDiagnose(input, structuredHints = {}) {
       terminalNode: predictedPath.terminalNode,
     },
     diagnosis,
+    semanticMatches,
     confidence: diagnosis.confidence,
     confidenceReason: route.reason,
     suggestedActions: buildSuggestedActions(diagnosis, tree),
@@ -631,11 +693,12 @@ async function interactiveDiagnose(sessionId, input, userAnswer, structuredHints
   if (!sessionId) {
     // First call: create session + intent parse + route
     const intent = await intentParser.parse(input, structuredHints);
-    session = createSession(intent);
+    session = await createSession(intent);
     const route = treeRouter.route(intent);
 
     if (route.fallback || !route.treeId) {
       session.status = 'completed';
+      await updateSession(session.id, { status: 'completed' });
       return {
         success: true,
         mode: 'interactive',
@@ -653,19 +716,21 @@ async function interactiveDiagnose(sessionId, input, userAnswer, structuredHints
     }
 
     const tree = getTree(route.treeId);
-    session.treeExecution = {
+    const treeExecution = {
       treeId: tree.id,
       currentNodeId: tree.startNode,
       path: [],
       branchHistory: [],
     };
+    session.treeExecution = treeExecution;
+    await updateSession(session.id, { treeExecution });
 
     const startNode = tree.nodes[tree.startNode];
     return formatInteractiveResponse(session, startNode, tree, false);
   }
 
   // Continue session
-  session = getSession(sessionId);
+  session = await getSession(sessionId);
   if (!session) {
     throw new Error('Session not found or expired');
   }
@@ -694,10 +759,18 @@ async function interactiveDiagnose(sessionId, input, userAnswer, structuredHints
     const diagnosis = await diagnosisGenerator.generate(exec.path, tree, session.intent, faultCases, exec.branchHistory);
     session.diagnosis = diagnosis;
 
+    await updateSession(session.id, {
+      status: 'completed',
+      treeExecution: exec,
+      diagnosis,
+    });
+
     return formatInteractiveResponse(session, result.terminalNode, tree, true, diagnosis);
   }
 
   exec.currentNodeId = result.nextNodeId;
+  await updateSession(session.id, { treeExecution: exec });
+
   return formatInteractiveResponse(session, result.nextNode, tree, false);
 }
 
@@ -766,11 +839,11 @@ function buildSuggestedActions(diagnosis, tree) {
 }
 
 function formatInteractiveResponse(session, currentNode, tree, isComplete, diagnosis = null) {
-  const exec = session.treeExecution;
+  const exec = session.treeExecution || {};
   const progress = {
-    currentStep: exec.path.length + 1,
+    currentStep: (exec.path || []).length + 1,
     totalSteps: Object.keys(tree.nodes).length,
-    path: exec.path,
+    path: exec.path || [],
   };
 
   const suggestedAnswers = [];

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
+import { showToast } from '../components/Toast'
 
 function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
@@ -35,12 +36,12 @@ function AuthPage() {
       localStorage.setItem('token', response.data.token)
       localStorage.setItem('user', JSON.stringify(response.data.user))
 
-      alert('登录成功！')
+      showToast('登录成功！', 'success')
       navigate('/')
 
     } catch (error) {
       console.error('Login error:', error)
-      alert(error.response?.data?.error || '登录失败')
+      showToast(error.response?.data?.error || '登录失败', 'error')
     } finally {
       setLoading(false)
     }
@@ -50,7 +51,7 @@ function AuthPage() {
     e.preventDefault()
 
     if (formData.password !== formData.confirmPassword) {
-      alert('两次密码输入不一致')
+      showToast('两次密码输入不一致', 'warning')
       return
     }
 
@@ -67,12 +68,12 @@ function AuthPage() {
       localStorage.setItem('token', response.data.token)
       localStorage.setItem('user', JSON.stringify(response.data.user))
 
-      alert('注册成功！')
+      showToast('注册成功！', 'success')
       navigate('/')
 
     } catch (error) {
       console.error('Register error:', error)
-      alert(error.response?.data?.error || '注册失败')
+      showToast(error.response?.data?.error || '注册失败', 'error')
     } finally {
       setLoading(false)
     }

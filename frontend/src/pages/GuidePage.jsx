@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams, useLocation } from 'react-rout
 import axios from 'axios'
 import { apiUrl } from '../config/api'
 import { isFreeLimitError, getFreeLimitMessage } from '../utils/freeUsage'
+import { showToast } from '../components/Toast'
 
 // ── Types ──
 // question:  yes / no 分支
@@ -114,7 +115,7 @@ export default function GuidePage() {
         })
         .catch(err => {
           console.error(err)
-          alert('加载决策树失败')
+          showToast('加载决策树失败', 'error')
           navigate('/guide')
           setMode('menu')
           setLoading(false)
@@ -148,7 +149,7 @@ export default function GuidePage() {
           if (isFreeLimitError(err)) {
             setShowPaywall(true)
           } else {
-            alert('启动交互式诊断失败，将使用本地决策树')
+            showToast('启动交互式诊断失败，将使用本地决策树', 'warning')
             setMode('wizard')
           }
         } finally {

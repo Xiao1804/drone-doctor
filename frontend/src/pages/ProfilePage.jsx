@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
+import { showToast } from '../components/Toast'
 
 function ProfilePage() {
   const [user, setUser] = useState(null)
@@ -51,11 +52,11 @@ function ProfilePage() {
       localStorage.setItem('user', JSON.stringify(response.data.user))
       setUser(response.data.user)
       setEditMode(false)
-      alert('更新成功！')
+      showToast('更新成功！', 'success')
 
     } catch (error) {
       console.error('Update error:', error)
-      alert(error.response?.data?.error || '更新失败')
+      showToast(error.response?.data?.error || '更新失败', 'error')
     } finally {
       setLoading(false)
     }
@@ -65,12 +66,12 @@ function ProfilePage() {
     e.preventDefault()
 
     if (formData.newPassword !== formData.confirmPassword) {
-      alert('两次密码输入不一致')
+      showToast('两次密码输入不一致', 'warning')
       return
     }
 
     if (formData.newPassword.length < 6) {
-      alert('新密码至少6个字符')
+      showToast('新密码至少6个字符', 'warning')
       return
     }
 
@@ -85,7 +86,7 @@ function ProfilePage() {
         headers: { Authorization: `Bearer ${token}` }
       })
 
-      alert('密码修改成功！')
+      showToast('密码修改成功！', 'success')
       setFormData({
         ...formData,
         currentPassword: '',
@@ -95,7 +96,7 @@ function ProfilePage() {
 
     } catch (error) {
       console.error('Change password error:', error)
-      alert(error.response?.data?.error || '密码修改失败')
+      showToast(error.response?.data?.error || '密码修改失败', 'error')
     } finally {
       setLoading(false)
     }

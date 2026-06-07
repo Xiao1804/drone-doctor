@@ -4,6 +4,7 @@ import axios from 'axios'
 import { apiUrl } from '../config/api'
 import DiagnosisCounter from '../components/DiagnosisCounter'
 import { trackFeedback, trackRegisterPromptSeen, trackRegisterPromptAction } from '../utils/tracking'
+import { showToast } from '../components/Toast'
 
 function DiagnosisPage() {
   const location = useLocation()
@@ -352,7 +353,7 @@ function DiagnosisPage() {
                   url: window.location.href
                 })
               } else {
-                alert('已复制诊断结果')
+                showToast('已复制诊断结果', 'success')
               }
             }}
             className="flex-1 py-4 bg-black text-white rounded-xl font-medium hover:bg-[#FF6B00] transition-colors"

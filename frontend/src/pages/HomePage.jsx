@@ -6,6 +6,7 @@ import DiagnosisCounter, { incrementDiagnosisCount, refreshFreeUsage } from '../
 import { checkFreeUsageBeforeDiagnosis, isFreeLimitError, getFreeLimitMessage } from '../utils/freeUsage'
 import { trackDiagnosisStart } from '../utils/tracking'
 import { DEVICE_TYPES, FAULT_TYPES } from '../shared/enums'
+import { showToast } from '../components/Toast'
 
 // 机型选项与故障类型从共享枚举导入（src/shared/enums.js）
 // 如需修改枚举值，请同步更新 shared/enums.js 和后端引用
@@ -206,7 +207,7 @@ function HomePage() {
         refreshFreeUsage()
         setShowPaywall(true)
       } else {
-        alert('诊断失败，请稍后重试')
+        showToast('诊断失败，请稍后重试', 'error')
       }
       setLoading(false)
     }
@@ -237,7 +238,7 @@ function HomePage() {
         incrementDiagnosisCount()
         refreshFreeUsage()
       } else {
-        alert('诊断失败：' + (response.data.error || '未知错误'))
+        showToast('诊断失败：' + (response.data.error || '未知错误'), 'error')
       }
     } catch (error) {
       console.error('Agent diagnosis error:', error)
@@ -245,19 +246,35 @@ function HomePage() {
         refreshFreeUsage()
         setShowPaywall(true)
       } else {
-        alert('智能体诊断失败，请稍后重试')
+        showToast('智能体诊断失败，请稍后重试', 'error')
       }
     } finally {
       setAgentLoading(false)
     }
   }
 
-  const stats = [
-    { number: '50,000+', label: '诊断次数' },
-    { number: '92%', label: '准确率' },
-    { number: '10,000+', label: '用户数' },
-    { number: '100+', label: '故障案例' }
-  ]
+  // 平台统计（从后端 API 获取真实数据）
+  const [platformStats, setPlatformStats] = useState(null)
+
+  useEffect(() => {
+    axios.get(apiUrl('/api/stats/overview')).then(res => {
+      const d = res.data
+      setPlatformStats([
+        { number: d.totalDiagnoses > 0 ? d.totalDiagnoses.toLocaleString() + '+' : '—', label: '诊断次数' },
+        { number: d.totalCases > 0 ? d.totalCases + '条' : '—', label: '故障案例' },
+        { number: d.totalUsers > 0 ? d.totalUsers.toLocaleString() + '+' : '—', label: '用户数' },
+        { number: 'AI辅助', label: '智能诊断' },
+      ])
+    }).catch(() => {
+      // fallback：只显示案例数（可验证的真实数据）
+      setPlatformStats([
+        { number: '—', label: '诊断次数' },
+        { number: '129条', label: '故障案例' },
+        { number: '—', label: '用户数' },
+        { number: 'AI辅助', label: '智能诊断' },
+      ])
+    })
+  }, [])
 
   const features = [
     { icon: '🔍', title: '智能诊断', description: 'AI分析故障原因，提供精准排查步骤' },
@@ -493,7 +510,7 @@ function HomePage() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto">
-            {stats.map((stat, index) => (
+            {(platformStats || []).map((stat, index) => (
               <div key={index} className="text-center">
                 <div className="text-3xl font-bold text-black mb-1">{stat.number}</div>
                 <div className="text-sm text-gray-500">{stat.label}</div>

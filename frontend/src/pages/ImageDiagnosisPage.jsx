@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
+import { showToast } from '../components/Toast'
 
 function ImageDiagnosisPage() {
   const [uploading, setUploading] = useState(false)
@@ -33,7 +34,7 @@ function ImageDiagnosisPage() {
     const file = fileInput.files[0]
     
     if (!file) {
-      alert('请选择图片文件')
+      showToast('请选择图片文件', 'warning')
       return
     }
 
@@ -55,7 +56,7 @@ function ImageDiagnosisPage() {
 
     } catch (error) {
       console.error('Upload error:', error)
-      alert('图片识别失败: ' + (error.response?.data?.error || error.message))
+      showToast('图片识别失败: ' + (error.response?.data?.error || error.message), 'error')
     } finally {
       setUploading(false)
     }

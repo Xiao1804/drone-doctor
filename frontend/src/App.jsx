@@ -7,12 +7,14 @@ import AuthPage from './pages/AuthPage'
 import ProfilePage from './pages/ProfilePage'
 import GuidePage from './pages/GuidePage'
 import FlightLogPage from './pages/FlightLogPage'
+import ToastContainer from './components/Toast'
 import './index.css'
 
 function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
+        <ToastContainer />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/diagnosis" element={<Navigate to="/guide" replace />} />

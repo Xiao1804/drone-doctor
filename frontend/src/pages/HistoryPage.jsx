@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
+import { showToast } from '../components/Toast'
 
 function HistoryPage() {
   const [history, setHistory] = useState([])
@@ -17,7 +18,7 @@ function HistoryPage() {
     try {
       const token = localStorage.getItem('token')
       if (!token) {
-        alert('请先登录')
+        showToast('请先登录', 'warning')
         navigate('/auth')
         return
       }
@@ -30,10 +31,10 @@ function HistoryPage() {
     } catch (error) {
       console.error('Load history error:', error)
       if (error.response?.status === 401) {
-        alert('登录已过期，请重新登录')
+        showToast('登录已过期，请重新登录', 'warning')
         navigate('/auth')
       } else {
-        alert('加载历史记录失败')
+        showToast('加载历史记录失败', 'error')
       }
     } finally {
       setLoading(false)
@@ -50,10 +51,10 @@ function HistoryPage() {
       })
 
       setHistory(history.filter(h => h.id !== id))
-      alert('删除成功')
+      showToast('删除成功', 'success')
     } catch (error) {
       console.error('Delete error:', error)
-      alert('删除失败')
+      showToast('删除失败', 'error')
     }
   }
 
@@ -69,7 +70,7 @@ function HistoryPage() {
       ))
     } catch (error) {
       console.error('Toggle favorite error:', error)
-      alert('操作失败')
+      showToast('操作失败', 'error')
     }
   }
 
