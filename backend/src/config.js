@@ -6,7 +6,7 @@ function requireProductionEnv(name) {
   return value;
 }
 
-const JWT_SECRET = requireProductionEnv('JWT_SECRET') || 'dev-only-drone-doctor-jwt-secret';
+const JWT_SECRET = requireProductionEnv('JWT_SECRET');
 
 if (process.env.NODE_ENV === 'production' && JWT_SECRET.length < 32) {
   throw new Error('JWT_SECRET must be at least 32 characters in production');
