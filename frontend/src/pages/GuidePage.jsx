@@ -135,7 +135,7 @@ export default function GuidePage() {
             input: symptom,
             deviceType: location.state?.deviceType,
             faultType: location.state?.faultType,
-          })
+          }, { timeout: 30000 }) // 30秒超时
           const data = res.data
           setSessionId(data.sessionId)
           setInteractiveNode(data.currentNode)
@@ -149,7 +149,10 @@ export default function GuidePage() {
           if (isFreeLimitError(err)) {
             setShowPaywall(true)
           } else {
-            showToast('启动交互式诊断失败，将使用本地决策树', 'warning')
+            const errMsg = err.code === 'ECONNABORTED'
+              ? '诊断请求超时，请稍后重试'
+              : '启动交互式诊断失败，将使用本地决策树'
+            showToast(errMsg, 'error')
             setMode('wizard')
           }
         } finally {
@@ -362,6 +365,28 @@ export default function GuidePage() {
 
   // ── RENDER: Interactive ──
   if (mode === 'interactive') {
+    // 无匹配决策树或诊断完成但无结果
+    if (!interactiveLoading && sessionId && !interactiveNode && !interactiveDiagnosis) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <PaywallModal />
+          <div className="text-center max-w-md mx-auto px-6">
+            <div className="text-4xl mb-4">😅</div>
+            <h3 className="text-lg font-semibold text-black mb-2">暂无匹配的诊断流程</h3>
+            <p className="text-gray-600 mb-6">当前故障描述无法匹配到对应的决策树，请尝试重新描述或选择手动排查。</p>
+            <div className="flex gap-3 justify-center">
+              <button onClick={() => navigate('/')} className="px-6 py-3 border-2 border-gray-200 rounded-xl hover:border-black transition-colors">
+                重新诊断
+              </button>
+              <button onClick={() => navigate('/guide')} className="px-6 py-3 bg-[#FF6B00] text-white rounded-xl hover:bg-[#FF8533] transition-colors">
+                查看维修助手
+              </button>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
     if (interactiveLoading || (!interactiveNode && !interactiveDiagnosis)) {
       return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
