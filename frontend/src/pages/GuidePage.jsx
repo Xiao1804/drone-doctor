@@ -31,8 +31,8 @@ export default function GuidePage() {
 
   const [mode, setMode] = useState(initialMode)
 
-  // 当 interactive 模式没有 treeId 时，默认使用 'general'
-  const effectiveTreeId = treeId || (mode === 'interactive' ? 'general' : null)
+  // 当 interactive 模式没有 treeId 时，默认使用 'tree-damage-assessment'（定损前通用检查）
+  const effectiveTreeId = treeId || (mode === 'interactive' ? 'tree-damage-assessment' : null)
 
   // ── Shared Data ──
   const [trees, setTrees] = useState([])
@@ -135,7 +135,7 @@ export default function GuidePage() {
           const symptom = location.state?.input || location.state?.unifiedResult?.intent?.raw || ''
           const res = await axios.post(apiUrl('/api/diagnosis/unified'), {
             mode: 'interactive',
-            input: symptom,
+            input: symptom || '无人机故障诊断', // 确保 input 不为空
             deviceType: location.state?.deviceType,
             faultType: location.state?.faultType,
           }, { timeout: 30000 }) // 30秒超时
