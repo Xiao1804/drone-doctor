@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
 import { showToast } from '../components/Toast'
+import { clearLocalUsageCache } from '../utils/freeUsage'
 
 function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
@@ -28,13 +29,14 @@ function AuthPage() {
 
     try {
       const response = await axios.post(apiUrl('/api/user/login'), {
-        usernameOrEmail: formData.username || formData.email,
+        usernameOrEmail: (formData.username || formData.email || '').trim(),
         password: formData.password
       })
 
       // 保存token和用户信息
       localStorage.setItem('token', response.data.token)
       localStorage.setItem('user', JSON.stringify(response.data.user))
+      clearLocalUsageCache()
 
       showToast('登录成功！', 'success')
       navigate('/')
@@ -59,14 +61,15 @@ function AuthPage() {
 
     try {
       const response = await axios.post(apiUrl('/api/user/register'), {
-        username: formData.username,
-        email: formData.email,
+        username: formData.username.trim(),
+        email: formData.email.trim(),
         password: formData.password
       })
 
       // 保存token和用户信息
       localStorage.setItem('token', response.data.token)
       localStorage.setItem('user', JSON.stringify(response.data.user))
+      clearLocalUsageCache()
 
       showToast('注册成功！', 'success')
       navigate('/')
