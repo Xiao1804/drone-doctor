@@ -65,7 +65,7 @@ function HistoryPage() {
         headers: { Authorization: `Bearer ${token}` }
       })
 
-      setHistory(history.map(h => 
+      setHistory(history.map(h =>
         h.id === id ? { ...h, isFavorite: response.data.history.isFavorite } : h
       ))
     } catch (error) {
@@ -99,10 +99,10 @@ function HistoryPage() {
   const getTypeLabel = (type) => {
     const labels = {
       text: '文本诊断',
-      conversation: '多轮对话',
+      conversation: '交互诊断',
       image: '图片识别'
     }
-    return labels[type] || type
+    return labels[type] || type || '诊断记录'
   }
 
   const getTypeColor = (type) => {
@@ -112,6 +112,19 @@ function HistoryPage() {
       image: 'bg-purple-100 text-purple-800'
     }
     return colors[type] || 'bg-gray-100 text-gray-800'
+  }
+
+  const toPreviewText = (value, maxLength = 150) => {
+    if (value === null || value === undefined) return '暂无内容'
+    if (typeof value === 'string') {
+      return value.length > maxLength ? `${value.substring(0, maxLength)}...` : value
+    }
+    try {
+      const text = JSON.stringify(value, null, 2)
+      return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text
+    } catch {
+      return String(value).substring(0, maxLength)
+    }
   }
 
   if (loading) {
@@ -137,16 +150,16 @@ function HistoryPage() {
               </svg>
             </button>
             <h1 className="text-xl font-bold">诊断历史</h1>
-            <div className="w-6"></div>
+            <button onClick={loadHistory} className="text-sm text-white/90 hover:text-white">刷新</button>
           </div>
 
           {/* Filter Tabs */}
-          <div className="flex gap-2 mt-4">
+          <div className="flex gap-2 mt-4 overflow-x-auto">
             {['all', 'text', 'conversation', 'image'].map(type => (
               <button
                 key={type}
                 onClick={() => setFilter(type)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                   filter === type
                     ? 'bg-white text-[#FF6B00]'
                     : 'bg-white/20 text-white hover:bg-white/30'
@@ -165,7 +178,13 @@ function HistoryPage() {
             <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <p className="text-gray-500">暂无历史记录</p>
+            <p className="text-gray-500 mb-4">暂无历史记录</p>
+            <button
+              onClick={() => navigate('/')}
+              className="px-5 py-2 bg-[#FF6B00] text-white rounded-lg text-sm hover:bg-orange-600"
+            >
+              去开始诊断
+            </button>
           </div>
         ) : (
           <div className="space-y-4">
@@ -187,21 +206,19 @@ function HistoryPage() {
                     )}
                   </div>
                   <span className="text-xs text-gray-500">
-                    {new Date(record.createdAt).toLocaleString('zh-CN')}
+                    {record.createdAt ? new Date(record.createdAt).toLocaleString('zh-CN') : '-'}
                   </span>
                 </div>
 
                 {/* Content */}
                 <div className="px-4 py-3">
-                  <div className="text-sm text-gray-600 mb-2">
+                  <div className="text-sm text-gray-600 mb-3">
                     <span className="font-medium">问题：</span>
-                    {record.content.substring(0, 100)}
-                    {record.content.length > 100 && '...'}
+                    {toPreviewText(record.content, 120)}
                   </div>
-                  <div className="text-sm text-gray-900">
+                  <div className="text-sm text-gray-900 whitespace-pre-wrap bg-gray-50 rounded-lg p-3">
                     <span className="font-medium">诊断：</span>
-                    {record.result.substring(0, 150)}
-                    {record.result.length > 150 && '...'}
+                    {toPreviewText(record.result, 500)}
                   </div>
                 </div>
 
