@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { quickDiagnose, interactiveDiagnose, loadData } = require('../services/unifiedDiagnosisService');
 const { freeUsageLimit } = require('../middleware/freeUsageLimit');
+const { optionalAuthMiddleware } = require('../middleware/auth');
 const freeUsageService = require('../services/freeUsageService');
+const historyService = require('../services/historyService');
 
 // 确保数据已加载
 loadData().catch(err => console.error('[UnifiedDiagnosis] Failed to load data:', err.message));
@@ -17,6 +19,111 @@ async function freeUsageLimitOnStart(req, res, next) {
     return next();
   }
   return freeUsageLimit(req, res, next);
+}
+
+function hasUsefulQuickDiagnosis(result) {
+  return !!(
+    result &&
+    result.success !== false &&
+    result.mode === 'quick' &&
+    !result.fallback &&
+    result.matchedTree &&
+    result.diagnosis &&
+    Array.isArray(result.diagnosis.steps) &&
+    result.diagnosis.steps.length > 0
+  );
+}
+
+function hasUsefulInteractiveStart(result) {
+  return !!(
+    result &&
+    result.success !== false &&
+    result.mode === 'interactive' &&
+    result.status === 'active' &&
+    result.sessionId &&
+    result.currentNode
+  );
+}
+
+function hasCompletedInteractiveDiagnosis(result) {
+  return !!(
+    result &&
+    result.success !== false &&
+    result.mode === 'interactive' &&
+    result.status === 'completed' &&
+    result.diagnosis
+  );
+}
+
+function shouldChargeUsage(mode, sessionId, result) {
+  if (mode === 'quick') {
+    return hasUsefulQuickDiagnosis(result);
+  }
+
+  // 交互式诊断首次启动，如果已经成功进入可执行流程，则算一次有效诊断。
+  // 如果没有匹配到流程、没有 currentNode、没有诊断结果，不扣次数。
+  if (mode === 'interactive' && !sessionId) {
+    return hasUsefulInteractiveStart(result) || hasCompletedInteractiveDiagnosis(result);
+  }
+
+  return false;
+}
+
+function summarizeDiagnosisResult(result) {
+  if (!result) return '无诊断结果';
+
+  if (result.mode === 'quick') {
+    const faultLabel = result.intent?.faultTypeLabel || '未知故障';
+    const treeName = result.matchedTree?.name || '未匹配排故树';
+    const causes = result.diagnosis?.possibleCauses
+      ?.map(c => c.cause)
+      ?.filter(Boolean)
+      ?.slice(0, 3)
+      ?.join('；');
+    const steps = result.diagnosis?.steps
+      ?.slice(0, 3)
+      ?.map(s => `${s.step}. ${s.operation}`)
+      ?.join('\n');
+
+    return [
+      `故障类型：${faultLabel}`,
+      `匹配流程：${treeName}`,
+      causes ? `可能原因：${causes}` : '',
+      steps ? `建议步骤：\n${steps}` : '',
+    ].filter(Boolean).join('\n');
+  }
+
+  if (result.mode === 'interactive') {
+    const conclusion = result.terminalNode?.conclusion || result.currentNode?.title || '交互式诊断';
+    const recommendation = result.terminalNode?.recommendation || result.currentNode?.description || '';
+    return [
+      `诊断结论：${conclusion}`,
+      recommendation ? `建议操作：${recommendation}` : '',
+    ].filter(Boolean).join('\n');
+  }
+
+  return JSON.stringify(result).slice(0, 1000);
+}
+
+async function saveDiagnosisHistoryIfPossible(req, { mode, input, result }) {
+  if (!req.userId) return;
+
+  const useful = mode === 'quick'
+    ? hasUsefulQuickDiagnosis(result)
+    : hasCompletedInteractiveDiagnosis(result);
+
+  if (!useful) return;
+
+  try {
+    await historyService.saveHistory(req.userId, {
+      type: mode === 'interactive' ? 'conversation' : 'text',
+      content: input || result?.intent?.raw || '无人机故障诊断',
+      result: summarizeDiagnosisResult(result),
+    });
+  } catch (error) {
+    // 历史保存失败不能影响诊断主流程
+    console.error('[UnifiedDiagnosis] Save history failed:', error.message);
+  }
 }
 
 /**
@@ -35,7 +142,7 @@ async function freeUsageLimitOnStart(req, res, next) {
  *   model?: string           // 具体型号
  * }
  */
-router.post('/', freeUsageLimitOnStart, async (req, res) => {
+router.post('/', optionalAuthMiddleware, freeUsageLimitOnStart, async (req, res) => {
   try {
     const {
       mode = 'quick',
@@ -59,21 +166,27 @@ router.post('/', freeUsageLimitOnStart, async (req, res) => {
 
     if (mode === 'quick') {
       const result = await quickDiagnose(input, structuredHints);
-      // quick 模式消耗免费次数
-      if (req.freeUsage?.identifier) {
+
+      if (shouldChargeUsage(mode, sessionId, result) && req.freeUsage?.identifier) {
         await freeUsageService.incrementUsage(req.freeUsage.identifier);
       }
-      res.json(result);
-    } else if (mode === 'interactive') {
-      const result = await interactiveDiagnose(sessionId, input, userAnswer, structuredHints);
-      // interactive 模式仅首次启动（无 sessionId）消耗次数，继续对话不消耗
-      if (!sessionId && req.freeUsage?.identifier) {
-        await freeUsageService.incrementUsage(req.freeUsage.identifier);
-      }
-      res.json(result);
-    } else {
-      res.status(400).json({ error: 'mode 参数必须是 quick 或 interactive' });
+
+      await saveDiagnosisHistoryIfPossible(req, { mode, input, result });
+      return res.json(result);
     }
+
+    if (mode === 'interactive') {
+      const result = await interactiveDiagnose(sessionId, input, userAnswer, structuredHints);
+
+      if (shouldChargeUsage(mode, sessionId, result) && req.freeUsage?.identifier) {
+        await freeUsageService.incrementUsage(req.freeUsage.identifier);
+      }
+
+      await saveDiagnosisHistoryIfPossible(req, { mode, input, result });
+      return res.json(result);
+    }
+
+    return res.status(400).json({ error: 'mode 参数必须是 quick 或 interactive' });
   } catch (error) {
     console.error('[UnifiedDiagnosis] Error:', error);
     res.status(500).json({ error: '诊断失败，请稍后重试', details: error.message });
