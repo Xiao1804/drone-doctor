@@ -31,20 +31,13 @@ function getTodayUsedCountFromLocal() {
 }
 
 /**
- * 增加 localStorage 计数（向后兼容）
+ * 向后兼容旧调用。
+ * 诊断次数必须以后端真实扣减结果为准，不能在前端乐观 +1。
+ * 否则“诊断没出结果”也会让页面显示少一次。
  */
 export function incrementDiagnosisCount() {
-  const today = new Date().toISOString().slice(0, 10)
-  const savedDate = localStorage.getItem(STORAGE_DATE_KEY)
-  if (savedDate !== today) {
-    localStorage.setItem(STORAGE_DATE_KEY, today)
-    localStorage.setItem(STORAGE_KEY, '1')
-    return 1
-  }
-  const current = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10)
-  const next = current + 1
-  localStorage.setItem(STORAGE_KEY, String(next))
-  return next
+  refreshFreeUsage()
+  return getTodayUsedCountFromLocal()
 }
 
 /**
