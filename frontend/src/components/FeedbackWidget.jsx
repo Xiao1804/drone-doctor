@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
 import { showToast } from './Toast'
@@ -27,29 +27,53 @@ function getCurrentUser() {
   }
 }
 
-export default function FeedbackWidget() {
-  const [open, setOpen] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [form, setForm] = useState({
+function getEmptyForm() {
+  return {
     type: '诊断不准确',
     rating: 'none',
     content: '',
     contact: '',
-  })
+    diagnosisId: '',
+    treeId: '',
+    nodeId: '',
+    contextLabel: '',
+  }
+}
+
+export default function FeedbackWidget() {
+  const [open, setOpen] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [form, setForm] = useState(getEmptyForm())
 
   const user = getCurrentUser()
+
+  useEffect(() => {
+    const handleOpenFeedback = (event) => {
+      const detail = event.detail || {}
+      setForm(prev => ({
+        ...prev,
+        type: detail.type || prev.type || '诊断不准确',
+        rating: detail.rating || prev.rating || 'none',
+        content: detail.content || '',
+        contact: detail.contact || prev.contact || '',
+        diagnosisId: detail.diagnosisId || '',
+        treeId: detail.treeId || '',
+        nodeId: detail.nodeId || '',
+        contextLabel: detail.contextLabel || '',
+      }))
+      setOpen(true)
+    }
+
+    window.addEventListener('open-feedback', handleOpenFeedback)
+    return () => window.removeEventListener('open-feedback', handleOpenFeedback)
+  }, [])
 
   const updateField = (key, value) => {
     setForm(prev => ({ ...prev, [key]: value }))
   }
 
   const resetForm = () => {
-    setForm({
-      type: '诊断不准确',
-      rating: 'none',
-      content: '',
-      contact: '',
-    })
+    setForm(getEmptyForm())
   }
 
   const handleSubmit = async (e) => {
@@ -68,6 +92,9 @@ export default function FeedbackWidget() {
         content: form.content.trim(),
         contact: form.contact.trim(),
         page: window.location.pathname + window.location.search,
+        diagnosisId: form.diagnosisId,
+        treeId: form.treeId,
+        nodeId: form.nodeId,
       })
 
       showToast('反馈已提交，感谢你的建议', 'success')
@@ -84,7 +111,10 @@ export default function FeedbackWidget() {
   return (
     <>
       <button
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          resetForm()
+          setOpen(true)
+        }}
         className="fixed right-6 bottom-6 z-50 px-4 py-3 bg-black text-white rounded-full shadow-lg hover:bg-[#FF6B00] transition-colors text-sm font-medium"
       >
         反馈
@@ -108,6 +138,12 @@ export default function FeedbackWidget() {
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              {form.contextLabel && (
+                <div className="bg-orange-50 border border-orange-100 rounded-lg p-3 text-sm text-[#FF6B00]">
+                  反馈对象：{form.contextLabel}
+                </div>
+              )}
+
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">反馈类型</label>
@@ -143,7 +179,7 @@ export default function FeedbackWidget() {
                   onChange={(e) => updateField('content', e.target.value)}
                   rows={5}
                   maxLength={3000}
-                  placeholder="例如：系统建议查 GPS，但我的 APP 报的是电池通信异常。"
+                  placeholder="例如：这一步我不会操作；系统建议查 GPS，但我的 APP 报的是电池通信异常。"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#FF6B00] resize-none"
                 />
                 <div className="text-xs text-gray-400 text-right mt-1">{form.content.length}/3000</div>
@@ -160,8 +196,13 @@ export default function FeedbackWidget() {
                 />
               </div>
 
-              <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-500">
-                当前页面：{window.location.pathname || '/'}
+              <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-500 space-y-1">
+                <div>当前页面：{window.location.pathname || '/'}</div>
+                {(form.treeId || form.nodeId || form.diagnosisId) && (
+                  <div>
+                    关联：{form.treeId ? `tree=${form.treeId} ` : ''}{form.nodeId ? `node=${form.nodeId} ` : ''}{form.diagnosisId ? `diagnosis=${form.diagnosisId}` : ''}
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-3 justify-end pt-2">
