@@ -18,6 +18,7 @@ const statsRoutes = require('./routes/stats');
 const flightLogRoutes = require('./routes/flightLog');
 const diagnosisAgentRoutes = require('./routes/diagnosisAgent');
 const unifiedDiagnosisRoutes = require('./routes/unifiedDiagnosis');
+const feedbackRoutes = require('./routes/feedback');
 
 const { errorHandler } = require('./middleware/errorHandler');
 
@@ -76,6 +77,7 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/flight-logs', flightLogRoutes);
 app.use('/api/diagnosis/agent', diagnosisAgentRoutes);
 app.use('/api/diagnosis/unified', unifiedDiagnosisRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
