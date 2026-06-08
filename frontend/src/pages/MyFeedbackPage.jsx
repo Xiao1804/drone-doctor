@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
@@ -31,31 +31,40 @@ export default function MyFeedbackPage() {
   const [loading, setLoading] = useState(true)
   const [total, setTotal] = useState(0)
   const navigate = useNavigate()
-  const user = getStoredUser()
 
-  useEffect(() => {
-    if (!user) {
+  const loadMyFeedback = useCallback(async () => {
+    const token = localStorage.getItem('token')
+    const user = getStoredUser()
+
+    if (!token || !user) {
       showToast('请先登录后查看反馈状态', 'warning')
       navigate('/auth')
       return
     }
 
-    const loadMyFeedback = async () => {
-      setLoading(true)
-      try {
-        const res = await axios.get(apiUrl('/api/feedback/my?pageSize=50'))
-        setItems(res.data.items || [])
-        setTotal(res.data.total || 0)
-      } catch (error) {
-        console.error('Load my feedback error:', error)
+    setLoading(true)
+    try {
+      const res = await axios.get(apiUrl('/api/feedback/my?pageSize=50'), {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setItems(res.data.items || [])
+      setTotal(res.data.total || 0)
+    } catch (error) {
+      console.error('Load my feedback error:', error)
+      if (error.response?.status === 401) {
+        showToast('登录已过期，请重新登录', 'warning')
+        navigate('/auth')
+      } else {
         showToast(error.response?.data?.error || '加载我的反馈失败', 'error')
-      } finally {
-        setLoading(false)
       }
+    } finally {
+      setLoading(false)
     }
+  }, [navigate])
 
+  useEffect(() => {
     loadMyFeedback()
-  }, [user, navigate])
+  }, [loadMyFeedback])
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -76,10 +85,11 @@ export default function MyFeedbackPage() {
         <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6 flex items-center justify-between">
           <div className="text-sm text-gray-500">共 {total} 条反馈</div>
           <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-black text-white rounded-lg text-sm hover:bg-[#FF6B00]"
+            onClick={loadMyFeedback}
+            disabled={loading}
+            className="px-4 py-2 bg-black text-white rounded-lg text-sm hover:bg-[#FF6B00] disabled:opacity-50"
           >
-            刷新
+            {loading ? '刷新中...' : '刷新'}
           </button>
         </div>
 
