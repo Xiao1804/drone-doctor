@@ -8,6 +8,7 @@ import ProfilePage from './pages/ProfilePage'
 import GuidePage from './pages/GuidePage'
 import FlightLogPage from './pages/FlightLogPage'
 import AdminFeedbackPage from './pages/AdminFeedbackPage'
+import MyFeedbackPage from './pages/MyFeedbackPage'
 import FeedbackWidget from './components/FeedbackWidget'
 import ToastContainer from './components/Toast'
 import './index.css'
@@ -29,6 +30,7 @@ function App() {
           <Route path="/guide" element={<GuidePage />} />
           <Route path="/guide/:treeId" element={<GuidePage />} />
           <Route path="/flight-log" element={<FlightLogPage />} />
+          <Route path="/my-feedback" element={<MyFeedbackPage />} />
           <Route path="/admin/feedback" element={<AdminFeedbackPage />} />
         </Routes>
       </div>

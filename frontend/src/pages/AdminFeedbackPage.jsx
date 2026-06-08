@@ -66,6 +66,7 @@ export default function AdminFeedbackPage() {
         nextDrafts[item.id] = {
           status: item.status,
           adminNote: item.adminNote || '',
+          publicReply: item.publicReply || '',
         }
       })
       setDrafts(nextDrafts)
@@ -103,6 +104,7 @@ export default function AdminFeedbackPage() {
       const res = await axios.put(apiUrl(`/api/feedback/admin/${id}`), {
         status: draft.status,
         adminNote: draft.adminNote,
+        publicReply: draft.publicReply,
       })
       setItems(prev => prev.map(item => item.id === id ? res.data.feedback : item))
       showToast('反馈处理状态已更新', 'success')
@@ -160,7 +162,7 @@ export default function AdminFeedbackPage() {
           )}
 
           {items.map(item => {
-            const draft = drafts[item.id] || { status: item.status, adminNote: item.adminNote || '' }
+            const draft = drafts[item.id] || { status: item.status, adminNote: item.adminNote || '', publicReply: item.publicReply || '' }
             return (
               <div key={item.id} className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
                 <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
@@ -169,6 +171,7 @@ export default function AdminFeedbackPage() {
                       <span className="px-2 py-1 bg-orange-50 text-[#FF6B00] rounded text-xs font-medium">{item.type}</span>
                       <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">{RATING_LABELS[item.rating] || item.rating}</span>
                       <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs">{STATUS_LABELS[item.status] || item.status}</span>
+                      <span className="px-2 py-1 bg-green-50 text-green-700 rounded text-xs">用户看到：{item.publicStatus || STATUS_LABELS[item.status] || item.status}</span>
                     </div>
                     <div className="text-sm text-gray-500">
                       用户：{item.username || '匿名'} {item.userId ? `(${item.userId})` : ''}
@@ -191,7 +194,7 @@ export default function AdminFeedbackPage() {
                   </div>
                 )}
 
-                <div className="grid md:grid-cols-[180px_1fr_auto] gap-3 items-start">
+                <div className="grid md:grid-cols-[180px_1fr_auto] gap-3 items-start mb-3">
                   <select
                     value={draft.status}
                     onChange={(e) => updateDraft(item.id, 'status', e.target.value)}
@@ -202,11 +205,11 @@ export default function AdminFeedbackPage() {
                     ))}
                   </select>
                   <textarea
-                    value={draft.adminNote}
-                    onChange={(e) => updateDraft(item.id, 'adminNote', e.target.value)}
+                    value={draft.publicReply}
+                    onChange={(e) => updateDraft(item.id, 'publicReply', e.target.value)}
                     rows={2}
-                    placeholder="管理员备注，例如：后续补充电池通信异常分支"
-                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] resize-none"
+                    placeholder="用户可见回复，例如：我们已收到，会补充电池通信异常分支。"
+                    className="px-3 py-2 border border-orange-200 rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] resize-none"
                   />
                   <button
                     onClick={() => saveFeedback(item.id)}
@@ -216,6 +219,14 @@ export default function AdminFeedbackPage() {
                     {savingId === item.id ? '保存中...' : '保存'}
                   </button>
                 </div>
+
+                <textarea
+                  value={draft.adminNote}
+                  onChange={(e) => updateDraft(item.id, 'adminNote', e.target.value)}
+                  rows={2}
+                  placeholder="内部备注，仅管理员可见。例如：后续补充电池通信异常分支。"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] resize-none"
+                />
               </div>
             )
           })}

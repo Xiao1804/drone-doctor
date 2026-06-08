@@ -112,7 +112,7 @@ export default function FeedbackWidget() {
 
     setSubmitting(true)
     try {
-      await axios.post(apiUrl('/api/feedback'), {
+      const res = await axios.post(apiUrl('/api/feedback'), {
         type: form.type,
         rating: form.rating,
         content: form.content.trim(),
@@ -123,7 +123,7 @@ export default function FeedbackWidget() {
         nodeId: form.nodeId,
       })
 
-      showToast('反馈已提交，感谢你的建议', 'success')
+      showToast(res.data?.message || '反馈已提交，感谢你的建议', 'success')
       resetForm()
       setOpen(false)
     } catch (error) {
