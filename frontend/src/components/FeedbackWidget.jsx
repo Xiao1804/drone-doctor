@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
 import { showToast } from './Toast'
@@ -27,29 +28,78 @@ function getCurrentUser() {
   }
 }
 
-export default function FeedbackWidget() {
-  const [open, setOpen] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [form, setForm] = useState({
+function getEmptyForm() {
+  return {
     type: '诊断不准确',
     rating: 'none',
     content: '',
     contact: '',
-  })
+    diagnosisId: '',
+    treeId: '',
+    nodeId: '',
+    contextLabel: '',
+  }
+}
+
+function getFeedbackTypeForRating(rating) {
+  if (rating === 'unclear') return '看不懂步骤'
+  if (rating === 'helpful') return '其他'
+  return '诊断不准确'
+}
+
+function getPrefillContent(rating) {
+  if (rating === 'helpful') return '这次诊断对我有帮助。'
+  if (rating === 'unclear') return '我看不懂这一步/这个诊断结果，卡住的位置是：'
+  return '这个诊断结果没有解决我的问题，实际情况是：'
+}
+
+export default function FeedbackWidget() {
+  const [open, setOpen] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [form, setForm] = useState(getEmptyForm())
+  const location = useLocation()
 
   const user = getCurrentUser()
+  const isDiagnosisPage = location.pathname.startsWith('/guide') || location.pathname.startsWith('/image-diagnosis') || location.pathname.startsWith('/flight-log')
+
+  useEffect(() => {
+    const handleOpenFeedback = (event) => {
+      const detail = event.detail || {}
+      setForm(prev => ({
+        ...prev,
+        type: detail.type || prev.type || '诊断不准确',
+        rating: detail.rating || prev.rating || 'none',
+        content: detail.content || '',
+        contact: detail.contact || prev.contact || '',
+        diagnosisId: detail.diagnosisId || '',
+        treeId: detail.treeId || '',
+        nodeId: detail.nodeId || '',
+        contextLabel: detail.contextLabel || '',
+      }))
+      setOpen(true)
+    }
+
+    window.addEventListener('open-feedback', handleOpenFeedback)
+    return () => window.removeEventListener('open-feedback', handleOpenFeedback)
+  }, [])
+
+  const openContextFeedback = (rating) => {
+    setForm(prev => ({
+      ...prev,
+      type: getFeedbackTypeForRating(rating),
+      rating,
+      content: getPrefillContent(rating),
+      contextLabel: isDiagnosisPage ? '当前诊断/排故页面' : '',
+    }))
+    setOpen(true)
+  }
 
   const updateField = (key, value) => {
     setForm(prev => ({ ...prev, [key]: value }))
   }
 
   const resetForm = () => {
-    setForm({
-      type: '诊断不准确',
-      rating: 'none',
-      content: '',
-      contact: '',
-    })
+    setForm(getEmptyForm())
   }
 
   const handleSubmit = async (e) => {
@@ -68,6 +118,9 @@ export default function FeedbackWidget() {
         content: form.content.trim(),
         contact: form.contact.trim(),
         page: window.location.pathname + window.location.search,
+        diagnosisId: form.diagnosisId,
+        treeId: form.treeId,
+        nodeId: form.nodeId,
       })
 
       showToast('反馈已提交，感谢你的建议', 'success')
@@ -83,8 +136,38 @@ export default function FeedbackWidget() {
 
   return (
     <>
+      {isDiagnosisPage && !open && (
+        <div className="fixed right-6 bottom-20 z-50 w-[280px] bg-white border border-orange-100 shadow-xl rounded-2xl p-4 hidden sm:block">
+          <div className="text-sm font-semibold text-gray-900 mb-1">这次诊断有帮助吗？</div>
+          <div className="text-xs text-gray-500 mb-3">你的反馈会直接用于改进排故流程。</div>
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              onClick={() => openContextFeedback('helpful')}
+              className="py-2 text-xs rounded-lg bg-green-50 text-green-700 hover:bg-green-100"
+            >
+              有帮助
+            </button>
+            <button
+              onClick={() => openContextFeedback('not_helpful')}
+              className="py-2 text-xs rounded-lg bg-orange-50 text-[#FF6B00] hover:bg-orange-100"
+            >
+              没帮助
+            </button>
+            <button
+              onClick={() => openContextFeedback('unclear')}
+              className="py-2 text-xs rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200"
+            >
+              看不懂
+            </button>
+          </div>
+        </div>
+      )}
+
       <button
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          resetForm()
+          setOpen(true)
+        }}
         className="fixed right-6 bottom-6 z-50 px-4 py-3 bg-black text-white rounded-full shadow-lg hover:bg-[#FF6B00] transition-colors text-sm font-medium"
       >
         反馈
@@ -108,6 +191,12 @@ export default function FeedbackWidget() {
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              {form.contextLabel && (
+                <div className="bg-orange-50 border border-orange-100 rounded-lg p-3 text-sm text-[#FF6B00]">
+                  反馈对象：{form.contextLabel}
+                </div>
+              )}
+
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">反馈类型</label>
@@ -143,7 +232,7 @@ export default function FeedbackWidget() {
                   onChange={(e) => updateField('content', e.target.value)}
                   rows={5}
                   maxLength={3000}
-                  placeholder="例如：系统建议查 GPS，但我的 APP 报的是电池通信异常。"
+                  placeholder="例如：这一步我不会操作；系统建议查 GPS，但我的 APP 报的是电池通信异常。"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#FF6B00] resize-none"
                 />
                 <div className="text-xs text-gray-400 text-right mt-1">{form.content.length}/3000</div>
@@ -160,8 +249,13 @@ export default function FeedbackWidget() {
                 />
               </div>
 
-              <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-500">
-                当前页面：{window.location.pathname || '/'}
+              <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-500 space-y-1">
+                <div>当前页面：{window.location.pathname || '/'}</div>
+                {(form.treeId || form.nodeId || form.diagnosisId) && (
+                  <div>
+                    关联：{form.treeId ? `tree=${form.treeId} ` : ''}{form.nodeId ? `node=${form.nodeId} ` : ''}{form.diagnosisId ? `diagnosis=${form.diagnosisId}` : ''}
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-3 justify-end pt-2">
