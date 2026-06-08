@@ -19,6 +19,13 @@ const STATUS_LABELS = {
   ignored: '不采纳',
 }
 
+const PUBLIC_STATUS_LABELS = {
+  new: '已收到',
+  reviewing: '正在处理',
+  resolved: '已处理',
+  ignored: '暂不采纳',
+}
+
 const RATING_LABELS = {
   helpful: '有帮助',
   not_helpful: '没帮助',
@@ -32,6 +39,18 @@ function getStoredUser() {
   } catch {
     return null
   }
+}
+
+function getDraft(item, drafts) {
+  return drafts[item.id] || {
+    status: item.status,
+    adminNote: item.adminNote || '',
+    publicReply: item.publicReply || '',
+  }
+}
+
+function shouldWarnMissingPublicReply(draft) {
+  return ['reviewing', 'resolved'].includes(draft.status) && !String(draft.publicReply || '').trim()
 }
 
 export default function AdminFeedbackPage() {
@@ -99,6 +118,11 @@ export default function AdminFeedbackPage() {
     const draft = drafts[id]
     if (!draft) return
 
+    if (shouldWarnMissingPublicReply(draft)) {
+      const ok = window.confirm('当前状态会让用户看到“正在处理/已处理”，但你还没有填写【用户可见回复】。仍然保存吗？')
+      if (!ok) return
+    }
+
     setSavingId(id)
     try {
       const res = await axios.put(apiUrl(`/api/feedback/admin/${id}`), {
@@ -106,8 +130,17 @@ export default function AdminFeedbackPage() {
         adminNote: draft.adminNote,
         publicReply: draft.publicReply,
       })
-      setItems(prev => prev.map(item => item.id === id ? res.data.feedback : item))
-      showToast('反馈处理状态已更新', 'success')
+      const updated = res.data.feedback
+      setItems(prev => prev.map(item => item.id === id ? updated : item))
+      setDrafts(prev => ({
+        ...prev,
+        [id]: {
+          status: updated.status,
+          adminNote: updated.adminNote || '',
+          publicReply: updated.publicReply || '',
+        },
+      }))
+      showToast('已保存。用户可见回复会显示在“我的反馈”中。', 'success')
     } catch (error) {
       console.error('Save feedback error:', error)
       showToast(error.response?.data?.error || '保存失败', 'error')
@@ -162,7 +195,10 @@ export default function AdminFeedbackPage() {
           )}
 
           {items.map(item => {
-            const draft = drafts[item.id] || { status: item.status, adminNote: item.adminNote || '', publicReply: item.publicReply || '' }
+            const draft = getDraft(item, drafts)
+            const publicStatus = PUBLIC_STATUS_LABELS[draft.status] || item.publicStatus || draft.status
+            const missingPublicReply = shouldWarnMissingPublicReply(draft)
+
             return (
               <div key={item.id} className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
                 <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
@@ -170,8 +206,8 @@ export default function AdminFeedbackPage() {
                     <div className="flex flex-wrap items-center gap-2 mb-2">
                       <span className="px-2 py-1 bg-orange-50 text-[#FF6B00] rounded text-xs font-medium">{item.type}</span>
                       <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">{RATING_LABELS[item.rating] || item.rating}</span>
-                      <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs">{STATUS_LABELS[item.status] || item.status}</span>
-                      <span className="px-2 py-1 bg-green-50 text-green-700 rounded text-xs">用户看到：{item.publicStatus || STATUS_LABELS[item.status] || item.status}</span>
+                      <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs">后台状态：{STATUS_LABELS[draft.status] || draft.status}</span>
+                      <span className="px-2 py-1 bg-green-50 text-green-700 rounded text-xs">用户状态：{publicStatus}</span>
                     </div>
                     <div className="text-sm text-gray-500">
                       用户：{item.username || '匿名'} {item.userId ? `(${item.userId})` : ''}
@@ -194,39 +230,70 @@ export default function AdminFeedbackPage() {
                   </div>
                 )}
 
-                <div className="grid md:grid-cols-[180px_1fr_auto] gap-3 items-start mb-3">
-                  <select
-                    value={draft.status}
-                    onChange={(e) => updateDraft(item.id, 'status', e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#FF6B00]"
-                  >
-                    {STATUS_OPTIONS.filter(option => option.value).map(option => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                  <textarea
-                    value={draft.publicReply}
-                    onChange={(e) => updateDraft(item.id, 'publicReply', e.target.value)}
-                    rows={2}
-                    placeholder="用户可见回复，例如：我们已收到，会补充电池通信异常分支。"
-                    className="px-3 py-2 border border-orange-200 rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] resize-none"
-                  />
+                <div className="grid md:grid-cols-[180px_1fr_auto] gap-3 items-start mb-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">处理状态</label>
+                    <select
+                      value={draft.status}
+                      onChange={(e) => updateDraft(item.id, 'status', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#FF6B00]"
+                    >
+                      {STATUS_OPTIONS.filter(option => option.value).map(option => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-[#FF6B00] mb-1">
+                      用户可见回复 <span className="text-gray-400">（用户会在“我的反馈”看到这里）</span>
+                    </label>
+                    <textarea
+                      value={draft.publicReply}
+                      onChange={(e) => updateDraft(item.id, 'publicReply', e.target.value)}
+                      rows={3}
+                      placeholder="例如：我们已收到这个问题，正在补充对应排故步骤。"
+                      className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] resize-none ${
+                        missingPublicReply ? 'border-red-300 bg-red-50' : 'border-orange-200'
+                      }`}
+                    />
+                    {missingPublicReply && (
+                      <div className="text-xs text-red-600 mt-1">
+                        当前状态会被用户看见，但还没有填写用户可见回复。
+                      </div>
+                    )}
+                  </div>
+
                   <button
                     onClick={() => saveFeedback(item.id)}
                     disabled={savingId === item.id}
-                    className="px-4 py-2 bg-[#FF6B00] text-white rounded-lg text-sm hover:bg-orange-600 disabled:opacity-50"
+                    className="mt-5 px-4 py-2 bg-[#FF6B00] text-white rounded-lg text-sm hover:bg-orange-600 disabled:opacity-50"
                   >
                     {savingId === item.id ? '保存中...' : '保存'}
                   </button>
                 </div>
 
-                <textarea
-                  value={draft.adminNote}
-                  onChange={(e) => updateDraft(item.id, 'adminNote', e.target.value)}
-                  rows={2}
-                  placeholder="内部备注，仅管理员可见。例如：后续补充电池通信异常分支。"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] resize-none"
-                />
+                <div className="bg-green-50 border border-green-100 rounded-lg p-3 mb-4">
+                  <div className="text-xs font-medium text-green-700 mb-1">用户实际会看到</div>
+                  <div className="text-sm text-gray-700 whitespace-pre-wrap">
+                    {draft.publicReply?.trim()
+                      ? draft.publicReply
+                      : '暂无官方回复。用户端会显示：已收到你的反馈，管理员处理后，这里会显示公开回复。'}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    内部备注 <span className="text-gray-400">（仅管理员可见，用户看不到）</span>
+                  </label>
+                  <textarea
+                    value={draft.adminNote}
+                    onChange={(e) => updateDraft(item.id, 'adminNote', e.target.value)}
+                    rows={2}
+                    placeholder="例如：后续补充电池通信异常分支。"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] resize-none"
+                  />
+                </div>
               </div>
             )
           })}
