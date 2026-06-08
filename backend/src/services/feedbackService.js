@@ -25,6 +25,14 @@ const FEEDBACK_STATUSES = new Set([
 
 let tableReady = false;
 
+async function ensureSqliteColumn(table, column, definition) {
+  const result = await query(`PRAGMA table_info(${table})`);
+  const exists = result.rows.some(row => row.name === column);
+  if (!exists) {
+    await run(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
+}
+
 async function ensureFeedbackTable() {
   if (tableReady) return;
 
@@ -44,10 +52,14 @@ async function ensureFeedbackTable() {
         node_id TEXT,
         status TEXT DEFAULT 'new',
         admin_note TEXT,
+        public_reply TEXT,
+        resolved_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
       )
     `);
+    await db.query(`ALTER TABLE feedback ADD COLUMN IF NOT EXISTS public_reply TEXT`);
+    await db.query(`ALTER TABLE feedback ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMP`);
     await db.query(`CREATE INDEX IF NOT EXISTS idx_feedback_status ON feedback(status)`);
     await db.query(`CREATE INDEX IF NOT EXISTS idx_feedback_created_at ON feedback(created_at)`);
     await db.query(`CREATE INDEX IF NOT EXISTS idx_feedback_user_id ON feedback(user_id)`);
@@ -67,10 +79,14 @@ async function ensureFeedbackTable() {
         node_id TEXT,
         status TEXT DEFAULT 'new',
         admin_note TEXT,
+        public_reply TEXT,
+        resolved_at TEXT,
         created_at TEXT DEFAULT (datetime('now')),
         updated_at TEXT DEFAULT (datetime('now'))
       )
     `);
+    await ensureSqliteColumn('feedback', 'public_reply', 'TEXT');
+    await ensureSqliteColumn('feedback', 'resolved_at', 'TEXT');
     await run(`CREATE INDEX IF NOT EXISTS idx_feedback_status ON feedback(status)`);
     await run(`CREATE INDEX IF NOT EXISTS idx_feedback_created_at ON feedback(created_at)`);
     await run(`CREATE INDEX IF NOT EXISTS idx_feedback_user_id ON feedback(user_id)`);
@@ -119,6 +135,20 @@ function validateFeedbackInput(input) {
   };
 }
 
+function getPublicStatus(status) {
+  switch (status) {
+    case 'reviewing':
+      return '正在处理';
+    case 'resolved':
+      return '已处理';
+    case 'ignored':
+      return '暂不采纳';
+    case 'new':
+    default:
+      return '已收到';
+  }
+}
+
 function formatFeedback(row) {
   return {
     id: row.id,
@@ -133,10 +163,21 @@ function formatFeedback(row) {
     treeId: row.tree_id || '',
     nodeId: row.node_id || '',
     status: row.status || 'new',
+    publicStatus: getPublicStatus(row.status || 'new'),
     adminNote: row.admin_note || '',
+    publicReply: row.public_reply || '',
+    resolvedAt: row.resolved_at || null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
+}
+
+function formatFeedbackForUser(row) {
+  const feedback = formatFeedback(row);
+  delete feedback.adminNote;
+  delete feedback.userId;
+  delete feedback.username;
+  return feedback;
 }
 
 async function createFeedback(input, user = null) {
@@ -173,6 +214,7 @@ async function createFeedback(input, user = null) {
   return {
     id: result.lastID,
     status: 'new',
+    publicStatus: getPublicStatus('new'),
   };
 }
 
@@ -210,6 +252,31 @@ async function listFeedback({ status, page = 1, pageSize = 20 }) {
   };
 }
 
+async function listUserFeedback(userId, { page = 1, pageSize = 20 } = {}) {
+  await ensureFeedbackTable();
+  const safePage = Math.max(1, parseInt(page, 10) || 1);
+  const safePageSize = Math.min(50, Math.max(1, parseInt(pageSize, 10) || 20));
+  const offset = (safePage - 1) * safePageSize;
+
+  const totalResult = await query(
+    `SELECT COUNT(*) as total FROM feedback WHERE user_id = ?`,
+    [userId]
+  );
+  const total = parseInt(totalResult.rows?.[0]?.total || '0', 10);
+
+  const listResult = await query(
+    `SELECT * FROM feedback WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+    [userId, safePageSize, offset]
+  );
+
+  return {
+    items: listResult.rows.map(formatFeedbackForUser),
+    page: safePage,
+    pageSize: safePageSize,
+    total,
+  };
+}
+
 async function updateFeedback(id, updates) {
   await ensureFeedbackTable();
   const feedbackId = parseInt(id, 10);
@@ -221,6 +288,7 @@ async function updateFeedback(id, updates) {
 
   const fields = [];
   const values = [];
+  let nextStatus;
 
   if (updates.status !== undefined) {
     const status = normalizeText(updates.status, 40);
@@ -229,6 +297,7 @@ async function updateFeedback(id, updates) {
       err.statusCode = 400;
       throw err;
     }
+    nextStatus = status;
     fields.push('status = ?');
     values.push(status);
   }
@@ -236,6 +305,17 @@ async function updateFeedback(id, updates) {
   if (updates.adminNote !== undefined) {
     fields.push('admin_note = ?');
     values.push(normalizeText(updates.adminNote, 3000));
+  }
+
+  if (updates.publicReply !== undefined) {
+    fields.push('public_reply = ?');
+    values.push(normalizeText(updates.publicReply, 3000));
+  }
+
+  if (nextStatus === 'resolved') {
+    fields.push(`resolved_at = ${isPostgres ? 'NOW()' : "datetime('now')"}`);
+  } else if (nextStatus && nextStatus !== 'resolved') {
+    fields.push('resolved_at = NULL');
   }
 
   if (fields.length === 0) {
@@ -269,6 +349,7 @@ module.exports = {
   ensureFeedbackTable,
   createFeedback,
   listFeedback,
+  listUserFeedback,
   updateFeedback,
   FEEDBACK_TYPES: Array.from(FEEDBACK_TYPES),
   FEEDBACK_RATINGS: Array.from(FEEDBACK_RATINGS),
