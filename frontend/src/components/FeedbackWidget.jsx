@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
 import { showToast } from './Toast'
@@ -40,12 +41,26 @@ function getEmptyForm() {
   }
 }
 
+function getFeedbackTypeForRating(rating) {
+  if (rating === 'unclear') return '看不懂步骤'
+  if (rating === 'helpful') return '其他'
+  return '诊断不准确'
+}
+
+function getPrefillContent(rating) {
+  if (rating === 'helpful') return '这次诊断对我有帮助。'
+  if (rating === 'unclear') return '我看不懂这一步/这个诊断结果，卡住的位置是：'
+  return '这个诊断结果没有解决我的问题，实际情况是：'
+}
+
 export default function FeedbackWidget() {
   const [open, setOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [form, setForm] = useState(getEmptyForm())
+  const location = useLocation()
 
   const user = getCurrentUser()
+  const isDiagnosisPage = location.pathname.startsWith('/guide') || location.pathname.startsWith('/image-diagnosis') || location.pathname.startsWith('/flight-log')
 
   useEffect(() => {
     const handleOpenFeedback = (event) => {
@@ -67,6 +82,17 @@ export default function FeedbackWidget() {
     window.addEventListener('open-feedback', handleOpenFeedback)
     return () => window.removeEventListener('open-feedback', handleOpenFeedback)
   }, [])
+
+  const openContextFeedback = (rating) => {
+    setForm(prev => ({
+      ...prev,
+      type: getFeedbackTypeForRating(rating),
+      rating,
+      content: getPrefillContent(rating),
+      contextLabel: isDiagnosisPage ? '当前诊断/排故页面' : '',
+    }))
+    setOpen(true)
+  }
 
   const updateField = (key, value) => {
     setForm(prev => ({ ...prev, [key]: value }))
@@ -110,6 +136,33 @@ export default function FeedbackWidget() {
 
   return (
     <>
+      {isDiagnosisPage && !open && (
+        <div className="fixed right-6 bottom-20 z-50 w-[280px] bg-white border border-orange-100 shadow-xl rounded-2xl p-4 hidden sm:block">
+          <div className="text-sm font-semibold text-gray-900 mb-1">这次诊断有帮助吗？</div>
+          <div className="text-xs text-gray-500 mb-3">你的反馈会直接用于改进排故流程。</div>
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              onClick={() => openContextFeedback('helpful')}
+              className="py-2 text-xs rounded-lg bg-green-50 text-green-700 hover:bg-green-100"
+            >
+              有帮助
+            </button>
+            <button
+              onClick={() => openContextFeedback('not_helpful')}
+              className="py-2 text-xs rounded-lg bg-orange-50 text-[#FF6B00] hover:bg-orange-100"
+            >
+              没帮助
+            </button>
+            <button
+              onClick={() => openContextFeedback('unclear')}
+              className="py-2 text-xs rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200"
+            >
+              看不懂
+            </button>
+          </div>
+        </div>
+      )}
+
       <button
         onClick={() => {
           resetForm()
