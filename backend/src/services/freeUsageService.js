@@ -27,17 +27,38 @@ function decodeAuthUser(req) {
   }
 }
 
-function getIdentifier(req) {
+async function getCurrentUserFromToken(req) {
   const decoded = decodeAuthUser(req);
-  if (decoded && decoded.userId) {
-    return { type: 'user', value: decoded.userId };
-  }
+  if (!decoded?.userId) return null;
 
+  try {
+    const result = await query(
+      'SELECT id, username, role, is_active FROM users WHERE id = ? AND is_active = 1',
+      [decoded.userId]
+    );
+    if (result.rows.length === 0) return null;
+    return result.rows[0];
+  } catch (error) {
+    console.error('[FreeUsage] getCurrentUserFromToken error:', error.message);
+    return null;
+  }
+}
+
+function getIpIdentifier(req) {
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim()
     || req.ip
     || req.connection?.remoteAddress
     || 'unknown';
   return { type: 'ip', value: hashIp(ip) };
+}
+
+async function getIdentifier(req) {
+  const currentUser = await getCurrentUserFromToken(req);
+  if (currentUser?.id) {
+    return { type: 'user', value: currentUser.id, user: currentUser };
+  }
+
+  return getIpIdentifier(req);
 }
 
 async function getTodayUsage(identifier) {
@@ -100,21 +121,26 @@ async function incrementUsage(identifier) {
 }
 
 async function checkLimit(req) {
-  // 管理员豁免免费次数限制
-  const decoded = decodeAuthUser(req);
-  if (decoded && decoded.role === 'admin') {
+  // 管理员豁免免费次数限制。
+  // 不能只信 JWT 里的 role，因为用户角色可能在数据库里被升级为 admin，
+  // 但浏览器里仍保留旧 token。这里以数据库当前 role 为准。
+  const identifier = await getIdentifier(req);
+  if (identifier.user?.role === 'admin') {
     return {
       allowed: true,
       used: 0,
       remaining: Infinity,
       limit: MAX_FREE_DAILY,
-      identifier: { type: 'admin', value: decoded.userId },
-      isAdmin: true
+      identifier: { type: 'admin', value: identifier.user.id },
+      isAdmin: true,
     };
   }
 
-  const identifier = getIdentifier(req);
-  const used = await getTodayUsage(identifier);
+  const usageIdentifier = identifier.user
+    ? { type: 'user', value: identifier.user.id }
+    : identifier;
+
+  const used = await getTodayUsage(usageIdentifier);
   const remaining = Math.max(0, MAX_FREE_DAILY - used);
 
   return {
@@ -122,7 +148,8 @@ async function checkLimit(req) {
     used,
     remaining,
     limit: MAX_FREE_DAILY,
-    identifier
+    identifier: usageIdentifier,
+    isAdmin: false,
   };
 }
 
@@ -132,5 +159,5 @@ module.exports = {
   incrementUsage,
   checkLimit,
   MAX_FREE_DAILY,
-  getToday
+  getToday,
 };
