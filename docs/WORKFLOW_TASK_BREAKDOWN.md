@@ -1,7 +1,8 @@
 # DroneDoctor 工作流化拆解文档
 
 > 目标：把已有 plan 拆成可执行的工作流节点表、决策树补全任务、知识库补全任务和开发 Issue。  
-> 上游文档：`docs/EXISTING_PLAN_EXPORT.md`。
+> 上游文档：`docs/EXISTING_PLAN_EXPORT.md`。  
+> 维护说明：`ET7KY13` 已废弃，不再作为工具、SOP、验收项或决策树节点出现。涉及链路/模块检查时，统一改为“当前可用的链路/模块检测方式、APP 报错、DA2、飞行日志、人工基础检查”。
 
 ---
 
@@ -50,8 +51,6 @@
 | WF-011 | 反馈处理 | 管理员修正知识库 | feedback、adminStatus、publicReply | 管理员标记误判/看不懂/新增需求 | publicStatus、repairTask | 高频问题进入知识库任务 | 已有基础 | P1 |
 | WF-012 | 知识库反哺 | 让系统越用越准 | resolved feedback、真实维修结果 | 转成案例、节点、关键词、判断条件 | 新案例/新节点/新规则 | 需人工审核 | 待开发 | P1 |
 
----
-
 ## 1.2 quick 模式工作流
 
 | 节点 ID | 节点名称 | 输入 | 输出 | 规则 |
@@ -62,7 +61,7 @@
 | QK-004 | 输出初步判断 | faultType、tree、cases | possibleDirections、firstChecks、keyQuestions | 不输出 terminalConclusion |
 | QK-005 | 推荐下一步 | firstChecks | startInteractive、viewCases、submitFeedback | 强制推荐进入交互式诊断 |
 
-### quick 模式禁止输出
+quick 模式禁止输出：
 
 ```text
 已确认损坏
@@ -71,7 +70,7 @@
 维修结论：xxx 损坏
 ```
 
-### quick 模式允许输出
+quick 模式允许输出：
 
 ```text
 初步方向
@@ -80,8 +79,6 @@
 建议先做的检查
 是否建议进入交互式排查
 ```
-
----
 
 ## 1.3 interactive 模式工作流
 
@@ -110,8 +107,6 @@
 | P1 | `tree-gps-navigation` GPS/指南针/IMU | 起飞失败常涉及传感器 | 当前映射到链路测试，需独立流程 |
 | P1 | `tree-app-error-code` APP 报错码流程 | 用户经常只知道 APP 报错 | 需要错误码到检查项的映射 |
 | P2 | `tree-repair-postcheck-by-part` 按更换部件验收 | 维修后交付需要标准 | 当前只有通用 checklist |
-
----
 
 ## 2.2 P0：新增 `tree-flight-abnormal`
 
@@ -144,14 +139,14 @@ tree-flight-abnormal
 │   └── 是 → fl-restriction-check
 ├── fl-restriction-check：是否处于禁飞区/限高区/室内弱 GPS 环境？
 │   ├── 是 → fl-environment-cause
-│   └── 否 → fl-link-test
-├── fl-link-test：运行链路测试是否有 NG？
-│   ├── 是 → tree-link-test
+│   └── 否 → fl-link-check
+├── fl-link-check：使用当前可用的链路/模块检测方式，是否发现模块异常？
+│   ├── 是 → tree-link-test 或对应模块流程
 │   └── 否 → fl-log-analysis
 ├── fl-log-analysis：是否需要飞行日志分析？
 │   ├── 是 → flight-log-analysis
 │   └── 否 → fl-unknown
-└── terminal 节点：环境限制 / 电机桨叶异常 / 传感器异常 / 链路异常 / 待确认
+└── terminal 节点：环境限制 / 电机桨叶异常 / 传感器异常 / 链路或模块异常 / 待确认
 ```
 
 ### 需要修改的文件
@@ -172,15 +167,14 @@ frontend/src/pages/GuidePage.jsx 或相关决策树入口页面
 3. 用户输入“电机不转，无法起飞”，能进入桨叶/电机检查分支。
 4. quick 模式只输出初步方向，不直接判定某个大部件损坏。
 5. interactive 模式可以逐节点推进到 terminal。
+6. 全流程不再引用已废弃工具 ET7KY13。
 ```
-
----
 
 ## 2.3 P1：新增 `tree-video-signal`
 
 ### 目标
 
-把图传、黑屏、花屏、断图、遥控连接异常从链路测试中拆出。
+把图传、黑屏、花屏、断图、遥控连接异常从通用链路排查中拆出。
 
 ### 推荐节点
 
@@ -192,11 +186,9 @@ frontend/src/pages/GuidePage.jsx 或相关决策树入口页面
 ├── 是否完全黑屏/无画面？
 ├── 是否摔机/进水后出现？
 ├── 相机排线/云台排线是否异常？
-├── 链路测试是否有相机/图传相关 NG？
+├── 当前可用的链路/模块检测方式是否发现相机/图传相关异常？
 └── terminal：APP/遥控问题、相机链路问题、云台相机硬件问题、待确认
 ```
-
----
 
 ## 2.4 P1：新增 `tree-gps-navigation`
 
@@ -213,7 +205,7 @@ GPS/导航异常
 ├── 是否可以完成指南针/IMU 校准？
 ├── 是否近期炸机/进水/拆修？
 ├── GPS 板/指南针相关排线是否异常？
-├── 链路测试是否有 GPS/指南针 NG？
+├── 当前可用的链路/模块检测方式是否发现 GPS/指南针相关异常？
 └── terminal：环境问题、校准问题、传感器/排线问题、模块故障、待确认
 ```
 
@@ -228,12 +220,10 @@ GPS/导航异常
 | KB-001 | 建立故障案例标准字段 | 让案例能被检索和推理 | 现象、触发条件、检查步骤、判断分支、工具、结论 | `docs/KNOWLEDGE_CASE_SCHEMA.md` | P0 |
 | KB-002 | 补“无法起飞”案例 | 支撑 `tree-flight-abnormal` | 10-20 条真实/手册案例 | 新增 fault cases | P0 |
 | KB-003 | 补 APP 报错码映射 | 把用户报错转成检查路径 | 报错文案、错误码、对应模块、检查步骤 | `data/app-error-map.json` | P1 |
-| KB-004 | 补工具使用 SOP | 用户不会操作工具时可引导 | 万用表、DA2、ET7KY13、电池助手 | Markdown SOP | P0 |
+| KB-004 | 补工具使用 SOP | 用户不会操作工具时可引导 | 万用表、DA2、电池助手 | Markdown SOP | P0 |
 | KB-005 | 补维修后验收矩阵 | 判断修好没 | 更换部件、必测项目、通过标准 | `data/post-repair-test-matrix.json` | P1 |
 | KB-006 | 反馈反哺知识库 | 把用户反馈转成知识任务 | feedback 类型、诊断 ID、节点 ID、实际结果 | 管理端任务流 | P1 |
 | KB-007 | 补误判案例库 | 降低 AI 乱判 | 错误诊断、正确结论、原因 | `data/misdiagnosis-cases.json` | P2 |
-
----
 
 ## 3.2 故障案例标准字段
 
@@ -269,19 +259,17 @@ GPS/导航异常
   "possibleCauses": [
     {
       "cause": "指南针模块异常",
-      "evidence": ["校准失败", "链路测试指南针 NG"],
+      "evidence": ["校准失败", "链路/模块检测发现指南针相关异常"],
       "confidenceRule": "需要至少 2 个证据支持"
     }
   ],
   "repairActions": ["重新校准", "检查排线", "更换对应模块"],
-  "postRepairChecks": ["APP 无报错", "可正常起飞", "链路测试 PASS"],
+  "postRepairChecks": ["APP 无报错", "可正常起飞", "对应模块检查通过"],
   "riskWarnings": ["未确认前不要直接建议更换核心板"],
   "source": "manual / real_case / feedback",
   "reviewStatus": "draft"
 }
 ```
-
----
 
 ## 3.3 工具 SOP 补全
 
@@ -291,7 +279,6 @@ GPS/导航异常
 |---|---|---|
 | 万用表 | 不会通断档、电压档 | 通断档测线、测供电、电池端电压、安全注意 |
 | DA2 | 不会导日志/查大包 | 连接、识别设备、导日志、升级、注意事项 |
-| ET7KY13 | 不会看链路测试结果 | 测试入口、PASS/NG 含义、NG 到模块映射 |
 | 电池助手 | 不会判断电池 | SN、循环次数、电芯压差、PF、充电异常 |
 
 ### SOP 模板
@@ -311,10 +298,6 @@ GPS/导航异常
 ---
 
 # 4. 开发 Issue
-
-下面是建议直接转成 GitHub Issues 的开发任务。
-
----
 
 ## Issue 1：重构 quick 模式为“初步判断”，禁止直接输出最终定损
 
@@ -338,8 +321,6 @@ GPS/导航异常
 4. interactive 完成后才允许输出 confirmedConclusion。
 ```
 
----
-
 ## Issue 2：新增 `tree-flight-abnormal` 无法起飞专用决策树
 
 ### 背景
@@ -352,6 +333,7 @@ GPS/导航异常
 - 修改 `data/fault-type-map.json`
 - 必要时调整前端决策树入口
 - 补充最少 8 个节点和 4 个 terminal 结论
+- 不再使用废弃工具 ET7KY13
 
 ### 验收标准
 
@@ -360,8 +342,6 @@ GPS/导航异常
 2. 能区分：无法开机、APP 报错、桨叶/电机、GPS/指南针/IMU、禁飞区/环境、链路异常。
 3. 每个 terminal 都有 recommendation 和 postRepairCheck。
 ```
-
----
 
 ## Issue 3：建立故障案例标准 Schema，并迁移已有案例字段
 
@@ -383,8 +363,6 @@ GPS/导航异常
 3. 后续新增案例可以按模板填写。
 ```
 
----
-
 ## Issue 4：补充“无法起飞”知识库案例 10-20 条
 
 ### 背景
@@ -392,8 +370,6 @@ GPS/导航异常
 `tree-flight-abnormal` 需要真实案例支撑，否则决策树只能做粗略排查。
 
 ### 范围
-
-补充案例类型：
 
 ```text
 无法起飞但能开机
@@ -405,7 +381,7 @@ GPS 信号弱导致无法起飞
 禁飞区/限高区
 炸机后起飞失败
 电池通信异常导致无法起飞
-链路测试 NG 导致无法起飞
+链路/模块检查异常导致无法起飞
 ```
 
 ### 验收标准
@@ -415,8 +391,6 @@ GPS 信号弱导致无法起飞
 2. 每条案例都包含 firstQuestions、checkSteps、decisionBranches、postRepairChecks。
 3. 向量检索能搜到相关案例。
 ```
-
----
 
 ## Issue 5：把反馈绑定到 diagnosisId / treeId / nodeId
 
@@ -440,9 +414,7 @@ GPS 信号弱导致无法起飞
 4. 高频节点问题可导出为知识库补全任务。
 ```
 
----
-
-## Issue 6：新增工具 SOP 文档：万用表、DA2、ET7KY13、电池助手
+## Issue 6：新增工具 SOP 文档：万用表、DA2、电池助手
 
 ### 背景
 
@@ -450,12 +422,9 @@ GPS 信号弱导致无法起飞
 
 ### 范围
 
-新增文档：
-
 ```text
 docs/sop/MULTIMETER_BASIC.md
 docs/sop/DA2_BASIC.md
-docs/sop/ET7KY13_LINK_TEST.md
 docs/sop/BATTERY_ASSISTANT.md
 ```
 
@@ -465,9 +434,8 @@ docs/sop/BATTERY_ASSISTANT.md
 1. 每个 SOP 包含适用场景、准备条件、操作步骤、正常结果、异常结果、下一步判断、注意事项。
 2. 决策树节点可以引用 SOP 文件路径。
 3. 用户遇到“不会操作”时可以跳转到对应 SOP。
+4. 不新增任何 ET7KY13 相关 SOP。
 ```
-
----
 
 ## Issue 7：新增 APP 报错码/报错文案映射表
 
@@ -489,8 +457,6 @@ docs/sop/BATTERY_ASSISTANT.md
 3. 未识别报错时提示用户上传截图或输入完整文案。
 ```
 
----
-
 ## Issue 8：新增维修后按部件验收矩阵
 
 ### 背景
@@ -508,7 +474,34 @@ docs/sop/BATTERY_ASSISTANT.md
 ```text
 1. 更换电池后显示电池相关验收项。
 2. 更换云台后显示云台/相机验收项。
-3. 更换核心板/电调板后显示链路测试和 APP 测试项。
+3. 更换核心板/电调板后显示当前可用的模块检查和 APP 测试项。
+```
+
+## Issue 9：清理项目中已废弃的 ET7KY13 工具引用
+
+### 背景
+
+ET7KY13 已废弃。仓库里所有文档、决策树、案例、SOP 规划都不应再把它作为当前可用工具。
+
+### 范围
+
+```text
+README.md
+docs/EXISTING_PLAN_EXPORT.md
+docs/WORKFLOW_TASK_BREAKDOWN.md
+docs/ENGINEERING_FIX_PLAN.md
+data/decision-trees.json
+data/fault-type-map.json
+fault-cases 相关数据文件
+```
+
+### 处理规则
+
+```text
+1. 工具名过时：删除 ET7KY13 名称，改为“当前可用的链路/模块检测方式”。
+2. 流程依赖该工具：改成“人工基础检查 + APP 报错 + DA2/日志/可用测试工具”。
+3. 不再新增 docs/sop/ET7KY13_LINK_TEST.md。
+4. 已有决策树节点不要继续要求用户运行 ET7KY13。
 ```
 
 ---
@@ -516,19 +509,22 @@ docs/sop/BATTERY_ASSISTANT.md
 # 5. 建议执行顺序
 
 ```text
-第一步：Issue 1
-先把 quick 模式从“直接判断”改成“初步判断”，降低误导风险。
+第一步：Issue 9
+先清理已废弃工具引用，防止后续流程继续沿用错误工具。
 
-第二步：Issue 2 + Issue 4
+第二步：Issue 1
+把 quick 模式从“直接判断”改成“初步判断”，降低误导风险。
+
+第三步：Issue 2 + Issue 4
 补无法起飞决策树和案例，因为这是首页核心场景。
 
-第三步：Issue 3 + Issue 6
+第四步：Issue 3 + Issue 6
 标准化知识库和工具 SOP，让后续案例能持续补充。
 
-第四步：Issue 5
+第五步：Issue 5
 把反馈绑定到诊断和节点，形成真实闭环。
 
-第五步：Issue 7 + Issue 8
+第六步：Issue 7 + Issue 8
 补 APP 报错映射和维修后验收矩阵，提高专业度。
 ```
 
@@ -547,7 +543,10 @@ docs/sop/BATTERY_ASSISTANT.md
 
 当前目标是把 DroneDoctor 从“AI 直接回答故障”改造成“按维修工作流逐步排查”。
 
+注意：ET7KY13 已废弃，不要新增任何依赖该工具的 SOP、决策树节点、验收项或案例字段。涉及链路/模块检查时，改用当前可用的检查方式、APP 报错、DA2、飞行日志和人工基础检查。
+
 优先处理：
+- 清理废弃工具引用；
 - quick 模式只能输出初步判断；
 - 新增 tree-flight-abnormal；
 - 补无法起飞案例；
