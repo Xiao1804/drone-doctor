@@ -49,7 +49,7 @@
     ],
     "troubleshootingSteps": [
       {"step": 1, "operation": "执行对应测试矩阵", "criteria": "根据更换部件执行第五章测试矩阵，逐项打√", "solution": "完成所有对应测试项", "tools": [], "estimatedTime": "10分钟"},
-      {"step": 2, "operation": "运行整机链路测试", "criteria": "ET7KY13所有项PASS", "solution": "若NG则排查对应模块", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 2, "operation": "运行整机链路测试", "criteria": "当前链路/模块检查全部通过", "solution": "若NG则排查对应模块", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 3, "operation": "运行APP测试", "criteria": "检查报错信息/电机转动/图传信号/拍照录像", "solution": "排查异常项", "tools": ["DJI APP"], "estimatedTime": "5分钟"},
       {"step": 4, "operation": "确认大包版本", "criteria": "DA2检查为最新版本", "solution": "若不是则升级大包", "tools": ["DA2"], "estimatedTime": "3分钟"},
       {"step": 5, "operation": "检查防水标签和防拆胶", "criteria": "已恢复或已记录状态", "solution": "补贴或记录", "tools": [], "estimatedTime": "2分钟"},
@@ -57,7 +57,7 @@
       {"step": 7, "operation": "确认电池SN录件", "criteria": "若更换电池：SN前3位为4ER", "solution": "核对并修正", "tools": [], "estimatedTime": "1分钟"},
       {"step": 8, "operation": "填写维修记录", "criteria": "更换部件编码/测试结果/操作员完整", "solution": "补全记录", "tools": [], "estimatedTime": "3分钟"}
     ],
-    "requiredTools": ["ET7KY13", "DA2", "DJI APP", "显微镜"],
+    "requiredTools": ["当前可用链路/模块检测方式", "DA2", "DJI APP", "显微镜"],
     "totalEstimatedTime": "32分钟",
     "difficulty": "⭐⭐",
     "needProfessionalRepair": false,
@@ -194,7 +194,7 @@
     "id": "F103",
     "faultType": "主控系统",
     "symptom": "整机链路测试报错-核心板故障",
-    "keywords": ["核心板", "链路测试", "ET7KY13", "报错", "主控"],
+    "keywords": ["核心板", "链路测试", "当前可用链路/模块检测方式", "报错", "主控"],
     "applicableModels": ["68Y系列"],
     "possibleCauses": [
       {"cause": "核心板排线松动", "probability": "高", "description": "BTB排线接触不良"},
@@ -202,12 +202,12 @@
       {"cause": "核心板芯片损坏", "probability": "中", "description": "核心板功能模块损坏"}
     ],
     "troubleshootingSteps": [
-      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13核心板项报错", "solution": "记录具体报错代码", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "链路/模块检查核心板项异常", "solution": "记录具体报错代码", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 2, "operation": "检查核心板排线", "criteria": "目视排线是否松动/断裂/氧化", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
-      {"step": 3, "operation": "重新运行链路测试", "criteria": "核心板项是否PASS", "solution": "若仍NG则更换核心板", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "重新运行链路测试", "criteria": "核心板项是否PASS", "solution": "若仍NG则更换核心板", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 4, "operation": "更换核心板", "criteria": "更换后链路测试PASS", "solution": "定损更换核心板", "tools": ["备用核心板"], "estimatedTime": "15分钟"}
     ],
-    "requiredTools": ["ET7KY13", "备用核心板", "备用排线"],
+    "requiredTools": ["当前可用链路/模块检测方式", "备用核心板", "备用排线"],
     "totalEstimatedTime": "30分钟",
     "difficulty": "⭐⭐⭐",
     "needProfessionalRepair": true,
@@ -217,14 +217,14 @@
     "verifiedBy": "技术团队",
     "verifiedAt": "2024-10-15",
     "reviewStatus": "approved",
-    "tags": ["SOP", "核心板", "链路测试", "ET7KY13", "主控系统"],
+    "tags": ["SOP", "核心板", "链路测试", "当前可用链路/模块检测方式", "主控系统"],
     "relatedCases": ["F104", "F105"]
   },
   {
     "id": "F104",
     "faultType": "动力系统",
     "symptom": "整机链路测试报错-电调板故障",
-    "keywords": ["电调板", "链路测试", "ET7KY13", "报错", "ESC"],
+    "keywords": ["电调板", "链路测试", "当前可用链路/模块检测方式", "报错", "ESC"],
     "applicableModels": ["68Y系列"],
     "possibleCauses": [
       {"cause": "电调板排线松动", "probability": "高", "description": "电调板与核心板连接排线接触不良"},
@@ -232,12 +232,12 @@
       {"cause": "电调板供电异常", "probability": "中", "description": "输入电源不稳定"}
     ],
     "troubleshootingSteps": [
-      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13电调板项报错", "solution": "记录具体报错代码", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "链路/模块检查电调板项异常", "solution": "记录具体报错代码", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 2, "operation": "检查电调板排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
-      {"step": 3, "operation": "重新运行链路测试", "criteria": "电调板项是否PASS", "solution": "若仍NG则更换电调板", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "重新运行链路测试", "criteria": "电调板项是否PASS", "solution": "若仍NG则更换电调板", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 4, "operation": "更换电调板", "criteria": "更换后链路测试PASS", "solution": "定损更换电调板", "tools": ["备用电调板"], "estimatedTime": "15分钟"}
     ],
-    "requiredTools": ["ET7KY13", "备用电调板", "备用排线"],
+    "requiredTools": ["当前可用链路/模块检测方式", "备用电调板", "备用排线"],
     "totalEstimatedTime": "30分钟",
     "difficulty": "⭐⭐⭐",
     "needProfessionalRepair": true,
@@ -247,14 +247,14 @@
     "verifiedBy": "技术团队",
     "verifiedAt": "2024-10-15",
     "reviewStatus": "approved",
-    "tags": ["SOP", "电调板", "链路测试", "ET7KY13", "动力系统"],
+    "tags": ["SOP", "电调板", "链路测试", "当前可用链路/模块检测方式", "动力系统"],
     "relatedCases": ["F103", "F105"]
   },
   {
     "id": "F105",
     "faultType": "动力系统",
     "symptom": "整机链路测试报错-电机故障",
-    "keywords": ["电机", "不转", "反转", "噪音", "链路测试", "ET7KY13"],
+    "keywords": ["电机", "不转", "反转", "噪音", "链路测试", "当前可用链路/模块检测方式"],
     "applicableModels": ["68Y系列"],
     "possibleCauses": [
       {"cause": "电机排线松动", "probability": "高", "description": "电机与电调板连接排线接触不良"},
@@ -263,12 +263,12 @@
       {"cause": "电调板驱动异常", "probability": "低", "description": "电调板对应通道损坏"}
     ],
     "troubleshootingSteps": [
-      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13电机项报错（不转/反转/噪音）", "solution": "记录具体报错电机位置", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "链路/模块检查电机项异常（不转/反转/噪音）", "solution": "记录具体报错电机位置", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 2, "operation": "检查电机排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
       {"step": 3, "operation": "手动转动电机", "criteria": "检查是否有卡滞或异响", "solution": "若卡滞则更换电机", "tools": [], "estimatedTime": "2分钟"},
       {"step": 4, "operation": "更换电机", "criteria": "更换后链路测试PASS", "solution": "定损更换电机", "tools": ["备用电机"], "estimatedTime": "10分钟"}
     ],
-    "requiredTools": ["ET7KY13", "备用电机", "备用排线"],
+    "requiredTools": ["当前可用链路/模块检测方式", "备用电机", "备用排线"],
     "totalEstimatedTime": "22分钟",
     "difficulty": "⭐⭐⭐",
     "needProfessionalRepair": true,
@@ -278,14 +278,14 @@
     "verifiedBy": "技术团队",
     "verifiedAt": "2024-10-15",
     "reviewStatus": "approved",
-    "tags": ["SOP", "电机", "不转", "反转", "噪音", "链路测试", "ET7KY13"],
+    "tags": ["SOP", "电机", "不转", "反转", "噪音", "链路测试", "当前可用链路/模块检测方式"],
     "relatedCases": ["F103", "F104"]
   },
   {
     "id": "F106",
     "faultType": "导航系统",
     "symptom": "整机链路测试报错-GPS板故障",
-    "keywords": ["GPS", "导航", "定位", "链路测试", "ET7KY13"],
+    "keywords": ["GPS", "导航", "定位", "链路测试", "当前可用链路/模块检测方式"],
     "applicableModels": ["68Y系列"],
     "possibleCauses": [
       {"cause": "GPS板排线松动", "probability": "高", "description": "GPS模块与核心板连接排线接触不良"},
@@ -293,12 +293,12 @@
       {"cause": "GPS天线故障", "probability": "中", "description": "天线断线或接口松动"}
     ],
     "troubleshootingSteps": [
-      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13 GPS项报错", "solution": "记录具体报错", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "当前可用链路/模块检测方式 GPS项报错", "solution": "记录具体报错", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 2, "operation": "检查GPS板排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
-      {"step": 3, "operation": "重新运行链路测试", "criteria": "GPS项是否PASS", "solution": "若仍NG则更换GPS板", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "重新运行链路测试", "criteria": "GPS项是否PASS", "solution": "若仍NG则更换GPS板", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 4, "operation": "更换GPS板", "criteria": "更换后链路测试PASS", "solution": "定损更换GPS板", "tools": ["备用GPS板"], "estimatedTime": "10分钟"}
     ],
-    "requiredTools": ["ET7KY13", "备用GPS板", "备用排线"],
+    "requiredTools": ["当前可用链路/模块检测方式", "备用GPS板", "备用排线"],
     "totalEstimatedTime": "25分钟",
     "difficulty": "⭐⭐⭐",
     "needProfessionalRepair": true,
@@ -308,14 +308,14 @@
     "verifiedBy": "技术团队",
     "verifiedAt": "2024-10-15",
     "reviewStatus": "approved",
-    "tags": ["SOP", "GPS", "导航", "链路测试", "ET7KY13"],
+    "tags": ["SOP", "GPS", "导航", "链路测试", "当前可用链路/模块检测方式"],
     "relatedCases": ["F103", "F104"]
   },
   {
     "id": "F107",
     "faultType": "存储系统",
     "symptom": "整机链路测试报错-硬盘故障",
-    "keywords": ["硬盘", "存储", "链路测试", "ET7KY13", "数据"],
+    "keywords": ["硬盘", "存储", "链路测试", "当前可用链路/模块检测方式", "数据"],
     "applicableModels": ["68Y系列"],
     "possibleCauses": [
       {"cause": "硬盘排线松动", "probability": "高", "description": "硬盘与核心板连接排线接触不良"},
@@ -323,12 +323,12 @@
       {"cause": "硬盘接口氧化", "probability": "中", "description": "接口氧化导致接触不良"}
     ],
     "troubleshootingSteps": [
-      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13硬盘项报错", "solution": "记录具体报错", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "链路/模块检查硬盘项异常", "solution": "记录具体报错", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 2, "operation": "检查硬盘排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
-      {"step": 3, "operation": "重新运行链路测试", "criteria": "硬盘项是否PASS", "solution": "若仍NG则更换硬盘", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "重新运行链路测试", "criteria": "硬盘项是否PASS", "solution": "若仍NG则更换硬盘", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 4, "operation": "更换硬盘", "criteria": "更换后链路测试PASS", "solution": "定损更换硬盘，注意数据备份", "tools": ["备用硬盘"], "estimatedTime": "10分钟"}
     ],
-    "requiredTools": ["ET7KY13", "备用硬盘", "备用排线"],
+    "requiredTools": ["当前可用链路/模块检测方式", "备用硬盘", "备用排线"],
     "totalEstimatedTime": "25分钟",
     "difficulty": "⭐⭐⭐",
     "needProfessionalRepair": true,
@@ -338,14 +338,14 @@
     "verifiedBy": "技术团队",
     "verifiedAt": "2024-10-15",
     "reviewStatus": "approved",
-    "tags": ["SOP", "硬盘", "存储", "链路测试", "ET7KY13"],
+    "tags": ["SOP", "硬盘", "存储", "链路测试", "当前可用链路/模块检测方式"],
     "relatedCases": ["F103", "F104"]
   },
   {
     "id": "F108",
     "faultType": "感知系统",
     "symptom": "整机链路测试报错-TOF/视觉异常",
-    "keywords": ["TOF", "视觉", "传感器", "避障", "链路测试", "ET7KY13"],
+    "keywords": ["TOF", "视觉", "传感器", "避障", "链路测试", "当前可用链路/模块检测方式"],
     "applicableModels": ["68Y系列"],
     "possibleCauses": [
       {"cause": "TOF/视觉模块排线松动", "probability": "高", "description": "感知模块与核心板连接排线接触不良"},
@@ -354,13 +354,13 @@
       {"cause": "传感器窗口脏污", "probability": "低", "description": "传感器窗口有污渍遮挡"}
     ],
     "troubleshootingSteps": [
-      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13 TOF/视觉项报错", "solution": "记录具体报错", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "当前可用链路/模块检测方式 TOF/视觉项报错", "solution": "记录具体报错", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 2, "operation": "检查传感器窗口", "criteria": "窗口是否清洁无遮挡", "solution": "用无尘布清洁窗口", "tools": ["无尘布"], "estimatedTime": "3分钟"},
       {"step": 3, "operation": "检查排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
-      {"step": 4, "operation": "重新运行链路测试", "criteria": "TOF/视觉项是否PASS", "solution": "若仍NG则更换模块", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 4, "operation": "重新运行链路测试", "criteria": "TOF/视觉项是否PASS", "solution": "若仍NG则更换模块", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 5, "operation": "更换TOF/视觉模块", "criteria": "更换后链路测试PASS", "solution": "定损更换对应模块", "tools": ["备用TOF模块", "备用视觉模块"], "estimatedTime": "10分钟"}
     ],
-    "requiredTools": ["ET7KY13", "备用TOF模块", "备用视觉模块", "无尘布"],
+    "requiredTools": ["当前可用链路/模块检测方式", "备用TOF模块", "备用视觉模块", "无尘布"],
     "totalEstimatedTime": "28分钟",
     "difficulty": "⭐⭐⭐",
     "needProfessionalRepair": true,
@@ -370,14 +370,14 @@
     "verifiedBy": "技术团队",
     "verifiedAt": "2024-10-15",
     "reviewStatus": "approved",
-    "tags": ["SOP", "TOF", "视觉", "传感器", "链路测试", "ET7KY13"],
+    "tags": ["SOP", "TOF", "视觉", "传感器", "链路测试", "当前可用链路/模块检测方式"],
     "relatedCases": ["F103", "F104"]
   },
   {
     "id": "F109",
     "faultType": "灯光系统",
     "symptom": "整机链路测试报错-机臂灯故障",
-    "keywords": ["机臂灯", "LED", "灯光", "链路测试", "ET7KY13"],
+    "keywords": ["机臂灯", "LED", "灯光", "链路测试", "当前可用链路/模块检测方式"],
     "applicableModels": ["68Y系列"],
     "possibleCauses": [
       {"cause": "机臂灯排线松动", "probability": "高", "description": "机臂LED与电调板连接排线接触不良"},
@@ -385,12 +385,12 @@
       {"cause": "驱动电路故障", "probability": "低", "description": "电调板LED驱动通道损坏"}
     ],
     "troubleshootingSteps": [
-      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13机臂灯项报错", "solution": "记录具体报错位置", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "链路/模块检查机臂灯项异常", "solution": "记录具体报错位置", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 2, "operation": "检查机臂灯排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
-      {"step": 3, "operation": "重新运行链路测试", "criteria": "机臂灯项是否PASS", "solution": "若仍NG则更换机臂灯组件", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 3, "operation": "重新运行链路测试", "criteria": "机臂灯项是否PASS", "solution": "若仍NG则更换机臂灯组件", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 4, "operation": "更换机臂灯组件", "criteria": "更换后链路测试PASS", "solution": "定损更换机臂灯", "tools": ["备用机臂灯"], "estimatedTime": "10分钟"}
     ],
-    "requiredTools": ["ET7KY13", "备用机臂灯", "备用排线"],
+    "requiredTools": ["当前可用链路/模块检测方式", "备用机臂灯", "备用排线"],
     "totalEstimatedTime": "25分钟",
     "difficulty": "⭐⭐",
     "needProfessionalRepair": true,
@@ -400,14 +400,14 @@
     "verifiedBy": "技术团队",
     "verifiedAt": "2024-10-15",
     "reviewStatus": "approved",
-    "tags": ["SOP", "机臂灯", "LED", "灯光", "链路测试", "ET7KY13"],
+    "tags": ["SOP", "机臂灯", "LED", "灯光", "链路测试", "当前可用链路/模块检测方式"],
     "relatedCases": ["F103", "F104"]
   },
   {
     "id": "F110",
     "faultType": "电源系统",
     "symptom": "整机链路测试报错-电池在位检测故障",
-    "keywords": ["电池在位", "检测", "电池通信", "链路测试", "ET7KY13"],
+    "keywords": ["电池在位", "检测", "电池通信", "链路测试", "当前可用链路/模块检测方式"],
     "applicableModels": ["68Y系列"],
     "possibleCauses": [
       {"cause": "电池触点氧化", "probability": "高", "description": "电池或机身触点氧化导致通信失败"},
@@ -415,12 +415,12 @@
       {"cause": "检测电路故障", "probability": "低", "description": "核心板电池检测电路损坏"}
     ],
     "troubleshootingSteps": [
-      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13电池在位检测项报错", "solution": "记录具体报错", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "链路/模块检查电池在位检测项异常", "solution": "记录具体报错", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 2, "operation": "检查电池触点", "criteria": "目视触点是否氧化/变形", "solution": "用酒精棉签清洁触点，校正变形", "tools": ["酒精棉签"], "estimatedTime": "5分钟"},
       {"step": 3, "operation": "更换电池测试", "criteria": "用正常电池测试", "solution": "若正常则判定原电池故障", "tools": ["正常电池"], "estimatedTime": "3分钟"},
-      {"step": 4, "operation": "重新运行链路测试", "criteria": "电池在位检测项是否PASS", "solution": "若仍NG则更换机身电池座", "tools": ["ET7KY13"], "estimatedTime": "5分钟"}
+      {"step": 4, "operation": "重新运行链路测试", "criteria": "电池在位检测项是否PASS", "solution": "若仍NG则更换机身电池座", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"}
     ],
-    "requiredTools": ["ET7KY13", "酒精棉签", "正常电池"],
+    "requiredTools": ["当前可用链路/模块检测方式", "酒精棉签", "正常电池"],
     "totalEstimatedTime": "18分钟",
     "difficulty": "⭐⭐",
     "needProfessionalRepair": true,
@@ -430,14 +430,14 @@
     "verifiedBy": "技术团队",
     "verifiedAt": "2024-10-15",
     "reviewStatus": "approved",
-    "tags": ["SOP", "电池在位", "检测", "链路测试", "ET7KY13"],
+    "tags": ["SOP", "电池在位", "检测", "链路测试", "当前可用链路/模块检测方式"],
     "relatedCases": ["F103", "F104"]
   },
   {
     "id": "F111",
     "faultType": "导航系统",
     "symptom": "整机链路测试报错-指南针故障",
-    "keywords": ["指南针", "磁罗盘", "校准", "链路测试", "ET7KY13"],
+    "keywords": ["指南针", "磁罗盘", "校准", "链路测试", "当前可用链路/模块检测方式"],
     "applicableModels": ["68Y系列"],
     "possibleCauses": [
       {"cause": "指南针模块排线松动", "probability": "高", "description": "指南针模块与核心板连接排线接触不良"},
@@ -445,13 +445,13 @@
       {"cause": "磁干扰", "probability": "低", "description": "周围存在强磁场干扰"}
     ],
     "troubleshootingSteps": [
-      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13指南针项报错", "solution": "记录具体报错", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "链路/模块检查指南针项异常", "solution": "记录具体报错", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 2, "operation": "远离干扰源", "criteria": "远离金属物体和电子设备", "solution": "移至无干扰环境", "tools": [], "estimatedTime": "2分钟"},
       {"step": 3, "operation": "检查指南针排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
-      {"step": 4, "operation": "重新运行链路测试", "criteria": "指南针项是否PASS", "solution": "若仍NG则更换指南针模块", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 4, "operation": "重新运行链路测试", "criteria": "指南针项是否PASS", "solution": "若仍NG则更换指南针模块", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 5, "operation": "更换指南针模块", "criteria": "更换后链路测试PASS", "solution": "定损更换指南针模块", "tools": ["备用指南针模块"], "estimatedTime": "10分钟"}
     ],
-    "requiredTools": ["ET7KY13", "备用指南针模块", "备用排线"],
+    "requiredTools": ["当前可用链路/模块检测方式", "备用指南针模块", "备用排线"],
     "totalEstimatedTime": "27分钟",
     "difficulty": "⭐⭐⭐",
     "needProfessionalRepair": true,
@@ -461,14 +461,14 @@
     "verifiedBy": "技术团队",
     "verifiedAt": "2024-10-15",
     "reviewStatus": "approved",
-    "tags": ["SOP", "指南针", "磁罗盘", "链路测试", "ET7KY13"],
+    "tags": ["SOP", "指南针", "磁罗盘", "链路测试", "当前可用链路/模块检测方式"],
     "relatedCases": ["F103", "F106"]
   },
   {
     "id": "F112",
     "faultType": "存储系统",
     "symptom": "整机链路测试报错-SD卡槽故障",
-    "keywords": ["SD卡槽", "存储卡", "卡槽", "链路测试", "ET7KY13"],
+    "keywords": ["SD卡槽", "存储卡", "卡槽", "链路测试", "当前可用链路/模块检测方式"],
     "applicableModels": ["68Y系列"],
     "possibleCauses": [
       {"cause": "SD卡槽排线松动", "probability": "高", "description": "卡槽与核心板连接排线接触不良"},
@@ -476,13 +476,13 @@
       {"cause": "SD卡本身故障", "probability": "中", "description": "测试用SD卡损坏"}
     ],
     "troubleshootingSteps": [
-      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13 SD卡槽项报错", "solution": "记录具体报错", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "当前可用链路/模块检测方式 SD卡槽项报错", "solution": "记录具体报错", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 2, "operation": "更换SD卡测试", "criteria": "用已知正常的SD卡测试", "solution": "若正常则判定SD卡问题", "tools": ["正常SD卡"], "estimatedTime": "2分钟"},
       {"step": 3, "operation": "检查卡槽排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
-      {"step": 4, "operation": "重新运行链路测试", "criteria": "SD卡槽项是否PASS", "solution": "若仍NG则更换SD卡槽", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 4, "operation": "重新运行链路测试", "criteria": "SD卡槽项是否PASS", "solution": "若仍NG则更换SD卡槽", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 5, "operation": "更换SD卡槽", "criteria": "更换后链路测试PASS", "solution": "定损更换SD卡槽组件", "tools": ["备用SD卡槽"], "estimatedTime": "10分钟"}
     ],
-    "requiredTools": ["ET7KY13", "备用SD卡槽", "正常SD卡", "备用排线"],
+    "requiredTools": ["当前可用链路/模块检测方式", "备用SD卡槽", "正常SD卡", "备用排线"],
     "totalEstimatedTime": "27分钟",
     "difficulty": "⭐⭐⭐",
     "needProfessionalRepair": true,
@@ -492,14 +492,14 @@
     "verifiedBy": "技术团队",
     "verifiedAt": "2024-10-15",
     "reviewStatus": "approved",
-    "tags": ["SOP", "SD卡槽", "存储", "链路测试", "ET7KY13"],
+    "tags": ["SOP", "SD卡槽", "存储", "链路测试", "当前可用链路/模块检测方式"],
     "relatedCases": ["F103", "F107"]
   },
   {
     "id": "F113",
     "faultType": "影像系统",
     "symptom": "整机链路测试报错-相机出图异常",
-    "keywords": ["相机", "出图", "花屏", "条纹", "图像", "链路测试", "ET7KY13"],
+    "keywords": ["相机", "出图", "花屏", "条纹", "图像", "链路测试", "当前可用链路/模块检测方式"],
     "applicableModels": ["68Y系列"],
     "possibleCauses": [
       {"cause": "相机排线松动", "probability": "高", "description": "相机与核心板连接排线接触不良"},
@@ -507,13 +507,13 @@
       {"cause": "镜头损坏", "probability": "中", "description": "镜头组件物理损坏"}
     ],
     "troubleshootingSteps": [
-      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13相机出图项报错", "solution": "记录具体报错", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "链路/模块检查相机出图项异常", "solution": "记录具体报错", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 2, "operation": "检查相机排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
       {"step": 3, "operation": "用APP拍摄测试", "criteria": "检查图像是否花屏/条纹/黑屏", "solution": "记录图像状态", "tools": ["DJI APP"], "estimatedTime": "3分钟"},
-      {"step": 4, "operation": "重新运行链路测试", "criteria": "相机出图项是否PASS", "solution": "若仍NG则更换云台（含相机）", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 4, "operation": "重新运行链路测试", "criteria": "相机出图项是否PASS", "solution": "若仍NG则更换云台（含相机）", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 5, "operation": "更换云台", "criteria": "更换后链路测试PASS且图像正常", "solution": "定损更换云台", "tools": ["备用云台"], "estimatedTime": "15分钟"}
     ],
-    "requiredTools": ["ET7KY13", "备用云台", "DJI APP", "备用排线"],
+    "requiredTools": ["当前可用链路/模块检测方式", "备用云台", "DJI APP", "备用排线"],
     "totalEstimatedTime": "33分钟",
     "difficulty": "⭐⭐⭐",
     "needProfessionalRepair": true,
@@ -523,14 +523,14 @@
     "verifiedBy": "技术团队",
     "verifiedAt": "2024-10-15",
     "reviewStatus": "approved",
-    "tags": ["SOP", "相机", "出图", "图像", "链路测试", "ET7KY13"],
+    "tags": ["SOP", "相机", "出图", "图像", "链路测试", "当前可用链路/模块检测方式"],
     "relatedCases": ["F103", "F114"]
   },
   {
     "id": "F114",
     "faultType": "云台系统",
     "symptom": "整机链路测试报错-云台轴臂故障",
-    "keywords": ["云台", "轴臂", "转动", "卡滞", "链路测试", "ET7KY13"],
+    "keywords": ["云台", "轴臂", "转动", "卡滞", "链路测试", "当前可用链路/模块检测方式"],
     "applicableModels": ["68Y系列"],
     "possibleCauses": [
       {"cause": "云台排线松动", "probability": "高", "description": "云台与核心板连接排线接触不良"},
@@ -538,13 +538,13 @@
       {"cause": "电机损坏", "probability": "中", "description": "云台电机绕组烧毁"}
     ],
     "troubleshootingSteps": [
-      {"step": 1, "operation": "运行整机链路测试", "criteria": "ET7KY13云台轴臂项报错", "solution": "记录具体报错", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 1, "operation": "运行整机链路测试", "criteria": "链路/模块检查云台轴臂项异常", "solution": "记录具体报错", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 2, "operation": "运行绕动力多姿态测试", "criteria": "ET7KY08是否PASS", "solution": "若NG则确认轴臂故障", "tools": ["ET7KY08"], "estimatedTime": "5分钟"},
       {"step": 3, "operation": "检查云台排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线", "tools": [], "estimatedTime": "5分钟"},
       {"step": 4, "operation": "手动拨动轴臂", "criteria": "检查是否有卡滞或异响", "solution": "若卡滞则更换云台", "tools": [], "estimatedTime": "3分钟"},
       {"step": 5, "operation": "更换云台", "criteria": "更换后链路测试PASS", "solution": "定损更换云台", "tools": ["备用云台"], "estimatedTime": "15分钟"}
     ],
-    "requiredTools": ["ET7KY13", "ET7KY08", "备用云台", "备用排线"],
+    "requiredTools": ["当前可用链路/模块检测方式", "ET7KY08", "备用云台", "备用排线"],
     "totalEstimatedTime": "33分钟",
     "difficulty": "⭐⭐⭐",
     "needProfessionalRepair": true,
@@ -554,7 +554,7 @@
     "verifiedBy": "技术团队",
     "verifiedAt": "2024-10-15",
     "reviewStatus": "approved",
-    "tags": ["SOP", "云台", "轴臂", "转动", "链路测试", "ET7KY13", "ET7KY08"],
+    "tags": ["SOP", "云台", "轴臂", "转动", "链路测试", "当前可用链路/模块检测方式", "ET7KY08"],
     "relatedCases": ["F103", "F113"]
   },
   {
@@ -592,7 +592,7 @@
     "id": "F116",
     "faultType": "云台系统",
     "symptom": "云台电机/霍尔器件损坏",
-    "keywords": ["云台", "电机", "霍尔", "损坏", "ET7KY13", "链路测试"],
+    "keywords": ["云台", "电机", "霍尔", "损坏", "当前可用链路/模块检测方式", "链路测试"],
     "applicableModels": ["68Y系列"],
     "possibleCauses": [
       {"cause": "电机绕组烧毁", "probability": "高", "description": "云台电机内部线圈短路或开路"},
@@ -601,11 +601,11 @@
     ],
     "troubleshootingSteps": [
       {"step": 1, "operation": "运行绕动力多姿态测试", "criteria": "ET7KY08测试OK", "solution": "排除轴臂机械故障", "tools": ["ET7KY08"], "estimatedTime": "5分钟"},
-      {"step": 2, "operation": "运行整机链路测试", "criteria": "ET7KY13云台YAW/PITCH/ROLL项NG", "solution": "记录具体报错轴和参数", "tools": ["ET7KY13"], "estimatedTime": "5分钟"},
+      {"step": 2, "operation": "运行整机链路测试", "criteria": "链路/模块检查云台YAW/PITCH/ROLL项异常", "solution": "记录具体报错轴和参数", "tools": ["当前可用链路/模块检测方式"], "estimatedTime": "5分钟"},
       {"step": 3, "operation": "检查云台排线", "criteria": "目视排线是否松动/断裂", "solution": "重新插拔或更换排线后重测", "tools": [], "estimatedTime": "5分钟"},
       {"step": 4, "operation": "更换云台", "criteria": "更换后链路测试PASS", "solution": "定损更换云台", "tools": ["备用云台"], "estimatedTime": "15分钟"}
     ],
-    "requiredTools": ["ET7KY08", "ET7KY13", "备用云台", "备用排线"],
+    "requiredTools": ["ET7KY08", "当前可用链路/模块检测方式", "备用云台", "备用排线"],
     "totalEstimatedTime": "30分钟",
     "difficulty": "⭐⭐⭐",
     "needProfessionalRepair": true,
@@ -615,7 +615,7 @@
     "verifiedBy": "技术团队",
     "verifiedAt": "2024-10-15",
     "reviewStatus": "approved",
-    "tags": ["SOP", "云台", "电机", "霍尔", "ET7KY13", "ET7KY08"],
+    "tags": ["SOP", "云台", "电机", "霍尔", "当前可用链路/模块检测方式", "ET7KY08"],
     "relatedCases": ["F115", "F117", "F114"]
   },
   {

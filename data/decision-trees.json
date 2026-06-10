@@ -480,7 +480,7 @@
           "id": "po-link-error",
           "type": "action",
           "title": "链路测试报错定位",
-          "description": "根据 ET7KY13 的具体报错项进行定位。常见报错项包括：核心板、电调板、电机、GPS板、硬盘、TOF、机臂灯、电池在位、指南针、SD卡槽、相机、云台轴臂等。",
+          "description": "根据 当前链路/模块检测方式的异常项进行定位。常见报错项包括：核心板、电调板、电机、GPS板、硬盘、TOF、机臂灯、电池在位、指南针、SD卡槽、相机、云台轴臂等。",
           "criteria": "记录具体报错项",
           "tools": [
             "当前可用链路/模块检测方式"
@@ -782,7 +782,7 @@
       "id": "tree-link-test",
       "name": "机身链路测试故障排查",
       "category": "机身",
-      "description": "ET7KY13链路测试报错后的定位与排查",
+      "description": "链路/模块检查异常后的定位与排查",
       "icon": "🔧",
       "startNode": "lt-start",
       "nodes": {
@@ -790,7 +790,7 @@
           "id": "lt-start",
           "type": "action",
           "title": "运行整机链路测试",
-          "description": "使用 ET7KY13 运行整机链路测试，记录所有报错项",
+          "description": "使用当前可用链路/模块检测方式完成检查，记录所有报错项",
           "criteria": "完整记录每一项 PASS/NG 结果",
           "tools": [
             "当前可用链路/模块检测方式"
@@ -805,7 +805,7 @@
           "id": "lt-has-error",
           "type": "question",
           "title": "链路测试是否存在报错项？",
-          "description": "检查 ET7KY13 测试结果中是否有 NG 项",
+          "description": "检查当前链路/模块检测结果中是否有异常项",
           "criteria": "测试结果中存在标红/NG的项目",
           "yes": {
             "label": "❌ 有报错",
@@ -852,14 +852,14 @@
               ]
             },
             "clarificationHint": "请确认：测试结果中存在标红/NG的项目？",
-            "dynamicDescription": "根据用户描述的故障现象，重点观察：检查 ET7KY13 测试结果中是否有 NG 项"
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：检查当前链路/模块检测结果中是否有异常项"
           }
         },
         "lt-pass": {
           "id": "lt-pass",
           "type": "terminal",
           "title": "链路测试正常",
-          "description": "ET7KY13 所有测试项均通过，机身链路无异常",
+          "description": "当前链路/模块检查全部通过，机身链路无异常",
           "conclusion": "[链路测试正常]",
           "recommendation": "继续APP功能测试"
         },
@@ -867,7 +867,7 @@
           "id": "lt-select-module",
           "type": "action",
           "title": "定位报错模块",
-          "description": "根据 ET7KY13 报错项选择对应模块进行排查。常见报错模块：核心板、电调板、电机、GPS板、硬盘、TOF、机臂灯、电池在位检测、指南针、SD卡槽、相机、云台轴臂",
+          "description": "根据 链路/模块检查异常项选择对应模块进行排查。常见报错模块：核心板、电调板、电机、GPS板、硬盘、TOF、机臂灯、电池在位检测、指南针、SD卡槽、相机、云台轴臂",
           "criteria": "准确识别报错模块名称",
           "tools": [
             "当前可用链路/模块检测方式"
@@ -1296,8 +1296,8 @@
         "gm-link-test": {
           "id": "gm-link-test",
           "type": "action",
-          "title": "整机链路测试（ET7KY13）",
-          "description": "运行 ET7KY13，重点查看云台YAW/PITCH/ROLL三项",
+          "title": "链路/模块检查",
+          "description": "使用当前可用链路/模块检测方式，重点查看云台YAW/PITCH/ROLL三项",
           "criteria": "云台三项均显示 PASS",
           "tools": [
             "当前可用链路/模块检测方式"
@@ -1312,7 +1312,7 @@
           "id": "gm-link-result",
           "type": "question",
           "title": "链路测试云台项是否正常？",
-          "description": "检查 ET7KY13 中 YAW/PITCH/ROLL 测试结果",
+          "description": "检查云台 YAW/PITCH/ROLL 相关检测结果",
           "criteria": "YAW/PITCH/ROLL 均显示 PASS",
           "tools": [
             "当前可用链路/模块检测方式"
@@ -1362,7 +1362,7 @@
               ]
             },
             "clarificationHint": "请确认：YAW/PITCH/ROLL 均显示 PASS？",
-            "dynamicDescription": "根据用户描述的故障现象，重点观察：检查 ET7KY13 中 YAW/PITCH/ROLL 测试结果"
+            "dynamicDescription": "根据用户描述的故障现象，重点观察：检查云台 YAW/PITCH/ROLL 相关检测结果"
           }
         },
         "gm-motor-hall": {

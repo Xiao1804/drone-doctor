@@ -116,7 +116,7 @@
     {
       "id": "link-test",
       "label": "链路测试报错",
-      "keywords": ["链路测试", "ET7KY13", "报错", "NG", "FAIL", "测试失败"],
+      "keywords": ["链路测试", "当前可用链路/模块检测方式", "报错", "NG", "FAIL", "测试失败"],
       "trees": ["tree-link-test"],
       "caseTags": ["链路", "测试", "核心板", "电调板"],
       "icon": "🔧",
