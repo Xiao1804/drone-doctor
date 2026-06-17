@@ -227,6 +227,29 @@ async function initDatabase() {
       console.warn('[Init] Vector tables init skipped:', err.message);
     }
 
+    // 新增字段：会员到期时间
+    await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_expires_at TEXT`);
+
+    // 券码表
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS coupons (
+        id SERIAL PRIMARY KEY,
+        code TEXT UNIQUE NOT NULL,
+        duration_days INTEGER NOT NULL,
+        duration_label TEXT NOT NULL,
+        status TEXT DEFAULT 'unused',
+        created_by TEXT,
+        activated_by TEXT,
+        activated_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW(),
+        batch_id TEXT,
+        note TEXT
+      )
+    `);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_coupons_code ON coupons(code)`);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_coupons_status ON coupons(status)`);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_coupons_batch_id ON coupons(batch_id)`);
+
     console.log('PostgreSQL database initialized successfully');
   } else {
     // SQLite 初始化
@@ -327,6 +350,35 @@ async function initDatabase() {
         `);
         db.run(`CREATE INDEX IF NOT EXISTS idx_diagnosis_sessions_status ON diagnosis_sessions(status)`);
         db.run(`CREATE INDEX IF NOT EXISTS idx_diagnosis_sessions_last_activity ON diagnosis_sessions(last_activity_at)`);
+
+        // 新增字段：会员到期时间
+        db.run(`ALTER TABLE users ADD COLUMN membership_expires_at TEXT`, (err) => {
+          // SQLite 的 ALTER TABLE ADD COLUMN 不支持 IF NOT EXISTS（3.35.0+ 支持）
+          // 忽略 "duplicate column name" 错误
+          if (err && !err.message.includes('duplicate column')) {
+            console.warn('[Init] Add membership_expires_at column:', err.message);
+          }
+        });
+
+        // 券码表
+        db.run(`
+          CREATE TABLE IF NOT EXISTS coupons (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            code TEXT UNIQUE NOT NULL,
+            duration_days INTEGER NOT NULL,
+            duration_label TEXT NOT NULL,
+            status TEXT DEFAULT 'unused',
+            created_by TEXT,
+            activated_by TEXT,
+            activated_at TEXT,
+            created_at TEXT DEFAULT (datetime('now')),
+            batch_id TEXT,
+            note TEXT
+          )
+        `);
+        db.run(`CREATE INDEX IF NOT EXISTS idx_coupons_code ON coupons(code)`);
+        db.run(`CREATE INDEX IF NOT EXISTS idx_coupons_status ON coupons(status)`);
+        db.run(`CREATE INDEX IF NOT EXISTS idx_coupons_batch_id ON coupons(batch_id)`);
 
         db.run('SELECT 1', (err) => {
           if (err) {

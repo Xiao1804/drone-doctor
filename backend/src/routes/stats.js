@@ -2,21 +2,46 @@ const express = require('express');
 const router = express.Router();
 const { query } = require('../db');
 const freeUsageService = require('../services/freeUsageService');
+const couponService = require('../services/couponService');
+const userService = require('../services/userService');
 
-// GET /api/stats/free-usage - 当前用户免费使用次数状态
+// GET /api/stats/free-usage - 当前用户会员状态（兼容旧接口）
 router.get('/free-usage', async (req, res) => {
   try {
-    const result = await freeUsageService.checkLimit(req);
+    // 尝试从 JWT 获取用户
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) {
+      return res.json({
+        allowed: false,
+        isMember: false,
+        expiresAt: null,
+        daysLeft: 0,
+        isAdmin: false,
+      });
+    }
+
+    const decoded = userService.verifyToken(token);
+    if (!decoded) {
+      return res.json({
+        allowed: false,
+        isMember: false,
+        expiresAt: null,
+        daysLeft: 0,
+        isAdmin: false,
+      });
+    }
+
+    const membership = await couponService.getUserMembership(decoded.userId);
     res.json({
-      allowed: result.allowed,
-      used: result.used,
-      remaining: result.isAdmin ? null : result.remaining,
-      limit: result.limit,
-      isAdmin: !!result.isAdmin,
+      allowed: membership.isMember,
+      isMember: membership.isMember,
+      expiresAt: membership.expiresAt,
+      daysLeft: membership.daysLeft,
+      isAdmin: membership.isAdmin,
     });
   } catch (error) {
-    console.error('Free usage stats error:', error);
-    res.status(500).json({ error: '获取使用次数失败' });
+    console.error('Membership stats error:', error);
+    res.status(500).json({ error: '获取会员状态失败' });
   }
 });
 

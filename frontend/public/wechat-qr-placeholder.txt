@@ -1,0 +1,14 @@
+微信二维码占位图说明
+======================
+
+请将你的微信二维码图片命名为 wechat-qr.svg 或 wechat-qr.png，
+放在 frontend/public/ 目录下，替换当前的占位图。
+
+当前占位图文件：wechat-qr.svg
+- 如果你的二维码是 PNG 格式，命名为 wechat-qr.png 并上传
+- 然后修改以下文件中的图片路径：
+  - frontend/src/components/WeChatQR.jsx
+  - frontend/src/components/CouponModal.jsx
+  将 src="/wechat-qr.svg" 改为 src="/wechat-qr.png"
+
+推荐：直接用 SVG 格式，或使用在线工具将 PNG 转为 SVG。

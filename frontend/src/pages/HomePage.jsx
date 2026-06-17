@@ -7,6 +7,9 @@ import { checkFreeUsageBeforeDiagnosis, isFreeLimitError, getFreeLimitMessage } 
 import { trackDiagnosisStart } from '../utils/tracking'
 import { DEVICE_TYPES, FAULT_TYPES } from '../shared/enums'
 import { showToast } from '../components/Toast'
+import CouponModal from '../components/CouponModal'
+import WeChatQR from '../components/WeChatQR'
+import { apiClient } from '../utils/apiClient'
 
 // 机型选项与故障类型从共享枚举导入（src/shared/enums.js）
 // 如需修改枚举值，请同步更新 shared/enums.js 和后端引用
@@ -57,6 +60,10 @@ function HomePage() {
   // 付费墙弹窗
   const [showPaywall, setShowPaywall] = useState(false)
 
+  // 会员状态
+  const [membership, setMembership] = useState(null)
+  const [showCouponModal, setShowCouponModal] = useState(false)
+
   useEffect(() => {
     const userData = localStorage.getItem('user')
     if (userData) {
@@ -66,6 +73,13 @@ function HomePage() {
     axios.get(apiUrl('/api/stats/total-diagnoses')).then(res => {
       setTotalDiagnoses(res.data.total)
     }).catch(() => {})
+
+    // 获取会员状态
+    apiClient.get('/api/stats/free-usage').then(res => {
+      setMembership(res.data)
+    }).catch(() => {
+      setMembership({ isMember: false, isAdmin: false })
+    })
   }, [])
 
   // 等待页进度条动画
@@ -143,10 +157,16 @@ function HomePage() {
     const symptom = `${selectedDevice?.label || ''} ${faultText} ${extraDescription}`.trim()
     if (!symptom) return
 
+    // 会员检查
     const usageState = await checkFreeUsageBeforeDiagnosis()
     if (!usageState.allowed) {
       refreshFreeUsage()
-      setShowPaywall(true)
+      // 未登录 -> 登录页；已登录无会员 -> 券码弹窗
+      if (!localStorage.getItem('token')) {
+        navigate('/auth')
+      } else {
+        setShowCouponModal(true)
+      }
       return
     }
 
@@ -203,9 +223,11 @@ function HomePage() {
       }, 500)
     } catch (error) {
       console.error('Diagnosis error:', error)
-      if (isFreeLimitError(error)) {
+      if (error?.response?.status === 403 && error?.response?.data?.error === 'MEMBERSHIP_REQUIRED') {
         refreshFreeUsage()
-        setShowPaywall(true)
+        setShowCouponModal(true)
+      } else if (error?.response?.status === 401 || error?.response?.data?.error === 'AUTH_REQUIRED') {
+        navigate('/auth')
       } else {
         showToast('诊断失败，请稍后重试', 'error')
       }
@@ -217,10 +239,15 @@ function HomePage() {
   const handleAgentDiagnose = async () => {
     if (!agentQuery.trim()) return
 
+    // 会员检查
     const usageState = await checkFreeUsageBeforeDiagnosis()
     if (!usageState.allowed) {
       refreshFreeUsage()
-      setShowPaywall(true)
+      if (!localStorage.getItem('token')) {
+        navigate('/auth')
+      } else {
+        setShowCouponModal(true)
+      }
       return
     }
 
@@ -242,9 +269,11 @@ function HomePage() {
       }
     } catch (error) {
       console.error('Agent diagnosis error:', error)
-      if (isFreeLimitError(error)) {
+      if (error?.response?.status === 403 && error?.response?.data?.error === 'MEMBERSHIP_REQUIRED') {
         refreshFreeUsage()
-        setShowPaywall(true)
+        setShowCouponModal(true)
+      } else if (error?.response?.status === 401 || error?.response?.data?.error === 'AUTH_REQUIRED') {
+        navigate('/auth')
       } else {
         showToast('智能体诊断失败，请稍后重试', 'error')
       }
@@ -566,46 +595,40 @@ function HomePage() {
       <section id="pricing" className="py-20 px-6 bg-gray-50">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-black mb-4">定价方案</h2>
-            <p className="text-gray-600">选择适合你的方案</p>
+            <h2 className="text-3xl font-bold text-black mb-4">使用方式</h2>
+            <p className="text-gray-600">券码激活，即享全部诊断功能</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-white p-8 rounded-xl border border-gray-200">
-              <div className="text-sm text-gray-500 mb-2">免费版</div>
-              <div className="text-4xl font-bold text-black mb-1">¥0</div>
-              <div className="text-sm text-gray-500 mb-6">永久免费</div>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-[#FF6B00]">✓</span> 每日3次诊断</li>
-                <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-[#FF6B00]">✓</span> 部分知识库</li>
-                <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-[#FF6B00]">✓</span> 基础题库</li>
-              </ul>
-              <button className="w-full py-3 border-2 border-gray-200 rounded-lg text-sm font-medium hover:border-black transition-colors">开始使用</button>
+          <div className="bg-white rounded-2xl border border-gray-200 p-8 md:p-12 text-center">
+            <div className="text-5xl mb-4">🎫</div>
+            <h3 className="text-2xl font-bold text-black mb-3">券码会员制</h3>
+            <p className="text-gray-600 mb-8 max-w-md mx-auto">
+              通过券码激活会员时长，解锁全部诊断功能。可选 1天 / 3天 / 7天 / 30天 / 90天 / 180天 / 1年。
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto mb-8">
+              {[
+                { days: '1天', desc: '体验试用' },
+                { days: '7天', desc: '短期使用' },
+                { days: '30天', desc: '月度使用' },
+                { days: '1年', desc: '长期使用' },
+              ].map(item => (
+                <div key={item.days} className="bg-gray-50 rounded-xl p-3">
+                  <div className="font-bold text-black">{item.days}</div>
+                  <div className="text-xs text-gray-500">{item.desc}</div>
+                </div>
+              ))}
             </div>
-            <div className="bg-black p-8 rounded-xl text-white relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#FF6B00] text-white text-xs rounded-full">最受欢迎</div>
-              <div className="text-sm text-gray-400 mb-2">月度会员</div>
-              <div className="text-4xl font-bold mb-1">¥39<span className="text-lg font-normal">/月</span></div>
-              <div className="text-sm text-gray-400 mb-6">按月付费</div>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center gap-2 text-sm"><span className="text-[#FF6B00]">✓</span> 无限诊断</li>
-                <li className="flex items-center gap-2 text-sm"><span className="text-[#FF6B00]">✓</span> 完整知识库</li>
-                <li className="flex items-center gap-2 text-sm"><span className="text-[#FF6B00]">✓</span> 完整题库</li>
-                <li className="flex items-center gap-2 text-sm"><span className="text-[#FF6B00]">✓</span> 优先客服</li>
-              </ul>
-              <button className="w-full py-3 bg-[#FF6B00] rounded-lg text-sm font-medium hover:bg-[#FF8533] transition-colors">立即订阅</button>
+            <div className="bg-orange-50 rounded-xl p-6 mb-6">
+              <p className="text-sm text-gray-700 mb-4">扫码加微信，获取体验券码</p>
+              <WeChatQR size="md" />
             </div>
-            <div className="bg-white p-8 rounded-xl border border-gray-200">
-              <div className="text-sm text-gray-500 mb-2">年度会员</div>
-              <div className="text-4xl font-bold text-black mb-1">¥299<span className="text-lg font-normal text-gray-500">/年</span></div>
-              <div className="text-sm text-[#FF6B00] mb-6">省¥169</div>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-[#FF6B00]">✓</span> 月度会员全部权益</li>
-                <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-[#FF6B00]">✓</span> 飞行日志解析</li>
-                <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-[#FF6B00]">✓</span> 专属社群</li>
-                <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-[#FF6B00]">✓</span> 1对1技术支持</li>
-              </ul>
-              <button className="w-full py-3 border-2 border-black rounded-lg text-sm font-medium hover:bg-black hover:text-white transition-colors">立即订阅</button>
-            </div>
+            {localStorage.getItem('token') && membership && !membership.isMember && !membership.isAdmin && (
+              <button
+                onClick={() => setShowCouponModal(true)}
+                className="px-8 py-3 bg-[#FF6B00] text-white rounded-lg font-medium hover:bg-[#FF8533] transition-colors"
+              >
+                输入券码
+              </button>
+            )}
           </div>
         </div>
       </section>
@@ -614,26 +637,35 @@ function HomePage() {
       <section className="py-20 px-6 bg-black">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-white mb-4">开始使用 DroneDoctor</h2>
-          <p className="text-gray-400 mb-8">专业的无人机故障诊断，从这里开始</p>
+          <p className="text-gray-400 mb-8">专业的无人机故障诊断，券码激活即用</p>
           <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={() => {
+              if (localStorage.getItem('token') && membership?.isMember) {
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              } else if (localStorage.getItem('token')) {
+                setShowCouponModal(true)
+              } else {
+                navigate('/auth')
+              }
+            }}
             className="px-8 py-4 bg-[#FF6B00] text-white rounded-lg font-medium hover:bg-[#FF8533] transition-colors"
           >
-            免费开始诊断
+            {membership?.isMember || membership?.isAdmin ? '开始诊断' : '激活券码'}
           </button>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-gray-100">
+      <footer className="py-12 px-6 border-t border-gray-100 bg-white">
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-[#FF6B00] rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">D</span>
               </div>
               <span className="font-semibold">DroneDoctor</span>
             </div>
+            <WeChatQR size="sm" />
             <div className="text-sm text-gray-500">© 2026 DroneDoctor. All rights reserved.</div>
           </div>
         </div>
@@ -750,10 +782,19 @@ function HomePage() {
       {showPaywall && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-8 text-center">
-            <div className="text-5xl mb-4">🔒</div>
-            <h3 className="text-xl font-bold text-black mb-2">今日免费次数已用完</h3>
-            <p className="text-gray-600 mb-6">{getFreeLimitMessage()}</p>
+            <div className="text-5xl mb-4">🎫</div>
+            <h3 className="text-xl font-bold text-black mb-2">需要激活券码</h3>
+            <p className="text-gray-600 mb-6">输入券码激活会员，即可使用诊断功能</p>
             <div className="space-y-3">
+              <button
+                onClick={() => {
+                  setShowPaywall(false)
+                  setShowCouponModal(true)
+                }}
+                className="w-full py-3 bg-[#FF6B00] text-white rounded-xl font-medium hover:bg-[#FF8533] transition-colors"
+              >
+                输入券码
+              </button>
               <button
                 onClick={() => {
                   setShowPaywall(false)
@@ -762,19 +803,34 @@ function HomePage() {
                     document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
                   }, 100)
                 }}
-                className="w-full py-3 bg-[#FF6B00] text-white rounded-xl font-medium hover:bg-[#FF8533] transition-colors"
+                className="w-full py-3 border-2 border-gray-200 rounded-xl font-medium hover:border-black transition-colors"
               >
-                查看会员方案
+                获取券码
               </button>
               <button
                 onClick={() => setShowPaywall(false)}
-                className="w-full py-3 border-2 border-gray-200 rounded-xl font-medium hover:border-black transition-colors"
+                className="w-full py-3 text-gray-500 text-sm hover:text-gray-700 transition-colors"
               >
                 暂时不用
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* 券码激活弹窗 */}
+      {showCouponModal && (
+        <CouponModal
+          onClose={() => setShowCouponModal(false)}
+          onActivated={() => {
+            setShowCouponModal(false)
+            refreshFreeUsage()
+            // 重新获取会员状态
+            apiClient.get('/api/stats/free-usage').then(res => {
+              setMembership(res.data)
+            }).catch(() => {})
+          }}
+        />
       )}
 
     </div>

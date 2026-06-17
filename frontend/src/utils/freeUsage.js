@@ -24,30 +24,27 @@ export async function fetchFreeUsageState() {
       headers,
       timeout: 5000,
     })
+    // 新格式：{ allowed, isMember, expiresAt, daysLeft, isAdmin }
+    // 兼容旧格式：{ allowed, used, remaining, limit, isAdmin }
     return {
       used: Number(res.data.used || 0),
-      remaining: res.data.isAdmin ? Infinity : Number(res.data.remaining || 0),
+      remaining: res.data.isAdmin ? Infinity : (res.data.isMember ? Infinity : 0),
       limit: Number(res.data.limit || MAX_FREE),
       allowed: !!res.data.allowed,
       isAdmin: !!res.data.isAdmin,
+      isMember: !!res.data.isMember,
+      expiresAt: res.data.expiresAt || null,
+      daysLeft: res.data.daysLeft || 0,
     }
   } catch (error) {
-    // 后端不可用时 fallback 到 localStorage
-    const today = new Date().toISOString().slice(0, 10)
-    const savedDate = localStorage.getItem(STORAGE_DATE_KEY)
-    if (savedDate !== today) {
-      localStorage.setItem(STORAGE_DATE_KEY, today)
-      localStorage.setItem(STORAGE_KEY, '0')
-      return { used: 0, remaining: MAX_FREE, limit: MAX_FREE, allowed: true, isAdmin: false }
+    // 后端不可用时，检查是否有 token
+    const token = getAuthToken()
+    // 没有 token 则不允许
+    if (!token) {
+      return { used: 0, remaining: 0, limit: MAX_FREE, allowed: false, isAdmin: false, isMember: false }
     }
-    const used = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10)
-    return {
-      used,
-      remaining: Math.max(0, MAX_FREE - used),
-      limit: MAX_FREE,
-      allowed: used < MAX_FREE,
-      isAdmin: false,
-    }
+    // 有 token 但后端不可用，保守返回 false
+    return { used: 0, remaining: 0, limit: MAX_FREE, allowed: false, isAdmin: false, isMember: false }
   }
 }
 
@@ -87,12 +84,14 @@ export function clearLocalUsageCache() {
  */
 export function isFreeLimitError(error) {
   return error?.response?.status === 429 ||
-    error?.response?.data?.code === 'FREE_LIMIT_EXCEEDED'
+    error?.response?.status === 403 ||
+    error?.response?.data?.code === 'FREE_LIMIT_EXCEEDED' ||
+    error?.response?.data?.error === 'MEMBERSHIP_REQUIRED'
 }
 
 /**
  * 获取错误提示文案
  */
 export function getFreeLimitMessage() {
-  return '今日免费诊断次数已用完（3次/天），请明日再来或升级会员享受无限次诊断'
+  return '需要券码激活会员才能使用诊断功能'
 }

@@ -280,6 +280,17 @@ class UserService {
   }
 
   /**
+   * 更新用户会员到期时间
+   */
+  async updateMembership(userId, expiresAt) {
+    await run(
+      'UPDATE users SET membership_expires_at = ? WHERE id = ?',
+      [expiresAt, userId]
+    );
+    return true;
+  }
+
+  /**
    * 格式化用户数据
    */
   formatUser(row) {
@@ -294,7 +305,8 @@ class UserService {
       lastLoginAt: row.last_login_at,
       diagnosisCount: row.diagnosis_count,
       favoriteCount: row.favorite_count,
-      isActive: row.is_active === 1 || row.is_active === true
+      isActive: row.is_active === 1 || row.is_active === true,
+      membershipExpiresAt: row.membership_expires_at || null
     };
   }
 }

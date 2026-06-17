@@ -3,11 +3,15 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
 import { showToast } from '../components/Toast'
+import { apiClient } from '../utils/apiClient'
+import CouponModal from '../components/CouponModal'
 
 function ProfilePage() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [editMode, setEditMode] = useState(false)
+  const [membership, setMembership] = useState(null)
+  const [showCouponModal, setShowCouponModal] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     currentPassword: '',
@@ -29,6 +33,13 @@ function ProfilePage() {
     setUser(parsedUser)
     setFormData(prev => ({ ...prev, email: parsedUser.email }))
     setLoading(false)
+
+    // 获取会员状态
+    apiClient.get('/api/coupon/membership').then(res => {
+      setMembership(res.data)
+    }).catch(() => {
+      setMembership({ isMember: false, isAdmin: false })
+    })
   }, [navigate])
 
   const handleChange = (e) => {
@@ -162,6 +173,48 @@ function ProfilePage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+        {/* 会员状态卡片 */}
+        {!isAdmin && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="px-4 py-3 border-b border-gray-200">
+              <h3 className="font-bold text-gray-900">会员状态</h3>
+            </div>
+            <div className="p-4">
+              {membership?.isMember ? (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="inline-block w-2 h-2 bg-green-500 rounded-full" />
+                      <span className="font-medium text-green-600">会员有效</span>
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      到期时间：{membership.expiresAt ? new Date(membership.expiresAt).toLocaleString('zh-CN') : '-'}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      剩余天数：{membership.daysLeft} 天
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-[#FF6B00]">{membership.daysLeft}</div>
+                    <div className="text-xs text-gray-500">天</div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-2">
+                  <div className="text-4xl mb-2">🎫</div>
+                  <p className="text-sm text-gray-600 mb-3">暂无有效会员，激活券码后即可使用诊断功能</p>
+                  <button
+                    onClick={() => setShowCouponModal(true)}
+                    className="px-6 py-2 bg-[#FF6B00] text-white text-sm rounded-lg font-medium hover:bg-[#FF8533] transition-colors"
+                  >
+                    激活券码
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Profile Section */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
@@ -319,6 +372,21 @@ function ProfilePage() {
 
             {isAdmin && (
               <button
+                onClick={() => navigate('/admin/coupons')}
+                className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50"
+              >
+                <div className="flex items-center space-x-3">
+                  <span className="text-xl">🎫</span>
+                  <span className="text-gray-900">券码管理</span>
+                </div>
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            )}
+
+            {isAdmin && (
+              <button
                 onClick={() => navigate('/admin/feedback')}
                 className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50"
               >
@@ -370,6 +438,20 @@ function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* 券码激活弹窗 */}
+      {showCouponModal && (
+        <CouponModal
+          onClose={() => setShowCouponModal(false)}
+          onActivated={() => {
+            setShowCouponModal(false)
+            // 刷新会员状态
+            apiClient.get('/api/coupon/membership').then(res => {
+              setMembership(res.data)
+            }).catch(() => {})
+          }}
+        />
+      )}
     </div>
   )
 }
