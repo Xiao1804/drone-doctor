@@ -60,12 +60,12 @@ async function generateCoupons(durationDays, durationLabel, count, adminId, note
  * 验证券码是否有效
  */
 async function validateCoupon(code) {
-  // 支持 XXXX-XXXX 和 XXXXXXXX 两种格式
-  const normalizedCode = code.trim().toUpperCase().replace(/\s/g, '');
+  // 统一标准化：去空格、转大写、去掉所有 -
+  const normalizedCode = code.trim().toUpperCase().replace(/[\s-]/g, '');
 
   const coupon = await get(
-    'SELECT * FROM coupons WHERE code = ? OR code = ?',
-    [normalizedCode, normalizedCode.replace('-', '')]
+    'SELECT * FROM coupons WHERE REPLACE(code, \'-\', \'\') = ?',
+    [normalizedCode]
   );
 
   if (!coupon) {

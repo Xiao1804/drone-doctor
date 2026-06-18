@@ -59,8 +59,11 @@ async function freeUsageLimit(req, res, next) {
     });
   } catch (error) {
     console.error('[MembershipLimit] Middleware error:', error);
-    // 出错时不阻止请求，避免服务中断
-    next();
+    // 出错时阻止请求，避免安全漏洞
+    return res.status(503).json({
+      error: 'SERVICE_UNAVAILABLE',
+      message: '服务暂时不可用，请稍后重试'
+    });
   }
 }
 
