@@ -1,29 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const caseController = require('../controllers/caseController');
+const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 
-// 获取所有案例
+// 公开读取路由（无需登录）
 router.get('/', caseController.getAllCases);
-
-// 搜索案例
 router.get('/search', caseController.searchCases);
-
-// 获取统计信息
 router.get('/stats', caseController.getStats);
-
-// 获取单个案例
 router.get('/:id', caseController.getCase);
 
-// 添加新案例
-router.post('/', caseController.addCase);
-
-// 更新案例
-router.put('/:id', caseController.updateCase);
-
-// 审核案例
-router.post('/:id/review', caseController.reviewCase);
-
-// 删除案例
-router.delete('/:id', caseController.deleteCase);
+// 写操作需要管理员权限
+router.post('/', authMiddleware, adminMiddleware, caseController.addCase);
+router.put('/:id', authMiddleware, adminMiddleware, caseController.updateCase);
+router.post('/:id/review', authMiddleware, adminMiddleware, caseController.reviewCase);
+router.delete('/:id', authMiddleware, adminMiddleware, caseController.deleteCase);
 
 module.exports = router;

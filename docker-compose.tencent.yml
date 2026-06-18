@@ -13,6 +13,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+    networks:
+      - drone-doctor
 
   backend:
     build:
@@ -51,6 +53,8 @@ services:
       interval: 30s
       timeout: 5s
       retries: 10
+    networks:
+      - drone-doctor
 
   frontend:
     build:
@@ -61,9 +65,33 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    expose:
+      - "80"
+    networks:
+      - drone-doctor
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
     ports:
-      - "${APP_HTTP_PORT:-80}:80"
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - drone-doctor
 
 volumes:
   postgres_data:
   backend_uploads:
+  caddy_data:
+  caddy_config:
+
+networks:
+  drone-doctor:
+    driver: bridge

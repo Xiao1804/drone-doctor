@@ -1,0 +1,15 @@
+# www 重定向到主域名（SEO 避免重复内容）
+www.wurenjiyisheng.com {
+	redir https://wurenjiyisheng.com{uri} permanent
+}
+
+wurenjiyisheng.com {
+	encode gzip
+
+	# API 和 health 路由代理到后端
+	reverse_proxy /api/* backend:3000
+	reverse_proxy /health backend:3000
+
+	# 前端静态资源
+	reverse_proxy frontend:80
+}
