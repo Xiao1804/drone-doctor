@@ -1,15 +1,16 @@
 const express = require('express');
-const router = express.Router();
 const userController = require('../controllers/userController');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 
 /**
- * @param {import('express').RequestHandler} authLimiter - 登录/注册速率限制
+ * @param {import('express').RequestHandler[]} authLimiters - 登录/注册速率限制
  */
-module.exports = function (authLimiter) {
+module.exports = function (authLimiters) {
+  const router = express.Router();
+
   // 公开路由（无需登录，但有速率限制）
-  router.post('/register', authLimiter, userController.register);
-  router.post('/login', authLimiter, userController.login);
+  router.post('/register', ...authLimiters, userController.register);
+  router.post('/login', ...authLimiters, userController.login);
 
   // 需要登录的路由
   router.get('/me', authMiddleware, userController.getCurrentUser);

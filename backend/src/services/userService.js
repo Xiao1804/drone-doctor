@@ -132,6 +132,19 @@ class UserService {
   }
 
   /**
+   * 获取当前仍有效的用户。权限中间件以数据库实时状态为准，
+   * 避免已停用、删除或降权用户继续使用旧 JWT。
+   */
+  async getActiveUser(userId) {
+    const result = await query(
+      'SELECT * FROM users WHERE id = ? AND is_active = 1',
+      [userId]
+    );
+    if (result.rows.length === 0) return null;
+    return this.sanitizeUser(this.formatUser(result.rows[0]));
+  }
+
+  /**
    * 更新用户信息
    */
   async updateUser(userId, updates) {

@@ -3,7 +3,7 @@ const userService = require('../services/userService');
 /**
  * 认证中间件
  */
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
     
@@ -11,14 +11,19 @@ const authMiddleware = (req, res, next) => {
       return res.status(401).json({ error: '未登录' });
     }
 
-    const user = userService.verifyToken(token);
+    const decoded = userService.verifyToken(token);
     
-    if (!user) {
+    if (!decoded?.userId) {
       return res.status(401).json({ error: 'Token无效或已过期' });
     }
 
+    const user = await userService.getActiveUser(decoded.userId);
+    if (!user) {
+      return res.status(401).json({ error: '用户不存在或已停用' });
+    }
+
     req.user = user;
-    req.userId = user.userId;
+    req.userId = user.id;
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);
@@ -39,15 +44,18 @@ const adminMiddleware = (req, res, next) => {
 /**
  * 可选认证中间件（不强制要求登录）
  */
-const optionalAuthMiddleware = (req, res, next) => {
+const optionalAuthMiddleware = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
     
     if (token) {
-      const user = userService.verifyToken(token);
+      const decoded = userService.verifyToken(token);
+      const user = decoded?.userId
+        ? await userService.getActiveUser(decoded.userId)
+        : null;
       if (user) {
         req.user = user;
-        req.userId = user.userId;
+        req.userId = user.id;
       }
     }
     

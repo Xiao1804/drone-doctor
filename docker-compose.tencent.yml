@@ -15,6 +15,11 @@ services:
       retries: 10
     networks:
       - drone-doctor
+    logging: &default-logging
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   backend:
     build:
@@ -55,6 +60,7 @@ services:
       retries: 10
     networks:
       - drone-doctor
+    logging: *default-logging
 
   frontend:
     build:
@@ -69,6 +75,7 @@ services:
       - "80"
     networks:
       - drone-doctor
+    logging: *default-logging
 
   caddy:
     image: caddy:2-alpine
@@ -85,6 +92,7 @@ services:
       - backend
     networks:
       - drone-doctor
+    logging: *default-logging
 
 volumes:
   postgres_data:

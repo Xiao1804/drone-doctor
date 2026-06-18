@@ -21,25 +21,33 @@ async function freeUsageLimit(req, res, next) {
     }
 
     const decoded = userService.verifyToken(token);
-    if (!decoded) {
+    if (!decoded?.userId) {
       return res.status(401).json({
         error: 'AUTH_REQUIRED',
         message: '请先登录'
       });
     }
 
+    const currentUser = await userService.getActiveUser(decoded.userId);
+    if (!currentUser) {
+      return res.status(401).json({
+        error: 'AUTH_REQUIRED',
+        message: '用户不存在或已停用'
+      });
+    }
+
     // 附加用户信息到 req
-    req.user = decoded;
-    req.userId = decoded.userId;
+    req.user = currentUser;
+    req.userId = currentUser.id;
 
     // 管理员放行
-    if (decoded.role === 'admin') {
+    if (currentUser.role === 'admin') {
       req.freeUsage = { allowed: true, isAdmin: true };
       return next();
     }
 
     // 检查会员状态
-    const membership = await couponService.getUserMembership(decoded.userId);
+    const membership = await couponService.getUserMembership(currentUser.id);
 
     if (membership.isMember) {
       req.freeUsage = {

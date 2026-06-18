@@ -2,14 +2,14 @@
 
 This deployment runs the whole app on one Tencent Cloud Lighthouse/CVM server:
 
-- Nginx serves the React frontend.
-- Nginx proxies `/api/*` and `/health` to the Node.js backend.
+- Caddy terminates HTTPS and proxies `/api/*` and `/health` directly to the backend.
+- Nginx in the frontend container serves the compiled React application.
 - PostgreSQL runs in Docker with a persistent volume.
 
-The public entrypoint is one address:
+The public entrypoint is:
 
 ```text
-http://<your-server-public-ip>
+https://wurenjiyisheng.com
 ```
 
 ## 1. Buy And Prepare A Server
@@ -26,9 +26,9 @@ Open these ports in Tencent Cloud firewall/security group:
 
 - `22`: SSH
 - `80`: website HTTP
-- `443`: only needed later if you bind a domain and enable HTTPS
+- `443`: HTTPS
 
-If you bind a mainland China domain to the server, complete ICP filing first. For quick testing, use the public IP directly.
+For a mainland China server, complete ICP filing before expecting the public domain to serve traffic. A DNSPod/Tencent Cloud interception page means the request did not reach Caddy.
 
 ## 2. Install Docker
 
@@ -104,7 +104,11 @@ You can generate strong random values on the server:
 openssl rand -hex 32
 ```
 
-For this Docker deployment, keep `ALLOWED_ORIGINS` empty unless you later expose the backend separately.
+Set the production browser origins explicitly:
+
+```env
+ALLOWED_ORIGINS=https://wurenjiyisheng.com,https://www.wurenjiyisheng.com
+```
 
 ## 5. Start The App
 
@@ -119,17 +123,17 @@ docker compose --env-file .env.tencent -f docker-compose.tencent.yml ps
 docker compose --env-file .env.tencent -f docker-compose.tencent.yml logs -f backend
 ```
 
-Local health check on the server:
+Local health check on the server, preserving the production Host and TLS routing:
 
 ```bash
-curl http://127.0.0.1/health
+curl --resolve wurenjiyisheng.com:443:127.0.0.1 https://wurenjiyisheng.com/health
 ```
 
-Public check from your phone or computer:
+Public checks:
 
 ```text
-http://<your-server-public-ip>
-http://<your-server-public-ip>/health
+https://wurenjiyisheng.com
+https://wurenjiyisheng.com/health
 ```
 
 ## 6. Update After Code Changes
@@ -170,21 +174,65 @@ docker compose --env-file .env.tencent -f docker-compose.tencent.yml up -d
 
 ## 7. Database Backup
 
+Install the checked-in backup script and schedule it:
+
+```bash
+sudo install -m 700 ops/backup/backup-db.sh /root/backup-db.sh
+sudo mkdir -p -m 700 /root/backups
+(sudo crontab -l 2>/dev/null; echo '0 3 * * * /root/backup-db.sh >> /root/backups/backup.log 2>&1') \
+  | sort -u | sudo crontab -
+sudo /root/backup-db.sh
+latest_backup="$(sudo find /root/backups -maxdepth 1 -name 'db_*.dump' -printf '%T@ %p\n' \
+  | sort -nr | head -1 | cut -d' ' -f2-)"
+docker compose --env-file .env.tencent -f docker-compose.tencent.yml exec -T postgres \
+  pg_restore --list < "$latest_backup" > /dev/null
+```
+
+Restore example. Stop the backend first, then restore into the target database with
+failure-on-first-error semantics:
+
+```bash
+docker compose --env-file .env.tencent -f docker-compose.tencent.yml stop backend
+docker compose --env-file .env.tencent -f docker-compose.tencent.yml exec -T postgres \
+  sh -lc 'pg_restore --clean --if-exists --exit-on-error --no-owner --no-privileges \
+    -U "$POSTGRES_USER" -d "$POSTGRES_DB"' \
+  < /root/backups/db_YYYYMMDD_HHMMSS.dump
+docker compose --env-file .env.tencent -f docker-compose.tencent.yml start backend
+```
+
+Before relying on backups, run a restore drill into a temporary database:
+
 ```bash
 docker compose --env-file .env.tencent -f docker-compose.tencent.yml exec -T postgres \
-  pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" > backup-$(date +%F).sql
+  sh -lc 'dropdb --if-exists -U "$POSTGRES_USER" drone_doctor_restore_test &&
+    createdb -U "$POSTGRES_USER" drone_doctor_restore_test'
+docker compose --env-file .env.tencent -f docker-compose.tencent.yml exec -T postgres \
+  sh -lc 'pg_restore --exit-on-error --no-owner --no-privileges \
+    -U "$POSTGRES_USER" -d drone_doctor_restore_test' \
+  < "$latest_backup"
+docker compose --env-file .env.tencent -f docker-compose.tencent.yml exec -T postgres \
+  sh -lc 'psql -U "$POSTGRES_USER" -d drone_doctor_restore_test -Atc \
+    "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '\''public'\'';"'
+docker compose --env-file .env.tencent -f docker-compose.tencent.yml exec -T postgres \
+  sh -lc 'dropdb -U "$POSTGRES_USER" drone_doctor_restore_test'
 ```
 
-Restore example:
+## 8. SSH Hardening
+
+Keep one verified key-based SSH session open while applying this change:
 
 ```bash
-cat backup-YYYY-MM-DD.sql | docker compose --env-file .env.tencent -f docker-compose.tencent.yml exec -T postgres \
-  psql -U "$POSTGRES_USER" "$POSTGRES_DB"
+sudo install -m 644 ops/ssh/00-drone-doctor-hardening.conf \
+  /etc/ssh/sshd_config.d/00-drone-doctor-hardening.conf
+sudo sshd -t
+sudo systemctl reload ssh
+sudo sshd -T | grep -E 'passwordauthentication|permitrootlogin|pubkeyauthentication'
 ```
+
+Open a second terminal and prove key login still works before closing the first session.
 
 ## Notes
 
-- The first registered user becomes admin because the production database starts empty.
 - Do not commit `.env.tencent`.
-- If port `80` is already used, set `APP_HTTP_PORT=8080` in `.env.tencent`, open port `8080` in Tencent Cloud, and visit `http://<ip>:8080`.
-- For HTTPS and a clean domain, bind a filed domain, open `443`, then add a certificate reverse proxy such as Caddy or Certbot/Nginx.
+- Ports 80 and 443 must be available to Caddy.
+- Docker logs are limited per container to three 10 MB files by `docker-compose.tencent.yml`.

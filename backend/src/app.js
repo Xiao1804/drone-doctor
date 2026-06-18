@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const { initDatabase } = require('./db');
@@ -22,18 +21,19 @@ const feedbackRoutes = require('./routes/feedback');
 const couponRoutes = require('./routes/coupon');
 
 const { errorHandler } = require('./middleware/errorHandler');
+const {
+  createGlobalApiLimiter,
+  createAuthLimiters,
+} = require('./middleware/rateLimiters');
 
 const app = express();
 
 // 信任代理（nginx 反向代理场景，1层代理）
 app.set('trust proxy', 1);
 
-const DEFAULT_ALLOWED_ORIGINS = [
-  'http://localhost:5173',
-  'http://localhost:3000'
-];
-const VERCEL_APP_ORIGIN = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i;
-const RENDER_APP_ORIGIN = /^https:\/\/[a-z0-9-]+\.onrender\.com$/i;
+const DEFAULT_ALLOWED_ORIGINS = process.env.NODE_ENV === 'production'
+  ? []
+  : ['http://localhost:5173', 'http://localhost:3000'];
 
 function getAllowedOrigins() {
   const configuredOrigins = (process.env.ALLOWED_ORIGINS || '')
@@ -49,7 +49,7 @@ const allowAllOrigins = allowedOrigins.has('*');
 
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || allowAllOrigins || allowedOrigins.has(origin) || VERCEL_APP_ORIGIN.test(origin) || RENDER_APP_ORIGIN.test(origin)) {
+    if (!origin || allowAllOrigins || allowedOrigins.has(origin)) {
       return callback(null, true);
     }
 
@@ -57,32 +57,22 @@ app.use(cors({
   },
   credentials: true
 }));
-app.use(express.json());
 
 // 全局 API 速率限制：每 15 分钟 100 次
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-app.use('/api/', limiter);
+app.use('/api/', createGlobalApiLimiter());
+
+// 先限速再解析 JSON，避免畸形或超大请求绕过频率控制。
+app.use(express.json({ limit: '64kb', strict: true }));
 
 // 登录/注册接口独立速率限制：每分钟最多 5 次
-const authLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: '请求过于频繁，请稍后再试' },
-});
+const authLimiters = createAuthLimiters();
 
 app.use('/api/diagnosis', diagnosisRoutes);
 app.use('/api/knowledge', knowledgeRoutes);
 app.use('/api/caac', caacRoutes);
 app.use('/api/cases', casesRoutes);
 app.use('/api/image', imageRoutes);
-app.use('/api/user', userRoutes(authLimiter));
+app.use('/api/user', userRoutes(authLimiters));
 app.use('/api/history', historyRoutes);
 app.use('/api/decision-trees', decisionTreeRoutes);
 app.use('/api/events', eventsRoutes);
