@@ -34,6 +34,8 @@ services:
     envVars:
       - key: VITE_API_BASE_URL
         sync: false
+      - key: VITE_PERSONAL_LEARNING_EDITION
+        value: "true"
 
 databases:
   - name: drone-doctor-db

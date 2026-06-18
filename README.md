@@ -76,6 +76,17 @@ JWT_SECRET=your_jwt_secret_at_least_32_chars
 LOCAL_MODEL_PATH=./models/Xenova/bge-small-zh-v1.5
 ```
 
+前端构建可参考 `frontend/.env.example`。个人学习版由构建时变量控制：
+
+```env
+VITE_PERSONAL_LEARNING_EDITION=true
+```
+
+- 未配置时默认启用个人学习版。
+- `false`、`0`、`no` 或 `off`（不区分大小写）会关闭个人学习版横幅；其他值视为启用。
+- 这是构建/部署级开关，Vite 会在打包时写入结果，不是用户可在页面中切换的设置。修改后需要重新执行前端构建或重新部署。
+- Docker Compose 可在 `.env.tencent` 中设置同名变量；`docker-compose.tencent.yml` 默认传入 `true`。Render 静态站点也默认配置为 `true`。
+
 ### 初始化数据
 
 ```bash

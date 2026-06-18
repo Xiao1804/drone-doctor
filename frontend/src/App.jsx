@@ -11,7 +11,9 @@ import AdminFeedbackPage from './pages/AdminFeedbackPage'
 import MyFeedbackPage from './pages/MyFeedbackPage'
 import FeedbackWidget from './components/FeedbackWidget'
 import AdminCouponPage from './pages/AdminCouponPage'
+import CompliancePage from './pages/CompliancePage'
 import ToastContainer from './components/Toast'
+import PersonalLearningBanner from './components/PersonalLearningBanner'
 import './index.css'
 
 function App() {
@@ -20,8 +22,10 @@ function App() {
       <div className="min-h-screen bg-gray-50">
         <ToastContainer />
         <FeedbackWidget />
+        <PersonalLearningBanner />
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/compliance" element={<CompliancePage />} />
           <Route path="/diagnosis" element={<Navigate to="/guide" replace />} />
           <Route path="/conversation" element={<Navigate to="/guide" replace />} />
           <Route path="/image-diagnosis" element={<ImageDiagnosisPage />} />

@@ -62,6 +62,7 @@ export default function FeedbackWidget() {
 
   const user = getCurrentUser()
   const isDiagnosisPage = location.pathname.startsWith('/guide') || location.pathname.startsWith('/image-diagnosis') || location.pathname.startsWith('/flight-log')
+  const isCompliancePage = location.pathname === '/compliance'
 
   useEffect(() => {
     const handleOpenFeedback = (event) => {
@@ -133,6 +134,10 @@ export default function FeedbackWidget() {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  if (isCompliancePage) {
+    return null
   }
 
   return (

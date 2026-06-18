@@ -666,6 +666,12 @@ function HomePage() {
               <span className="font-semibold">DroneDoctor</span>
             </div>
             <WeChatQR size="sm" />
+            <button
+              onClick={() => navigate('/compliance')}
+              className="text-sm text-gray-500 underline decoration-gray-300 underline-offset-4 hover:text-[#FF6B00]"
+            >
+              合规与使用说明
+            </button>
             <div className="text-sm text-gray-500">© 2026 DroneDoctor. All rights reserved.</div>
           </div>
         </div>
