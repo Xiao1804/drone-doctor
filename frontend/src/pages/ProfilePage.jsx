@@ -4,14 +4,12 @@ import axios from 'axios'
 import { apiUrl } from '../config/api'
 import { showToast } from '../components/Toast'
 import { apiClient } from '../utils/apiClient'
-import CouponModal from '../components/CouponModal'
 
 function ProfilePage() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [editMode, setEditMode] = useState(false)
   const [membership, setMembership] = useState(null)
-  const [showCouponModal, setShowCouponModal] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     currentPassword: '',
@@ -202,13 +200,7 @@ function ProfilePage() {
               ) : (
                 <div className="text-center py-2">
                   <div className="text-4xl mb-2">🎫</div>
-                  <p className="text-sm text-gray-600 mb-3">暂无有效会员，激活券码后即可使用诊断功能</p>
-                  <button
-                    onClick={() => setShowCouponModal(true)}
-                    className="px-6 py-2 bg-[#FF6B00] text-white text-sm rounded-lg font-medium hover:bg-[#FF8533] transition-colors"
-                  >
-                    激活券码
-                  </button>
+                  <p className="text-sm text-gray-600">暂无有效体验</p>
                 </div>
               )}
             </div>
@@ -454,19 +446,6 @@ function ProfilePage() {
         </div>
       </div>
 
-      {/* 券码激活弹窗 */}
-      {showCouponModal && (
-        <CouponModal
-          onClose={() => setShowCouponModal(false)}
-          onActivated={() => {
-            setShowCouponModal(false)
-            // 刷新会员状态
-            apiClient.get('/api/coupon/membership').then(res => {
-              setMembership(res.data)
-            }).catch(() => {})
-          }}
-        />
-      )}
     </div>
   )
 }

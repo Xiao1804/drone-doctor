@@ -38,9 +38,13 @@ jest.mock('../src/db', () => ({
 
 jest.mock('../src/services/couponService', () => ({
   getUserMembership: jest.fn().mockResolvedValue({ isMember: false }),
+  generateCoupons: jest.fn().mockResolvedValue({
+    codes: ['ABCD-EFGH'],
+    batchId: 'batch-test',
+  }),
   activateCoupon: jest.fn().mockResolvedValue({
     expiresAt: '2026-07-19T00:00:00.000Z',
-    durationLabel: '30天',
+    durationLabel: '3天体验',
   }),
 }));
 
@@ -303,13 +307,36 @@ describe('authentication rate limiting', () => {
 describe('coupon routes remain available to existing users', () => {
   const app = createApp('/api/coupon', couponRoutes);
 
-  test('coupon durations remain public', async () => {
+  test('only the 3-day trial duration is exposed', async () => {
     const response = await request(app, {
       path: '/api/coupon/durations',
     });
 
     expect(response.status).toBe(200);
-    expect(JSON.parse(response.body).durations).toEqual(expect.any(Array));
+    expect(JSON.parse(response.body).durations).toEqual([
+      { days: 3, label: '3天体验' },
+    ]);
+  });
+
+  test('admin generation always creates 3-day trial coupons', async () => {
+    const response = await request(app, {
+      method: 'POST',
+      path: '/api/coupon/generate',
+      headers: { authorization: 'Bearer admin-token' },
+      body: {
+        durationDays: 365,
+        durationLabel: '1年',
+        count: 2,
+        note: '免费体验',
+      },
+    });
+
+    expect(response.status).toBe(200);
+    expect(couponService.generateCoupons).toHaveBeenCalledWith(
+      2,
+      'admin-1',
+      '免费体验'
+    );
   });
 
   test('a logged-in user can still activate a coupon', async () => {

@@ -4,28 +4,23 @@ import axios from 'axios'
 import { apiUrl } from '../config/api'
 import { showToast } from '../components/Toast'
 import { checkFreeUsageBeforeDiagnosis } from '../utils/freeUsage'
-import CouponModal from '../components/CouponModal'
 
 function ImageDiagnosisPage() {
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState(null)
   const [scenario, setScenario] = useState('fault')
   const [result, setResult] = useState(null)
-  const [membershipChecked, setMembershipChecked] = useState(false)
-  const [showCouponModal, setShowCouponModal] = useState(false)
-  const [membership, setMembership] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
     // 检查会员状态
     checkFreeUsageBeforeDiagnosis().then(state => {
-      setMembership(state)
-      setMembershipChecked(true)
       if (!state.allowed) {
         if (!localStorage.getItem('token')) {
           navigate('/auth')
         } else {
-          setShowCouponModal(true)
+          showToast('当前体验未开通，请返回首页', 'warning')
+          navigate('/#pricing')
         }
       }
     })
@@ -64,7 +59,8 @@ function ImageDiagnosisPage() {
       if (!localStorage.getItem('token')) {
         navigate('/auth')
       } else {
-        setShowCouponModal(true)
+        showToast('当前体验未开通，请返回首页', 'warning')
+        navigate('/#pricing')
       }
       return
     }
@@ -355,18 +351,6 @@ function ImageDiagnosisPage() {
           </div>
         </div>
       </div>
-      {/* 券码激活弹窗 */}
-      {showCouponModal && (
-        <CouponModal
-          onClose={() => setShowCouponModal(false)}
-          onActivated={() => {
-            setShowCouponModal(false)
-            checkFreeUsageBeforeDiagnosis().then(state => {
-              setMembership(state)
-            })
-          }}
-        />
-      )}
     </div>
   )
 }

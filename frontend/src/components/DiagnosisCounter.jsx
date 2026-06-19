@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiClient } from '../utils/apiClient'
-import CouponModal from './CouponModal'
 
 // 全局刷新回调
 let globalRefreshFn = null
@@ -22,7 +21,7 @@ export function incrementDiagnosisCount() {
   refreshFreeUsage()
 }
 
-export default function DiagnosisCounter({ showUpgradeHint = false }) {
+export default function DiagnosisCounter({ showUpgradeHint = false, showTrialEntry = false }) {
   const [membership, setMembership] = useState({
     isMember: false,
     expiresAt: null,
@@ -30,7 +29,6 @@ export default function DiagnosisCounter({ showUpgradeHint = false }) {
     isAdmin: false,
   })
   const [loading, setLoading] = useState(false)
-  const [showCouponModal, setShowCouponModal] = useState(false)
   const navigate = useNavigate()
 
   const syncFromBackend = useCallback(async () => {
@@ -66,9 +64,8 @@ export default function DiagnosisCounter({ showUpgradeHint = false }) {
     }
   }, [syncFromBackend])
 
-  const handleActivated = () => {
-    syncFromBackend()
-    setShowCouponModal(false)
+  const scrollToTrial = () => {
+    document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
   }
 
   // 管理员
@@ -117,16 +114,20 @@ export default function DiagnosisCounter({ showUpgradeHint = false }) {
   // 已登录但无会员
   const token = localStorage.getItem('token')
   if (token) {
+    if (!showTrialEntry) {
+      return null
+    }
+
     return (
       <>
         <div className="fixed top-20 right-6 z-40">
           <div className="bg-white/95 backdrop-blur-sm rounded-full px-4 py-2 shadow-sm border border-gray-100 flex items-center gap-2">
             <div className="w-2 h-2 bg-orange-500 rounded-full" />
             <button
-              onClick={() => setShowCouponModal(true)}
+              onClick={scrollToTrial}
               className="text-sm font-medium text-orange-500 hover:text-[#FF6B00] transition-colors"
             >
-              激活券码
+              3天免费体验
             </button>
             {loading && (
               <span className="w-3 h-3 border-2 border-gray-300 border-t-orange-500 rounded-full animate-spin" />
@@ -137,20 +138,17 @@ export default function DiagnosisCounter({ showUpgradeHint = false }) {
           <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mt-4">
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div>
-                <p className="text-sm font-medium text-gray-900">需要激活券码才能使用诊断功能</p>
-                <p className="text-xs text-gray-500 mt-1">扫码加微信获取券码，激活后即可使用</p>
+                <p className="text-sm font-medium text-gray-900">添加微信，免费体验3天</p>
+                <p className="text-xs text-gray-500 mt-1">在首页领取体验账号和券码</p>
               </div>
               <button
-                onClick={() => setShowCouponModal(true)}
+                onClick={scrollToTrial}
                 className="px-4 py-2 bg-[#FF6B00] text-white text-sm rounded-lg hover:bg-[#FF8533] transition-colors whitespace-nowrap"
               >
-                激活券码
+                查看体验方式
               </button>
             </div>
           </div>
-        )}
-        {showCouponModal && (
-          <CouponModal onClose={() => setShowCouponModal(false)} onActivated={handleActivated} />
         )}
       </>
     )

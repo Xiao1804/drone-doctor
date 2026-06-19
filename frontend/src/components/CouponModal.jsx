@@ -63,8 +63,8 @@ function CouponModal({ onClose, onActivated }) {
         {/* Header */}
         <div className="bg-gradient-to-r from-[#FF6B00] to-[#FF8533] p-6 text-center">
           <div className="text-4xl mb-2">🎫</div>
-          <h3 className="text-xl font-bold text-white">激活券码</h3>
-          <p className="text-white/80 text-sm mt-1">输入券码激活会员权限</p>
+          <h3 className="text-xl font-bold text-white">激活3天体验</h3>
+          <p className="text-white/80 text-sm mt-1">输入体验券码，免费使用3天</p>
         </div>
 
         <div className="p-6">
@@ -74,7 +74,7 @@ function CouponModal({ onClose, onActivated }) {
               <div className="text-5xl mb-4">✅</div>
               <h4 className="text-lg font-bold text-gray-900 mb-2">激活成功！</h4>
               <p className="text-gray-600 mb-1">
-                会员时长：<span className="font-medium text-[#FF6B00]">{success.durationLabel}</span>
+                体验时长：<span className="font-medium text-[#FF6B00]">{success.durationLabel}</span>
               </p>
               <p className="text-gray-600 mb-6">
                 到期时间：<span className="font-medium">
@@ -139,8 +139,8 @@ function CouponModal({ onClose, onActivated }) {
                   <div className="hidden w-32 h-32 mx-auto mb-2 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 text-xs">
                     二维码占位
                   </div>
-                  <p className="text-sm text-gray-600 font-medium">扫码加微信，获取体验券码</p>
-                  <p className="text-xs text-gray-400 mt-1">或联系管理员获取券码</p>
+                  <p className="text-sm text-gray-600 font-medium">扫码加微信，免费体验3天</p>
+                  <p className="text-xs text-gray-400 mt-1">添加后领取体验账号和券码</p>
                 </div>
               </div>
             </div>

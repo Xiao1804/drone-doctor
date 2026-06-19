@@ -22,7 +22,7 @@ function WeChatQR({ size = 'md' }) {
         </div>
       </div>
       <p className="text-sm text-gray-600 font-medium mt-2">扫码加微信</p>
-      <p className="text-xs text-gray-400">获取体验券码</p>
+      <p className="text-xs text-gray-400">免费体验3天</p>
     </div>
   )
 }

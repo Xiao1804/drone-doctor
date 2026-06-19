@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
 import { checkFreeUsageBeforeDiagnosis } from '../utils/freeUsage'
-import CouponModal from '../components/CouponModal'
 
 function formatBytes(bytes) {
   if (!bytes && bytes !== 0) return '-'
@@ -254,9 +253,6 @@ function FlightLogPage() {
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [membershipChecked, setMembershipChecked] = useState(false)
-  const [showCouponModal, setShowCouponModal] = useState(false)
-  const [membership, setMembership] = useState(null)
 
   const report = result?.result
   const identityItems = useMemo(() => Object.entries(report?.identity || {}), [report])
@@ -264,13 +260,11 @@ function FlightLogPage() {
   useEffect(() => {
     // 检查会员状态
     checkFreeUsageBeforeDiagnosis().then(state => {
-      setMembership(state)
-      setMembershipChecked(true)
       if (!state.allowed) {
         if (!localStorage.getItem('token')) {
           navigate('/auth')
         } else {
-          setShowCouponModal(true)
+          navigate('/#pricing')
         }
       }
     })
@@ -295,7 +289,7 @@ function FlightLogPage() {
       if (!localStorage.getItem('token')) {
         navigate('/auth')
       } else {
-        setShowCouponModal(true)
+        navigate('/#pricing')
       }
       return
     }
@@ -586,18 +580,6 @@ function FlightLogPage() {
         </div>
       </main>
 
-      {/* 券码激活弹窗 */}
-      {showCouponModal && (
-        <CouponModal
-          onClose={() => setShowCouponModal(false)}
-          onActivated={() => {
-            setShowCouponModal(false)
-            checkFreeUsageBeforeDiagnosis().then(state => {
-              setMembership(state)
-            })
-          }}
-        />
-      )}
     </div>
   )
 }

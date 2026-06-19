@@ -3,6 +3,8 @@ const { query, run, get, isPostgres } = require('../db');
 // 去掉易混淆字符 O/0/I/1
 const CHARSET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const CODE_LENGTH = 8;
+const TRIAL_DURATION_DAYS = 3;
+const TRIAL_DURATION_LABEL = '3天体验';
 
 /**
  * 生成随机券码（8位，格式 XXXX-XXXX）
@@ -18,7 +20,7 @@ function generateCode() {
 /**
  * 批量生成券码
  */
-async function generateCoupons(durationDays, durationLabel, count, adminId, note) {
+async function generateCoupons(count, adminId, note) {
   const codes = [];
   const batchId = `batch_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
 
@@ -40,13 +42,13 @@ async function generateCoupons(durationDays, durationLabel, count, adminId, note
       await run(
         `INSERT INTO coupons (code, duration_days, duration_label, status, created_by, batch_id, note, created_at)
          VALUES ($1, $2, $3, 'unused', $4, $5, $6, NOW())`,
-        [formattedCode, durationDays, durationLabel, adminId, batchId, note || null]
+        [formattedCode, TRIAL_DURATION_DAYS, TRIAL_DURATION_LABEL, adminId, batchId, note || null]
       );
     } else {
       await run(
         `INSERT INTO coupons (code, duration_days, duration_label, status, created_by, batch_id, note, created_at)
          VALUES (?, ?, ?, 'unused', ?, ?, ?, datetime('now'))`,
-        [formattedCode, durationDays, durationLabel, adminId, batchId, note || null]
+        [formattedCode, TRIAL_DURATION_DAYS, TRIAL_DURATION_LABEL, adminId, batchId, note || null]
       );
     }
 

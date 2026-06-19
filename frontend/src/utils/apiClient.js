@@ -62,8 +62,8 @@ export const coupon = {
     return apiClient.get('/api/coupon/durations')
   },
 
-  generate(durationDays, durationLabel, count, note) {
-    return apiClient.post('/api/coupon/generate', { durationDays, durationLabel, count, note })
+  generate(count, note) {
+    return apiClient.post('/api/coupon/generate', { count, note })
   },
 
   list(filters = {}) {

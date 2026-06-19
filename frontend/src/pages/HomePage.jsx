@@ -82,6 +82,14 @@ function HomePage() {
     })
   }, [])
 
+  useEffect(() => {
+    if (window.location.hash === '#pricing') {
+      setTimeout(() => {
+        document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
+      }, 100)
+    }
+  }, [])
+
   // 等待页进度条动画
   useEffect(() => {
     if (!loading) {
@@ -342,7 +350,7 @@ function HomePage() {
       </nav>
 
       {/* 全局次数指示器 */}
-      <DiagnosisCounter showUpgradeHint={!loading && step === 3} />
+      <DiagnosisCounter showUpgradeHint={!loading && step === 3} showTrialEntry />
 
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-6">
@@ -600,25 +608,26 @@ function HomePage() {
           </div>
           <div className="bg-white rounded-2xl border border-gray-200 p-8 md:p-12 text-center">
             <div className="text-5xl mb-4">🎫</div>
-            <h3 className="text-2xl font-bold text-black mb-3">券码会员制</h3>
+            <h3 className="text-2xl font-bold text-black mb-3">3天免费体验</h3>
             <p className="text-gray-600 mb-8 max-w-md mx-auto">
-              通过券码激活会员时长，解锁全部诊断功能。可选 1天 / 3天 / 7天 / 30天 / 90天 / 180天 / 1年。
+              想体验 DroneDoctor？添加我的微信，免费领取体验账号和兑换券，解锁全部诊断功能3天。
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto mb-8">
-              {[
-                { days: '1天', desc: '体验试用' },
-                { days: '7天', desc: '短期使用' },
-                { days: '30天', desc: '月度使用' },
-                { days: '1年', desc: '长期使用' },
-              ].map(item => (
-                <div key={item.days} className="bg-gray-50 rounded-xl p-3">
-                  <div className="font-bold text-black">{item.days}</div>
-                  <div className="text-xs text-gray-500">{item.desc}</div>
-                </div>
-              ))}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto mb-8">
+              <div className="bg-gray-50 rounded-xl p-4">
+                <div className="font-bold text-black">① 添加微信</div>
+                <div className="text-xs text-gray-500 mt-1">说明你的体验需求</div>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-4">
+                <div className="font-bold text-black">② 免费领取</div>
+                <div className="text-xs text-gray-500 mt-1">获取体验账号和券码</div>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-4">
+                <div className="font-bold text-black">③ 体验3天</div>
+                <div className="text-xs text-gray-500 mt-1">解锁全部诊断功能</div>
+              </div>
             </div>
             <div className="bg-orange-50 rounded-xl p-6 mb-6">
-              <p className="text-sm text-gray-700 mb-4">扫码加微信，获取体验券码</p>
+              <p className="text-sm text-gray-700 mb-4">扫码加我微信，免费体验3天</p>
               <WeChatQR size="md" />
             </div>
             {localStorage.getItem('token') && membership && !membership.isMember && !membership.isAdmin && (
@@ -626,7 +635,7 @@ function HomePage() {
                 onClick={() => setShowCouponModal(true)}
                 className="px-8 py-3 bg-[#FF6B00] text-white rounded-lg font-medium hover:bg-[#FF8533] transition-colors"
               >
-                输入券码
+                已有体验券？立即激活
               </button>
             )}
           </div>
@@ -637,20 +646,18 @@ function HomePage() {
       <section className="py-20 px-6 bg-black">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-white mb-4">开始使用 DroneDoctor</h2>
-          <p className="text-gray-400 mb-8">专业的无人机故障诊断，券码激活即用</p>
+          <p className="text-gray-400 mb-8">添加微信，免费领取3天体验</p>
           <button
             onClick={() => {
               if (localStorage.getItem('token') && membership?.isMember) {
                 window.scrollTo({ top: 0, behavior: 'smooth' })
-              } else if (localStorage.getItem('token')) {
-                setShowCouponModal(true)
               } else {
-                navigate('/auth')
+                document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
               }
             }}
             className="px-8 py-4 bg-[#FF6B00] text-white rounded-lg font-medium hover:bg-[#FF8533] transition-colors"
           >
-            {membership?.isMember || membership?.isAdmin ? '开始诊断' : '激活券码'}
+            {membership?.isMember || membership?.isAdmin ? '开始诊断' : '领取免费体验'}
           </button>
         </div>
       </section>
@@ -789,8 +796,8 @@ function HomePage() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-8 text-center">
             <div className="text-5xl mb-4">🎫</div>
-            <h3 className="text-xl font-bold text-black mb-2">需要激活券码</h3>
-            <p className="text-gray-600 mb-6">输入券码激活会员，即可使用诊断功能</p>
+            <h3 className="text-xl font-bold text-black mb-2">领取3天免费体验</h3>
+            <p className="text-gray-600 mb-6">添加微信获取体验账号和券码，激活后免费使用3天</p>
             <div className="space-y-3">
               <button
                 onClick={() => {

@@ -3,15 +3,9 @@ const router = express.Router();
 const couponService = require('../services/couponService');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 
-// 可选时长列表
+// 所有新券码统一为 3 天体验。
 const DURATIONS = [
-  { days: 1, label: '1天' },
-  { days: 3, label: '3天' },
-  { days: 7, label: '7天' },
-  { days: 30, label: '30天' },
-  { days: 90, label: '90天' },
-  { days: 180, label: '180天' },
-  { days: 365, label: '1年' },
+  { days: 3, label: '3天体验' },
 ];
 
 // GET /api/coupon/durations — 返回可选时长列表（公开接口）
@@ -22,17 +16,11 @@ router.get('/durations', (req, res) => {
 // POST /api/coupon/generate — 生成券码（管理员）
 router.post('/generate', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const { durationDays, durationLabel, count, note } = req.body;
-
-    if (!durationDays || !durationLabel) {
-      return res.status(400).json({ error: '请提供时长天数和标签' });
-    }
+    const { count, note } = req.body;
 
     const numCount = Math.min(Math.max(parseInt(count, 10) || 1, 1), 100);
 
     const result = await couponService.generateCoupons(
-      parseInt(durationDays, 10),
-      durationLabel,
       numCount,
       req.userId,
       note

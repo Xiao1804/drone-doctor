@@ -58,7 +58,7 @@ function AuthPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="border-b border-gray-200 px-6 py-4">
             <h2 className="font-semibold text-gray-900">账号登录</h2>
-            <p className="text-sm text-gray-500 mt-1">已有账号可登录并使用兑换码</p>
+            <p className="text-sm text-gray-500 mt-1">已有账号可继续登录使用</p>
           </div>
 
           <form onSubmit={handleLogin} className="p-6 space-y-4">
@@ -115,7 +115,7 @@ function AuthPage() {
         <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h3 className="font-medium text-blue-900 mb-2">账号说明</h3>
           <p className="text-sm text-blue-700">
-            当前不提供公开账号申请。已有账号登录后仍可激活和使用兑换码。
+            当前不提供公开账号申请。
           </p>
         </div>
       </div>

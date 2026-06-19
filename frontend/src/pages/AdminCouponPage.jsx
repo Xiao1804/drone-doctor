@@ -5,10 +5,7 @@ import { showToast } from '../components/Toast'
 
 function AdminCouponPage() {
   const [loading, setLoading] = useState(false)
-  const [durations, setDurations] = useState([])
   const [generateForm, setGenerateForm] = useState({
-    durationDays: 7,
-    durationLabel: '7天',
     count: 10,
     note: '',
   })
@@ -17,7 +14,7 @@ function AdminCouponPage() {
   const [couponList, setCouponList] = useState([])
   const [totalCount, setTotalCount] = useState(0)
   const [page, setPage] = useState(1)
-  const [filters, setFilters] = useState({ status: '', durationDays: '', batchId: '' })
+  const [filters, setFilters] = useState({ status: '', batchId: '' })
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -28,11 +25,6 @@ function AdminCouponPage() {
       return
     }
 
-    // 获取可选时长
-    apiClient.get('/api/coupon/durations').then(res => {
-      setDurations(res.data.durations)
-    }).catch(() => {})
-
     fetchCoupons()
   }, [navigate, page])
 
@@ -40,7 +32,6 @@ function AdminCouponPage() {
     try {
       const params = new URLSearchParams()
       if (filters.status) params.append('status', filters.status)
-      if (filters.durationDays) params.append('durationDays', filters.durationDays)
       if (filters.batchId) params.append('batchId', filters.batchId)
       params.append('page', page)
       params.append('limit', '20')
@@ -62,8 +53,6 @@ function AdminCouponPage() {
     setLoading(true)
     try {
       const res = await apiClient.post('/api/coupon/generate', {
-        durationDays: generateForm.durationDays,
-        durationLabel: generateForm.durationLabel,
         count: generateForm.count,
         note: generateForm.note,
       })
@@ -142,22 +131,9 @@ function AdminCouponPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">时长</label>
-                <select
-                  value={generateForm.durationDays}
-                  onChange={(e) => {
-                    const opt = durations.find(d => d.days === parseInt(e.target.value, 10))
-                    setGenerateForm({
-                      ...generateForm,
-                      durationDays: parseInt(e.target.value, 10),
-                      durationLabel: opt?.label || '',
-                    })
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#FF6B00]"
-                >
-                  {durations.map(d => (
-                    <option key={d.days} value={d.days}>{d.label}</option>
-                  ))}
-                </select>
+                <div className="w-full px-3 py-2 border border-orange-200 bg-orange-50 text-[#FF6B00] rounded-lg font-medium">
+                  3天体验
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">数量</label>
@@ -230,16 +206,6 @@ function AdminCouponPage() {
               <option value="unused">未使用</option>
               <option value="used">已使用</option>
               <option value="disabled">已禁用</option>
-            </select>
-            <select
-              value={filters.durationDays}
-              onChange={(e) => handleFilterChange('durationDays', e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
-            >
-              <option value="">全部时长</option>
-              {durations.map(d => (
-                <option key={d.days} value={d.days}>{d.label}</option>
-              ))}
             </select>
             <input
               type="text"

@@ -249,6 +249,13 @@ async function initDatabase() {
     await db.query(`CREATE INDEX IF NOT EXISTS idx_coupons_code ON coupons(code)`);
     await db.query(`CREATE INDEX IF NOT EXISTS idx_coupons_status ON coupons(status)`);
     await db.query(`CREATE INDEX IF NOT EXISTS idx_coupons_batch_id ON coupons(batch_id)`);
+    // 统一尚未使用的历史券码为 3 天体验；已激活权益不受影响。
+    await db.query(`
+      UPDATE coupons
+      SET duration_days = 3, duration_label = '3天体验'
+      WHERE status = 'unused'
+        AND (duration_days <> 3 OR duration_label <> '3天体验')
+    `);
 
     console.log('PostgreSQL database initialized successfully');
   } else {
@@ -379,6 +386,13 @@ async function initDatabase() {
         db.run(`CREATE INDEX IF NOT EXISTS idx_coupons_code ON coupons(code)`);
         db.run(`CREATE INDEX IF NOT EXISTS idx_coupons_status ON coupons(status)`);
         db.run(`CREATE INDEX IF NOT EXISTS idx_coupons_batch_id ON coupons(batch_id)`);
+        // 统一尚未使用的历史券码为 3 天体验；已激活权益不受影响。
+        db.run(`
+          UPDATE coupons
+          SET duration_days = 3, duration_label = '3天体验'
+          WHERE status = 'unused'
+            AND (duration_days <> 3 OR duration_label <> '3天体验')
+        `);
 
         db.run('SELECT 1', (err) => {
           if (err) {
