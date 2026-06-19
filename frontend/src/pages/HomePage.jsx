@@ -335,7 +335,7 @@ function HomePage() {
                 <span className="text-sm">{user.username}</span>
               </button>
             ) : (
-              <button onClick={() => navigate('/auth')} className="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-[#FF6B00] transition-colors">登录 / 注册</button>
+              <button onClick={() => navigate('/auth')} className="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-[#FF6B00] transition-colors">登录</button>
             )}
           </div>
         </div>

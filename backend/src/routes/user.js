@@ -3,13 +3,18 @@ const userController = require('../controllers/userController');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 
 /**
- * @param {import('express').RequestHandler[]} authLimiters - 登录/注册速率限制
+ * @param {import('express').RequestHandler[]} authLimiters - 登录速率限制
  */
 module.exports = function (authLimiters) {
   const router = express.Router();
 
-  // 公开路由（无需登录，但有速率限制）
-  router.post('/register', ...authLimiters, userController.register);
+  // 公开注册已下线。保留明确响应，避免旧客户端误以为请求异常。
+  router.post('/register', (req, res) => {
+    res.status(403).json({
+      error: '公开账号申请暂未开放',
+      code: 'REGISTRATION_DISABLED',
+    });
+  });
   router.post('/login', ...authLimiters, userController.login);
 
   // 需要登录的路由

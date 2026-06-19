@@ -38,6 +38,10 @@ jest.mock('../src/db', () => ({
 
 jest.mock('../src/services/couponService', () => ({
   getUserMembership: jest.fn().mockResolvedValue({ isMember: false }),
+  activateCoupon: jest.fn().mockResolvedValue({
+    expiresAt: '2026-07-19T00:00:00.000Z',
+    durationLabel: '30天',
+  }),
 }));
 
 const userService = require('../src/services/userService');
@@ -48,6 +52,7 @@ const couponService = require('../src/services/couponService');
 const caseRoutes = require('../src/routes/cases');
 const eventRoutes = require('../src/routes/events');
 const createUserRoutes = require('../src/routes/user');
+const couponRoutes = require('../src/routes/coupon');
 const { freeUsageLimit } = require('../src/middleware/freeUsageLimit');
 const { createAuthLimiters } = require('../src/middleware/rateLimiters');
 
@@ -239,6 +244,25 @@ describe('event ingestion controls', () => {
 });
 
 describe('authentication rate limiting', () => {
+  test('public registration is disabled without calling the register handler', async () => {
+    const app = createApp('/api/user', createUserRoutes(createAuthLimiters()));
+    const response = await request(app, {
+      method: 'POST',
+      path: '/api/user/register',
+      body: {
+        username: 'new-user',
+        email: 'new-user@example.com',
+        password: 'password',
+      },
+    });
+
+    expect(response.status).toBe(403);
+    expect(JSON.parse(response.body)).toMatchObject({
+      code: 'REGISTRATION_DISABLED',
+    });
+    expect(userController.register).not.toHaveBeenCalled();
+  });
+
   test('the sixth login attempt within a minute is rejected', async () => {
     const app = createApp('/api/user', createUserRoutes(createAuthLimiters()));
     const statuses = [];
@@ -273,6 +297,31 @@ describe('authentication rate limiting', () => {
 
     expect(statuses.slice(0, 5)).toEqual([401, 401, 401, 401, 401]);
     expect(statuses[5]).toBe(429);
+  });
+});
+
+describe('coupon routes remain available to existing users', () => {
+  const app = createApp('/api/coupon', couponRoutes);
+
+  test('coupon durations remain public', async () => {
+    const response = await request(app, {
+      path: '/api/coupon/durations',
+    });
+
+    expect(response.status).toBe(200);
+    expect(JSON.parse(response.body).durations).toEqual(expect.any(Array));
+  });
+
+  test('a logged-in user can still activate a coupon', async () => {
+    const response = await request(app, {
+      method: 'POST',
+      path: '/api/coupon/activate',
+      headers: { authorization: 'Bearer user-token' },
+      body: { code: 'ABCD-EFGH' },
+    });
+
+    expect(response.status).toBe(200);
+    expect(couponService.activateCoupon).toHaveBeenCalledWith('ABCD-EFGH', 'user-1');
   });
 });
 

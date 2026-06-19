@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
 import DiagnosisCounter from '../components/DiagnosisCounter'
-import { trackFeedback, trackRegisterPromptSeen, trackRegisterPromptAction } from '../utils/tracking'
+import { trackFeedback } from '../utils/tracking'
 import { showToast } from '../components/Toast'
 
 function DiagnosisPage() {
@@ -18,7 +18,6 @@ function DiagnosisPage() {
   const [feedbackGiven, setFeedbackGiven] = useState(null) // 'solved' | 'unsolved'
   const [showFeedbackAnimation, setShowFeedbackAnimation] = useState(false)
   const [similarCount, setSimilarCount] = useState(null)
-  const [showRegisterPrompt, setShowRegisterPrompt] = useState(false)
 
   useEffect(() => {
     if (result && deviceType && faultType) {
@@ -27,15 +26,6 @@ function DiagnosisPage() {
         .then(res => setSimilarCount(res.data.total))
         .catch(() => {})
 
-      // 检查是否需要显示注册引导（第2次诊断后）
-      const usedCount = parseInt(localStorage.getItem('dd_diagnosis_count') || '0', 10)
-      const user = localStorage.getItem('user')
-      const skipRegister = sessionStorage.getItem('dd_skip_register')
-
-      if (usedCount >= 2 && !user && !skipRegister) {
-        setShowRegisterPrompt(true)
-        trackRegisterPromptSeen({ diagnosisCount: usedCount })
-      }
     }
   }, [result, deviceType, faultType])
 
@@ -71,13 +61,6 @@ function DiagnosisPage() {
     if (type === 'solved') {
       setTimeout(() => setShowFeedbackAnimation(false), 2000)
     }
-  }
-
-  // 跳过注册引导
-  const handleSkipRegister = () => {
-    setShowRegisterPrompt(false)
-    sessionStorage.setItem('dd_skip_register', '1')
-    trackRegisterPromptAction({ action: 'skip' })
   }
 
   // 难度星级渲染
@@ -301,39 +284,6 @@ function DiagnosisPage() {
           <p className="text-center text-sm text-gray-400 mb-8">
             本月已有 {similarCount} 人诊断了类似问题
           </p>
-        )}
-
-        {/* 注册引导卡片（非弹窗，内嵌） */}
-        {showRegisterPrompt && (
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-8">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-base font-semibold text-black mb-2">
-                  💾 想保存这次诊断结果吗？
-                </p>
-                <ul className="text-sm text-gray-600 space-y-1 mb-4">
-                  <li>✅ 查看所有诊断历史</li>
-                  <li>✅ 对比不同故障的排查方案</li>
-                  <li>✅ 收藏常用维修教程</li>
-                </ul>
-                <button
-                  onClick={() => {
-                    trackRegisterPromptAction({ action: 'register' })
-                    navigate('/auth')
-                  }}
-                  className="px-6 py-3 bg-[#FF6B00] text-white rounded-lg text-sm font-medium hover:bg-[#FF8533] transition-colors"
-                >
-                  微信扫码，3秒登录
-                </button>
-              </div>
-              <button
-                onClick={handleSkipRegister}
-                className="text-sm text-gray-400 hover:text-gray-600 whitespace-nowrap"
-              >
-                暂时不用 ✕
-              </button>
-            </div>
-          </div>
         )}
 
         {/* 底部操作 */}

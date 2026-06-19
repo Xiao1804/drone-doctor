@@ -36,7 +36,7 @@ function createAuthIpLimiter() {
   return createLimiter({
     windowMs: 60 * 1000,
     max: 5,
-    message: { error: '登录或注册请求过于频繁，请稍后再试' },
+    message: { error: '登录请求过于频繁，请稍后再试' },
     keyGenerator: normalizedIpKey,
   });
 }
@@ -45,7 +45,7 @@ function createAuthAccountLimiter() {
   return createLimiter({
     windowMs: 60 * 1000,
     max: 5,
-    message: { error: '该账号登录或注册尝试过于频繁，请稍后再试' },
+    message: { error: '该账号登录尝试过于频繁，请稍后再试' },
     keyGenerator: normalizeLoginIdentifier,
   });
 }

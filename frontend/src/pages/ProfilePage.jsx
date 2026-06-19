@@ -275,7 +275,7 @@ function ProfilePage() {
                 <span className="text-gray-900 font-medium">{user?.email}</span>
               </div>
               <div className="flex justify-between py-2">
-                <span className="text-gray-600">注册时间</span>
+                <span className="text-gray-600">账号创建时间</span>
                 <span className="text-gray-900 font-medium">
                   {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}
                 </span>

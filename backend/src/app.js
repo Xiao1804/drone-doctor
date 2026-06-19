@@ -64,7 +64,7 @@ app.use('/api/', createGlobalApiLimiter());
 // 先限速再解析 JSON，避免畸形或超大请求绕过频率控制。
 app.use(express.json({ limit: '64kb', strict: true }));
 
-// 登录/注册接口独立速率限制：每分钟最多 5 次
+// 登录接口独立速率限制：每分钟最多 5 次
 const authLimiters = createAuthLimiters();
 
 app.use('/api/diagnosis', diagnosisRoutes);
