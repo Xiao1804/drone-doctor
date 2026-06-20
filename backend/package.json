@@ -12,7 +12,7 @@
     "migrate:make": "node-pg-migrate --migrations-dir migrations create",
     "migrate:undo": "node-pg-migrate --envPath ../.env.tencent --migrations-dir migrations down",
     "migrate:mark-baseline": "node migrations/mark-baseline-applied.js",
-    "migrate:status": "node-pg-migrate --envPath ../.env.tencent --migrations-dir migrations status"
+    "migrate:status": "node -e \"console.log('Use: psql \\\"$DATABASE_URL\\\" -c \\\"SELECT * FROM pgmigrations ORDER BY id;\\\"')\""
   },
   "dependencies": {
     "@xenova/transformers": "^2.17.2",

@@ -12,8 +12,8 @@
 ```bash
 cd backend
 
-# 查看待执行迁移
-npm run migrate:status
+# 查看待执行迁移（node-pg-migrate 没有 status 命令，直接查表）
+psql "$DATABASE_URL" -c "SELECT * FROM pgmigrations ORDER BY id;"
 
 # 执行迁移（线上环境）
 npm run migrate
@@ -43,7 +43,7 @@ cd /root/drone-doctor/backend
 node migrations/mark-baseline-applied.js
 
 # 2. 验证状态
-npm run migrate:status
+psql "$DATABASE_URL" -c "SELECT * FROM pgmigrations ORDER BY id;"
 # 应显示 001_initial_schema.js 为已应用
 
 # 3. 后续新增的迁移会正常执行
