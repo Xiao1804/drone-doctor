@@ -120,142 +120,179 @@ function now() {
   return isPostgres ? 'NOW()' : "datetime('now')";
 }
 
+/**
+ * Legacy PostgreSQL initialization using idempotent DDL.
+ * Used as fallback for databases that haven't been migrated to node-pg-migrate yet.
+ * Once `npm run migrate:mark-baseline` is run, this function is no longer called.
+ */
+async function _legacyPostgresInit() {
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      username TEXT UNIQUE NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      role TEXT DEFAULT 'user',
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW(),
+      last_login_at TIMESTAMP,
+      diagnosis_count INTEGER DEFAULT 0,
+      favorite_count INTEGER DEFAULT 0,
+      is_active INTEGER DEFAULT 1
+    )
+  `);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS history (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      type TEXT NOT NULL,
+      content TEXT NOT NULL,
+      result TEXT,
+      is_favorite INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT NOW(),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `);
+
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_history_user_id ON history(user_id)`);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_history_created_at ON history(created_at)`);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS events (
+      id SERIAL PRIMARY KEY,
+      event TEXT NOT NULL,
+      data JSONB DEFAULT '{}',
+      user_id TEXT,
+      ip TEXT,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_events_event ON events(event)`);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at)`);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS tree_change_requests (
+      id SERIAL PRIMARY KEY,
+      tree_id TEXT NOT NULL,
+      proposed_by TEXT NOT NULL,
+      changes JSONB NOT NULL DEFAULT '{}',
+      status TEXT DEFAULT 'pending',
+      reviewed_by TEXT,
+      reviewed_at TIMESTAMP,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_tcr_tree_id ON tree_change_requests(tree_id)`);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_tcr_status ON tree_change_requests(status)`);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS free_usage (
+      id SERIAL PRIMARY KEY,
+      identifier TEXT NOT NULL,
+      identifier_type TEXT NOT NULL,
+      usage_date TEXT NOT NULL,
+      count INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW(),
+      UNIQUE(identifier, usage_date)
+    )
+  `);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_free_usage_identifier ON free_usage(identifier, identifier_type, usage_date)`);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS diagnosis_sessions (
+      id TEXT PRIMARY KEY,
+      status TEXT DEFAULT 'active',
+      intent JSONB DEFAULT '{}',
+      context JSONB DEFAULT '{}',
+      tree_execution JSONB DEFAULT '{}',
+      diagnosis JSONB DEFAULT '{}',
+      messages JSONB DEFAULT '[]',
+      created_at TIMESTAMP DEFAULT NOW(),
+      last_activity_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_diagnosis_sessions_status ON diagnosis_sessions(status)`);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_diagnosis_sessions_last_activity ON diagnosis_sessions(last_activity_at)`);
+
+  await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_expires_at TEXT`);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS coupons (
+      id SERIAL PRIMARY KEY,
+      code TEXT UNIQUE NOT NULL,
+      duration_days INTEGER NOT NULL,
+      duration_label TEXT NOT NULL,
+      status TEXT DEFAULT 'unused',
+      created_by TEXT,
+      activated_by TEXT,
+      activated_at TIMESTAMP,
+      created_at TIMESTAMP DEFAULT NOW(),
+      batch_id TEXT,
+      note TEXT
+    )
+  `);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_coupons_code ON coupons(code)`);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_coupons_status ON coupons(status)`);
+  await db.query(`CREATE INDEX IF NOT EXISTS idx_coupons_batch_id ON coupons(batch_id)`);
+
+  // 标准化未使用券码为 3 天体验
+  await db.query(`
+    UPDATE coupons
+    SET duration_days = 3, duration_label = '3天体验'
+    WHERE status = 'unused'
+      AND (duration_days <> 3 OR duration_label <> '3天体验')
+  `);
+}
+
 async function initDatabase() {
   if (isPostgres) {
-    // PostgreSQL 初始化
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id TEXT PRIMARY KEY,
-        username TEXT UNIQUE NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        role TEXT DEFAULT 'user',
-        created_at TIMESTAMP DEFAULT NOW(),
-        updated_at TIMESTAMP DEFAULT NOW(),
-        last_login_at TIMESTAMP,
-        diagnosis_count INTEGER DEFAULT 0,
-        favorite_count INTEGER DEFAULT 0,
-        is_active INTEGER DEFAULT 1
-      )
+    // PostgreSQL: 使用 node-pg-migrate 管理 schema 变更
+    // 迁移文件位于 backend/migrations/ 目录
+    // 首次部署时运行 `npm run migrate` 创建所有表
+    // 已有数据库运行 `npm run migrate:mark-baseline` 标记基线已应用
+    //
+    // 兼容策略：如果 pgmigrations 表不存在（旧数据库），回退到幂等 DDL
+    const { rows } = await db.query(`
+      SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables
+        WHERE table_name = 'pgmigrations'
+      ) as exists
     `);
 
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS history (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        type TEXT NOT NULL,
-        content TEXT NOT NULL,
-        result TEXT,
-        is_favorite INTEGER DEFAULT 0,
-        created_at TIMESTAMP DEFAULT NOW(),
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      )
-    `);
+    if (rows[0].exists) {
+      // 迁移系统已初始化，检查是否有待执行迁移
+      const { rowCount } = await db.query(`
+        SELECT COUNT(*) as count FROM pgmigrations WHERE name = '001_initial_schema.js'
+      `);
+      console.log(`[DB] Migration system active. Baseline ${rowCount > 0 ? 'applied' : 'pending'}.`);
+      console.log('[DB] Run `npm run migrate` to apply pending migrations.');
 
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_history_user_id ON history(user_id)`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_history_created_at ON history(created_at)`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
+      // 初始化向量表（迁移系统不管理 pgvector 相关表）
+      try {
+        const { initVectorTables } = require('./services/vectorService');
+        await initVectorTables();
+      } catch (err) {
+        console.warn('[Init] Vector tables init skipped:', err.message);
+      }
+    } else {
+      // 旧数据库（迁移系统未初始化）：回退到幂等 DDL 确保兼容
+      console.warn('[DB] Migration system not initialized. Using fallback DDL.');
+      console.warn('[DB] Run `npm run migrate:mark-baseline` then `npm run migrate` to enable migrations.');
 
-    // 埋点事件表（行为干预）
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS events (
-        id SERIAL PRIMARY KEY,
-        event TEXT NOT NULL,
-        data JSONB DEFAULT '{}',
-        user_id TEXT,
-        ip TEXT,
-        created_at TIMESTAMP DEFAULT NOW()
-      )
-    `);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_events_event ON events(event)`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at)`);
+      await _legacyPostgresInit();
 
-    // 决策树变更请求表（审批管控）
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS tree_change_requests (
-        id SERIAL PRIMARY KEY,
-        tree_id TEXT NOT NULL,
-        proposed_by TEXT NOT NULL,
-        changes JSONB NOT NULL DEFAULT '{}',
-        status TEXT DEFAULT 'pending',
-        reviewed_by TEXT,
-        reviewed_at TIMESTAMP,
-        created_at TIMESTAMP DEFAULT NOW()
-      )
-    `);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_tcr_tree_id ON tree_change_requests(tree_id)`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_tcr_status ON tree_change_requests(status)`);
-
-    // 免费使用次数记录表（匿名用户 + 登录用户每日诊断次数限制）
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS free_usage (
-        id SERIAL PRIMARY KEY,
-        identifier TEXT NOT NULL,
-        identifier_type TEXT NOT NULL,
-        usage_date TEXT NOT NULL,
-        count INTEGER DEFAULT 0,
-        created_at TIMESTAMP DEFAULT NOW(),
-        updated_at TIMESTAMP DEFAULT NOW(),
-        UNIQUE(identifier, usage_date)
-      )
-    `);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_free_usage_identifier ON free_usage(identifier, identifier_type, usage_date)`);
-
-    // 交互式诊断会话表（持久化存储）
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS diagnosis_sessions (
-        id TEXT PRIMARY KEY,
-        status TEXT DEFAULT 'active',
-        intent JSONB DEFAULT '{}',
-        context JSONB DEFAULT '{}',
-        tree_execution JSONB DEFAULT '{}',
-        diagnosis JSONB DEFAULT '{}',
-        messages JSONB DEFAULT '[]',
-        created_at TIMESTAMP DEFAULT NOW(),
-        last_activity_at TIMESTAMP DEFAULT NOW()
-      )
-    `);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_diagnosis_sessions_status ON diagnosis_sessions(status)`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_diagnosis_sessions_last_activity ON diagnosis_sessions(last_activity_at)`);
-
-    // 初始化向量表（Phase 1 新增）
-    try {
-      const { initVectorTables } = require('./services/vectorService');
-      await initVectorTables();
-    } catch (err) {
-      console.warn('[Init] Vector tables init skipped:', err.message);
+      // 初始化向量表
+      try {
+        const { initVectorTables } = require('./services/vectorService');
+        await initVectorTables();
+      } catch (err) {
+        console.warn('[Init] Vector tables init skipped:', err.message);
+      }
     }
-
-    // 新增字段：会员到期时间
-    await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_expires_at TEXT`);
-
-    // 券码表
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS coupons (
-        id SERIAL PRIMARY KEY,
-        code TEXT UNIQUE NOT NULL,
-        duration_days INTEGER NOT NULL,
-        duration_label TEXT NOT NULL,
-        status TEXT DEFAULT 'unused',
-        created_by TEXT,
-        activated_by TEXT,
-        activated_at TIMESTAMP,
-        created_at TIMESTAMP DEFAULT NOW(),
-        batch_id TEXT,
-        note TEXT
-      )
-    `);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_coupons_code ON coupons(code)`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_coupons_status ON coupons(status)`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_coupons_batch_id ON coupons(batch_id)`);
-    // 统一尚未使用的历史券码为 3 天体验；已激活权益不受影响。
-    await db.query(`
-      UPDATE coupons
-      SET duration_days = 3, duration_label = '3天体验'
-      WHERE status = 'unused'
-        AND (duration_days <> 3 OR duration_label <> '3天体验')
-    `);
 
     console.log('PostgreSQL database initialized successfully');
   } else {
