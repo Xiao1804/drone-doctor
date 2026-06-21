@@ -1,10 +1,24 @@
+const crypto = require('crypto');
 const { query, run, get, isPostgres } = require('../db');
+const {
+  issueTrialAccessToken,
+  validateTrialAccessToken,
+} = require('./trialAccessService');
 
 // 去掉易混淆字符 O/0/I/1
 const CHARSET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const CODE_LENGTH = 8;
 const TRIAL_DURATION_DAYS = 3;
 const TRIAL_DURATION_LABEL = '3天体验';
+
+function parseDatabaseTimestamp(value) {
+  if (value instanceof Date) return value;
+  const text = String(value || '');
+  const normalized = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(text)
+    ? `${text.replace(' ', 'T')}Z`
+    : text;
+  return new Date(normalized);
+}
 
 /**
  * 生成随机券码（8位，格式 XXXX-XXXX）
@@ -88,96 +102,107 @@ async function validateCoupon(code) {
 /**
  * 激活券码
  */
-async function activateCoupon(code, userId) {
-  const result = await validateCoupon(code);
-  if (!result.valid) {
-    throw new Error(result.message);
+async function activateCoupon(code) {
+  const normalizedCode = String(code || '').trim().toUpperCase().replace(/[\s-]/g, '');
+  if (normalizedCode.length !== CODE_LENGTH) {
+    throw new Error('券码格式不正确');
   }
 
-  const coupon = result.coupon;
+  const accessId = crypto.randomUUID();
+  let coupon;
 
-  // 查询用户当前会员状态
-  const user = await get('SELECT membership_expires_at FROM users WHERE id = ?', [userId]);
-  if (!user) {
-    throw new Error('用户不存在');
-  }
+  if (isPostgres) {
+    const result = await query(
+      `UPDATE coupons
+       SET status = 'used',
+           activated_by = ?,
+           activated_at = NOW(),
+           access_id = ?,
+           expires_at = NOW() + duration_days * INTERVAL '1 day',
+           issued_at = COALESCE(issued_at, NOW())
+       WHERE id = (
+         SELECT id
+         FROM coupons
+         WHERE REPLACE(code, '-', '') = ? AND status = 'unused'
+         LIMIT 1
+       )
+       AND status = 'unused'
+       RETURNING id, duration_days, duration_label, access_id, expires_at`,
+      [`trial:${accessId}`, accessId, normalizedCode]
+    );
+    coupon = result.rows[0] || null;
+  } else {
+    const existing = await get(
+      `SELECT id FROM coupons
+       WHERE REPLACE(code, '-', '') = ? AND status = 'unused'`,
+      [normalizedCode]
+    );
 
-  // 计算新的到期时间
-  const now = new Date();
-  let baseTime = now;
+    if (existing) {
+      const update = await run(
+        `UPDATE coupons
+         SET status = 'used',
+             activated_by = ?,
+             activated_at = datetime('now'),
+             access_id = ?,
+             expires_at = datetime('now', '+' || duration_days || ' days'),
+             issued_at = COALESCE(issued_at, datetime('now'))
+         WHERE id = ? AND status = 'unused'`,
+        [`trial:${accessId}`, accessId, existing.id]
+      );
 
-  // 如果用户已有会员且未过期，在现有到期时间基础上追加
-  if (user.membership_expires_at) {
-    const currentExpiry = new Date(user.membership_expires_at);
-    if (currentExpiry > now) {
-      baseTime = currentExpiry;
+      if (update.changes > 0) {
+        coupon = await get(
+          `SELECT id, duration_days, duration_label, access_id, expires_at
+           FROM coupons WHERE id = ? AND access_id = ?`,
+          [existing.id, accessId]
+        );
+      }
     }
   }
 
-  const newExpiry = new Date(baseTime);
-  newExpiry.setDate(newExpiry.getDate() + coupon.duration_days);
-  const newExpiryStr = newExpiry.toISOString();
-
-  // 更新用户会员到期时间
-  await run(
-    'UPDATE users SET membership_expires_at = ? WHERE id = ?',
-    [newExpiryStr, userId]
-  );
-
-  // 更新券码状态
-  if (isPostgres) {
-    await run(
-      `UPDATE coupons SET status = 'used', activated_by = $1, activated_at = NOW() WHERE id = $2`,
-      [userId, coupon.id]
-    );
-  } else {
-    await run(
-      `UPDATE coupons SET status = 'used', activated_by = ?, activated_at = datetime('now') WHERE id = ?`,
-      [userId, coupon.id]
-    );
+  if (!coupon) {
+    const validation = await validateCoupon(code);
+    throw new Error(validation.valid ? '券码兑换失败，请重试' : validation.message);
   }
 
+  const expiresAt = parseDatabaseTimestamp(coupon.expires_at).toISOString();
+  const accessToken = issueTrialAccessToken({
+    couponId: coupon.id,
+    accessId: coupon.access_id,
+    expiresAt,
+  });
+
   return {
-    expiresAt: newExpiryStr,
+    accessToken,
+    expiresAt,
     durationLabel: coupon.duration_label,
     durationDays: coupon.duration_days,
   };
 }
 
 /**
- * 查询用户会员状态
+ * 查询匿名体验通行证状态
  */
-async function getUserMembership(userId) {
-  const user = await get(
-    'SELECT id, role, membership_expires_at FROM users WHERE id = ? AND is_active = 1',
-    [userId]
-  );
-
-  if (!user) {
-    return { isMember: false, expiresAt: null, daysLeft: 0, isAdmin: false };
+async function getAccessStatus(token) {
+  const access = await validateTrialAccessToken(token);
+  if (!access.valid) {
+    return {
+      allowed: false,
+      isTrial: false,
+      expiresAt: null,
+      daysLeft: 0,
+      isAdmin: false,
+      reason: access.reason,
+    };
   }
-
-  if (user.role === 'admin') {
-    return { isMember: true, expiresAt: null, daysLeft: Infinity, isAdmin: true };
-  }
-
-  if (!user.membership_expires_at) {
-    return { isMember: false, expiresAt: null, daysLeft: 0, isAdmin: false };
-  }
-
-  const expiry = new Date(user.membership_expires_at);
-  const now = new Date();
-
-  if (expiry <= now) {
-    return { isMember: false, expiresAt: user.membership_expires_at, daysLeft: 0, isAdmin: false };
-  }
-
-  const daysLeft = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
 
   return {
-    isMember: true,
-    expiresAt: user.membership_expires_at,
-    daysLeft,
+    allowed: true,
+    isTrial: true,
+    expiresAt: access.expiresAt,
+    daysLeft: access.daysLeft,
+    durationLabel: access.durationLabel,
     isAdmin: false,
   };
 }
@@ -216,10 +241,12 @@ async function listCoupons(filters = {}) {
 
   // 查询分页数据
   const listResult = await query(
-    `SELECT c.*, 
-     u.username as activated_by_username
+    `SELECT c.*,
+     CASE
+       WHEN c.access_id IS NOT NULL THEN '免注册体验用户'
+       ELSE NULL
+     END AS activated_by_username
      FROM coupons c
-     LEFT JOIN users u ON c.activated_by = u.id
      ${whereClause}
      ORDER BY c.created_at DESC
      LIMIT ? OFFSET ?`,
@@ -235,16 +262,86 @@ async function listCoupons(filters = {}) {
   };
 }
 
+async function getMarketMetrics() {
+  const couponResult = await query(`
+    SELECT
+      COUNT(*) AS total,
+      SUM(CASE WHEN status = 'used' THEN 1 ELSE 0 END) AS activated,
+      SUM(CASE WHEN issued_at IS NOT NULL THEN 1 ELSE 0 END) AS issued,
+      SUM(CASE WHEN status = 'unused' THEN 1 ELSE 0 END) AS unused,
+      SUM(CASE WHEN status = 'disabled' THEN 1 ELSE 0 END) AS disabled
+    FROM coupons
+  `);
+  const couponCounts = couponResult.rows[0] || {};
+
+  const diagnosisResult = await query(`
+    SELECT
+      SUM(CASE WHEN event = 'trial_diagnosis_start' THEN 1 ELSE 0 END) AS starts,
+      SUM(CASE WHEN event = 'trial_diagnosis_complete' THEN 1 ELSE 0 END) AS completions,
+      COUNT(DISTINCT CASE
+        WHEN event IN ('trial_diagnosis_start', 'trial_diagnosis_complete')
+        THEN COALESCE(NULLIF(user_id, ''), NULLIF(ip, ''))
+        ELSE NULL
+      END) AS unique_users
+    FROM events
+  `);
+  const diagnosisCounts = diagnosisResult.rows[0] || {};
+
+  let feedbackResult = { rows: [] };
+  try {
+    feedbackResult = await query(`
+      SELECT rating, COUNT(*) AS count
+      FROM feedback
+      GROUP BY rating
+    `);
+  } catch (error) {
+    if (isPostgres) throw error;
+  }
+  const feedbackByRating = Object.fromEntries(
+    feedbackResult.rows.map(row => [row.rating, Number(row.count || 0)])
+  );
+
+  const totalCoupons = Number(couponCounts.total || 0);
+  const activatedCoupons = Number(couponCounts.activated || 0);
+  const issuedCoupons = Number(couponCounts.issued || 0);
+  const starts = Number(diagnosisCounts.starts || 0);
+  const completions = Number(diagnosisCounts.completions || 0);
+
+  return {
+    coupons: {
+      total: totalCoupons,
+      issued: issuedCoupons,
+      activated: activatedCoupons,
+      unused: Number(couponCounts.unused || 0),
+      disabled: Number(couponCounts.disabled || 0),
+      activationRate: issuedCoupons > 0 ? activatedCoupons / issuedCoupons : 0,
+    },
+    diagnosis: {
+      starts,
+      completions,
+      completionRate: starts > 0 ? completions / starts : 0,
+      uniqueUsers: Number(diagnosisCounts.unique_users || 0),
+    },
+    feedback: {
+      total: Object.values(feedbackByRating).reduce((sum, count) => sum + count, 0),
+      helpful: feedbackByRating.helpful || 0,
+      notHelpful: feedbackByRating.not_helpful || 0,
+      unclear: feedbackByRating.unclear || 0,
+      unclassified: feedbackByRating.none || 0,
+    },
+  };
+}
+
 /**
- * 禁用未使用的券码
+ * 禁用未兑换券码或撤销已兑换通行证。
  */
 async function disableCoupon(couponId) {
   const coupon = await get('SELECT * FROM coupons WHERE id = ?', [couponId]);
   if (!coupon) {
     throw new Error('券码不存在');
   }
-  if (coupon.status !== 'unused') {
-    throw new Error('只能禁用未使用的券码');
+  if (!['unused', 'used'].includes(coupon.status)) {
+    throw new Error('券码已经禁用');
   }
 
   await run(
@@ -255,11 +352,30 @@ async function disableCoupon(couponId) {
   return { success: true };
 }
 
+async function markCouponIssued(couponId) {
+  const issuedAtExpression = isPostgres ? 'NOW()' : "datetime('now')";
+  const result = await run(
+    `UPDATE coupons
+     SET issued_at = COALESCE(issued_at, ${issuedAtExpression})
+     WHERE id = ? AND status = 'unused'`,
+    [couponId]
+  );
+
+  if (result.changes === 0) {
+    throw new Error('只能发放尚未兑换的券码');
+  }
+
+  return { success: true };
+}
+
 module.exports = {
   generateCoupons,
   validateCoupon,
   activateCoupon,
-  getUserMembership,
+  getAccessStatus,
+  validateTrialAccessToken,
   listCoupons,
   disableCoupon,
+  markCouponIssued,
+  getMarketMetrics,
 };

@@ -2,8 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
-import { isFreeLimitError, getFreeLimitMessage } from '../utils/freeUsage'
+import { isFreeLimitError } from '../utils/freeUsage'
 import { showToast } from '../components/Toast'
+import CouponModal from '../components/CouponModal'
+import { refreshFreeUsage } from '../components/DiagnosisCounter'
 
 // ── Types ──
 // question:  yes / no 分支
@@ -57,37 +59,18 @@ export default function GuidePage() {
   const [freeTextInput, setFreeTextInput] = useState('')
   const [showPaywall, setShowPaywall] = useState(false)
 
-  // 付费墙弹窗组件（局部）
+  // 体验券弹窗（局部）
   const PaywallModal = () => {
     if (!showPaywall) return null
     return (
-      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-8 text-center">
-          <div className="text-5xl mb-4">🔒</div>
-          <h3 className="text-xl font-bold text-black mb-2">今日免费次数已用完</h3>
-          <p className="text-gray-600 mb-6">{getFreeLimitMessage()}</p>
-          <div className="space-y-3">
-            <button
-              onClick={() => {
-                setShowPaywall(false)
-                navigate('/#pricing')
-                setTimeout(() => {
-                  document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
-                }, 100)
-              }}
-              className="w-full py-3 bg-[#FF6B00] text-white rounded-xl font-medium hover:bg-[#FF8533] transition-colors"
-            >
-              查看会员方案
-            </button>
-            <button
-              onClick={() => setShowPaywall(false)}
-              className="w-full py-3 border-2 border-gray-200 rounded-xl font-medium hover:border-black transition-colors"
-            >
-              暂时不用
-            </button>
-          </div>
-        </div>
-      </div>
+      <CouponModal
+        onClose={() => setShowPaywall(false)}
+        onActivated={() => {
+          setShowPaywall(false)
+          refreshFreeUsage()
+          showToast('体验已激活，可以继续诊断', 'success')
+        }}
+      />
     )
   }
 

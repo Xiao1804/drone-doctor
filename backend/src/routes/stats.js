@@ -1,19 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const { query } = require('../db');
-const freeUsageService = require('../services/freeUsageService');
 const couponService = require('../services/couponService');
 const userService = require('../services/userService');
 
-// GET /api/stats/free-usage - 当前用户会员状态（兼容旧接口）
+// GET /api/stats/free-usage - 当前管理员或体验通行证状态
 router.get('/free-usage', async (req, res) => {
   try {
-    // 尝试从 JWT 获取用户
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (!token) {
       return res.json({
         allowed: false,
-        isMember: false,
+        isTrial: false,
         expiresAt: null,
         daysLeft: 0,
         isAdmin: false,
@@ -21,27 +19,23 @@ router.get('/free-usage', async (req, res) => {
     }
 
     const decoded = userService.verifyToken(token);
-    if (!decoded) {
-      return res.json({
-        allowed: false,
-        isMember: false,
-        expiresAt: null,
-        daysLeft: 0,
-        isAdmin: false,
-      });
+    if (decoded?.userId && decoded?.tokenType !== 'trial_access') {
+      const currentUser = await userService.getActiveUser(decoded.userId);
+      if (currentUser?.role === 'admin') {
+        return res.json({
+          allowed: true,
+          isTrial: false,
+          expiresAt: null,
+          daysLeft: 0,
+          isAdmin: true,
+        });
+      }
     }
 
-    const membership = await couponService.getUserMembership(decoded.userId);
-    res.json({
-      allowed: membership.isMember,
-      isMember: membership.isMember,
-      expiresAt: membership.expiresAt,
-      daysLeft: membership.daysLeft,
-      isAdmin: membership.isAdmin,
-    });
+    res.json(await couponService.getAccessStatus(token));
   } catch (error) {
-    console.error('Membership stats error:', error);
-    res.status(500).json({ error: '获取会员状态失败' });
+    console.error('Trial access stats error:', error);
+    res.status(500).json({ error: '获取体验状态失败' });
   }
 });
 
@@ -120,13 +114,13 @@ router.get('/overview', async (req, res) => {
       console.warn('[Stats] Failed to query diagnoses count:', e.message);
     }
 
-    // 用户数：从 users 表统计
-    let totalUsers = 0;
+    // 已激活体验数：用于需求验证，不再展示账号用户数
+    let totalTrials = 0;
     try {
-      const userResult = await query('SELECT COUNT(*) as total FROM users');
-      totalUsers = parseInt(userResult.rows[0]?.total || '0', 10);
+      const trialResult = await query("SELECT COUNT(*) as total FROM coupons WHERE status = 'used'");
+      totalTrials = parseInt(trialResult.rows[0]?.total || '0', 10);
     } catch (e) {
-      console.warn('[Stats] Failed to query users count:', e.message);
+      console.warn('[Stats] Failed to query activated trials:', e.message);
     }
 
     // 案例数：从 JSON 文件读取
@@ -143,12 +137,12 @@ router.get('/overview', async (req, res) => {
 
     res.json({
       totalDiagnoses,
-      totalUsers,
+      totalTrials,
       totalCases,
     });
   } catch (error) {
     console.error('Stats overview error:', error);
-    res.json({ totalDiagnoses: 0, totalUsers: 0, totalCases: 129 });
+    res.json({ totalDiagnoses: 0, totalTrials: 0, totalCases: 129 });
   }
 });
 

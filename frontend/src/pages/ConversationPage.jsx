@@ -2,9 +2,9 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
-import { trackPaywallSeen, trackPaywallAction } from '../utils/tracking'
-import { checkFreeUsageBeforeDiagnosis, getFreeLimitMessage, isFreeLimitError } from '../utils/freeUsage'
+import { checkFreeUsageBeforeDiagnosis, isFreeLimitError } from '../utils/freeUsage'
 import { refreshFreeUsage } from '../components/DiagnosisCounter'
+import CouponModal from '../components/CouponModal'
 
 function ConversationPage() {
   const [messages, setMessages] = useState([])
@@ -18,46 +18,16 @@ function ConversationPage() {
   const messagesEndRef = useRef(null)
   const navigate = useNavigate()
 
-  // 付费墙显示时埋点
-  useEffect(() => {
-    if (showPaywall) {
-      trackPaywallSeen({ remainingFree: 0 })
-    }
-  }, [showPaywall])
-
   const PaywallModal = () => {
     if (!showPaywall) return null
     return (
-      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-8 text-center">
-          <h3 className="text-xl font-bold text-black mb-2">今日免费次数已用完</h3>
-          <p className="text-gray-600 mb-6">{getFreeLimitMessage()}</p>
-          <div className="space-y-3">
-            <button
-              onClick={() => {
-                trackPaywallAction({ action: 'upgrade' })
-                setShowPaywall(false)
-                navigate('/#pricing')
-                setTimeout(() => {
-                  document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
-                }, 100)
-              }}
-              className="w-full py-3 bg-[#FF6B00] text-white rounded-xl font-medium hover:bg-orange-600 transition-colors"
-            >
-              查看会员方案
-            </button>
-            <button
-              onClick={() => {
-                trackPaywallAction({ action: 'skip' })
-                setShowPaywall(false)
-              }}
-              className="w-full py-3 border-2 border-gray-200 rounded-xl font-medium hover:border-black transition-colors"
-            >
-              暂时不用
-            </button>
-          </div>
-        </div>
-      </div>
+      <CouponModal
+        onClose={() => setShowPaywall(false)}
+        onActivated={() => {
+          setShowPaywall(false)
+          refreshFreeUsage()
+        }}
+      />
     )
   }
 

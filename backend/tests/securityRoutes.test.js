@@ -21,15 +21,11 @@ jest.mock('../src/controllers/caseController', () => {
 });
 
 jest.mock('../src/controllers/userController', () => ({
-  register: jest.fn((req, res) => res.status(200).json({ ok: true })),
   login: jest.fn((req, res) => res.status(401).json({ error: 'invalid credentials' })),
   getCurrentUser: jest.fn(),
   updateUser: jest.fn(),
   changePassword: jest.fn(),
   verifyToken: jest.fn(),
-  getAllUsers: jest.fn(),
-  deleteUser: jest.fn(),
-  getStats: jest.fn(),
 }));
 
 jest.mock('../src/db', () => ({
@@ -37,15 +33,48 @@ jest.mock('../src/db', () => ({
 }));
 
 jest.mock('../src/services/couponService', () => ({
-  getUserMembership: jest.fn().mockResolvedValue({ isMember: false }),
+  getAccessStatus: jest.fn().mockResolvedValue({ allowed: false, isTrial: false }),
+  validateTrialAccessToken: jest.fn().mockResolvedValue({ valid: false, reason: 'invalid' }),
   generateCoupons: jest.fn().mockResolvedValue({
     codes: ['ABCD-EFGH'],
     batchId: 'batch-test',
   }),
   activateCoupon: jest.fn().mockResolvedValue({
+    accessToken: 'trial-access-token',
     expiresAt: '2026-07-19T00:00:00.000Z',
     durationLabel: '3天体验',
   }),
+  getMarketMetrics: jest.fn().mockResolvedValue({
+    coupons: { total: 1, issued: 1, activated: 1, activationRate: 1 },
+    diagnosis: { starts: 1, completions: 1, completionRate: 1, uniqueUsers: 1 },
+    feedback: { total: 0, helpful: 0, notHelpful: 0, unclear: 0 },
+  }),
+  markCouponIssued: jest.fn().mockResolvedValue({ success: true }),
+}));
+
+jest.mock('../src/services/unifiedDiagnosisService', () => ({
+  quickDiagnose: jest.fn(),
+  interactiveDiagnose: jest.fn(),
+  loadData: jest.fn().mockResolvedValue(),
+  IntentParserService: jest.fn(),
+  getSession: jest.fn(),
+}));
+
+jest.mock('../src/services/agentDiagnosisService', () => ({
+  getKnowledgeStatus: jest.fn(),
+  loadKnowledgeBase: jest.fn(),
+  parseIntent: jest.fn(),
+  retrieveDocuments: jest.fn(),
+  diagnose: jest.fn(),
+  chat: jest.fn(),
+}));
+
+jest.mock('../src/services/freeUsageService', () => ({
+  incrementUsage: jest.fn(),
+}));
+
+jest.mock('../src/services/historyService', () => ({
+  addHistory: jest.fn(),
 }));
 
 const userService = require('../src/services/userService');
@@ -57,6 +86,8 @@ const caseRoutes = require('../src/routes/cases');
 const eventRoutes = require('../src/routes/events');
 const createUserRoutes = require('../src/routes/user');
 const couponRoutes = require('../src/routes/coupon');
+const unifiedDiagnosisRoutes = require('../src/routes/unifiedDiagnosis');
+const diagnosisAgentRoutes = require('../src/routes/diagnosisAgent');
 const { freeUsageLimit } = require('../src/middleware/freeUsageLimit');
 const { createAuthLimiters } = require('../src/middleware/rateLimiters');
 
@@ -178,7 +209,7 @@ describe('case write authorization', () => {
       path: '/api/cases/F001',
       headers: { authorization: 'Bearer inactive-token' },
     });
-    expect(response.status).toBe(401);
+    expect(response.status).toBe(403);
     expect(caseController.deleteCase).not.toHaveBeenCalled();
   });
 
@@ -232,23 +263,23 @@ describe('event ingestion controls', () => {
     );
   });
 
-  test('uses the verified token identity when present', async () => {
+  test('uses only a verified admin identity when present', async () => {
     const response = await request(app, {
       method: 'POST',
       path: '/api/events',
-      headers: { authorization: 'Bearer user-token' },
+      headers: { authorization: 'Bearer admin-token' },
       body: { event: 'diagnosis_complete', data: {} },
     });
     expect(response.status).toBe(200);
     expect(db.run).toHaveBeenCalledWith(
       expect.any(String),
-      ['diagnosis_complete', '{}', 'user-1', '127.0.0.1']
+      ['diagnosis_complete', '{}', 'admin-1', '127.0.0.1']
     );
   });
 });
 
 describe('authentication rate limiting', () => {
-  test('public registration is disabled without calling the register handler', async () => {
+  test('public registration is explicitly retired', async () => {
     const app = createApp('/api/user', createUserRoutes(createAuthLimiters()));
     const response = await request(app, {
       method: 'POST',
@@ -260,11 +291,10 @@ describe('authentication rate limiting', () => {
       },
     });
 
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(410);
     expect(JSON.parse(response.body)).toMatchObject({
-      code: 'REGISTRATION_DISABLED',
+      code: 'PUBLIC_ACCOUNTS_RETIRED',
     });
-    expect(userController.register).not.toHaveBeenCalled();
   });
 
   test('the sixth login attempt within a minute is rejected', async () => {
@@ -339,45 +369,177 @@ describe('coupon routes remain available to existing users', () => {
     );
   });
 
-  test('a logged-in user can still activate a coupon', async () => {
+  test('an anonymous visitor can activate a coupon without an account', async () => {
     const response = await request(app, {
       method: 'POST',
       path: '/api/coupon/activate',
-      headers: { authorization: 'Bearer user-token' },
       body: { code: 'ABCD-EFGH' },
     });
 
     expect(response.status).toBe(200);
-    expect(couponService.activateCoupon).toHaveBeenCalledWith('ABCD-EFGH', 'user-1');
+    expect(JSON.parse(response.body)).toMatchObject({
+      accessToken: 'trial-access-token',
+      durationLabel: '3天体验',
+    });
+    expect(couponService.activateCoupon).toHaveBeenCalledWith('ABCD-EFGH');
+  });
+
+  test('a browser can check its trial pass without an account', async () => {
+    couponService.getAccessStatus.mockResolvedValueOnce({
+      allowed: true,
+      isTrial: true,
+      expiresAt: '2026-07-19T00:00:00.000Z',
+      daysLeft: 3,
+    });
+
+    const response = await request(app, {
+      path: '/api/coupon/access',
+      headers: { authorization: 'Bearer trial-token' },
+    });
+
+    expect(response.status).toBe(200);
+    expect(JSON.parse(response.body)).toMatchObject({
+      allowed: true,
+      isTrial: true,
+    });
+    expect(couponService.getAccessStatus).toHaveBeenCalledWith('trial-token');
+  });
+
+  test('the legacy paid-membership endpoint is explicitly retired', async () => {
+    const response = await request(app, {
+      path: '/api/coupon/membership',
+    });
+
+    expect(response.status).toBe(410);
+    expect(JSON.parse(response.body)).toMatchObject({
+      code: 'MEMBERSHIP_RETIRED',
+    });
+  });
+
+  test('market validation metrics remain admin-only', async () => {
+    const anonymous = await request(app, {
+      path: '/api/coupon/metrics',
+    });
+    expect(anonymous.status).toBe(401);
+
+    const admin = await request(app, {
+      path: '/api/coupon/metrics',
+      headers: { authorization: 'Bearer admin-token' },
+    });
+    expect(admin.status).toBe(200);
+    expect(couponService.getMarketMetrics).toHaveBeenCalledTimes(1);
+  });
+
+  test('only an admin can mark a coupon as issued', async () => {
+    const user = await request(app, {
+      method: 'PUT',
+      path: '/api/coupon/1/issue',
+      headers: { authorization: 'Bearer user-token' },
+      body: {},
+    });
+    expect(user.status).toBe(403);
+
+    const admin = await request(app, {
+      method: 'PUT',
+      path: '/api/coupon/1/issue',
+      headers: { authorization: 'Bearer admin-token' },
+      body: {},
+    });
+    expect(admin.status).toBe(200);
+    expect(couponService.markCouponIssued).toHaveBeenCalledWith('1');
   });
 });
 
-describe('membership authorization uses current database role', () => {
-  function membershipApp() {
+describe('trial access authorization uses current database role', () => {
+  function trialAccessApp() {
     const router = express.Router();
     router.post('/', freeUsageLimit, (req, res) => res.json({ isAdmin: req.freeUsage.isAdmin }));
     return createApp('/protected', router);
   }
 
-  test('an active current admin bypasses membership checks', async () => {
-    const response = await request(membershipApp(), {
+  test('an active current admin bypasses trial-pass checks', async () => {
+    const response = await request(trialAccessApp(), {
       method: 'POST',
       path: '/protected',
       headers: { authorization: 'Bearer admin-token' },
       body: {},
     });
     expect(response.status).toBe(200);
-    expect(couponService.getUserMembership).not.toHaveBeenCalled();
+    expect(couponService.validateTrialAccessToken).not.toHaveBeenCalled();
   });
 
-  test('a downgraded admin token no longer bypasses membership checks', async () => {
-    const response = await request(membershipApp(), {
+  test('a downgraded admin token cannot become a trial pass', async () => {
+    const response = await request(trialAccessApp(), {
       method: 'POST',
       path: '/protected',
       headers: { authorization: 'Bearer former-admin-token' },
       body: {},
     });
     expect(response.status).toBe(403);
-    expect(couponService.getUserMembership).toHaveBeenCalledWith('former-admin-1');
+    expect(couponService.validateTrialAccessToken).toHaveBeenCalledWith('former-admin-token');
+  });
+
+  test('a valid trial pass can use protected diagnosis routes', async () => {
+    couponService.validateTrialAccessToken.mockResolvedValueOnce({
+      valid: true,
+      accessId: 'access-1',
+      expiresAt: '2026-07-19T00:00:00.000Z',
+      daysLeft: 3,
+      identifier: { type: 'trial', value: 'access-1' },
+    });
+
+    const response = await request(trialAccessApp(), {
+      method: 'POST',
+      path: '/protected',
+      headers: { authorization: 'Bearer trial-token' },
+      body: {},
+    });
+
+    expect(response.status).toBe(200);
+    expect(JSON.parse(response.body)).toEqual({ isAdmin: false });
+  });
+
+  test.each([
+    ['forged', 'invalid'],
+    ['expired', 'expired'],
+  ])('%s trial passes are rejected', async (_label, reason) => {
+    couponService.validateTrialAccessToken.mockResolvedValueOnce({
+      valid: false,
+      reason,
+    });
+
+    const response = await request(trialAccessApp(), {
+      method: 'POST',
+      path: '/protected',
+      headers: { authorization: 'Bearer bad-trial-token' },
+      body: {},
+    });
+
+    expect(response.status).toBe(403);
+  });
+});
+
+describe('diagnosis helper routes require a trial pass', () => {
+  test.each([
+    ['GET', '/api/diagnosis/unified/intent?input=motor'],
+    ['GET', '/api/diagnosis/unified/session/session-1'],
+    ['POST', '/api/diagnosis/agent/parse-intent'],
+    ['POST', '/api/diagnosis/agent/retrieve'],
+  ])('%s %s rejects anonymous access', async (method, path) => {
+    const app = express();
+    app.use(express.json());
+    app.use('/api/diagnosis/unified', unifiedDiagnosisRoutes);
+    app.use('/api/diagnosis/agent', diagnosisAgentRoutes);
+
+    const response = await request(app, {
+      method,
+      path,
+      body: method === 'POST' ? { query: 'motor' } : undefined,
+    });
+
+    expect(response.status).toBe(401);
+    expect(JSON.parse(response.body)).toMatchObject({
+      error: 'TRIAL_ACCESS_REQUIRED',
+    });
   });
 });

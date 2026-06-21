@@ -46,6 +46,7 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
 # 4. 应用代码（变更最频繁，放在最后以最大化缓存命中）
 # ═══════════════════════════════════════════════════════════════
 COPY backend/src ./src
+COPY backend/migrations ./migrations
 COPY backend/shared ./shared
 COPY data ./data
 COPY backend/models ./models
@@ -54,4 +55,4 @@ RUN mkdir -p /app/uploads
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "start:production"]

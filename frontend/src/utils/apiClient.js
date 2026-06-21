@@ -1,9 +1,9 @@
 import axios from 'axios'
 import { apiUrl } from '../config/api'
+import { getAccessHeaders } from './accessToken'
 
 export function getAuthHeaders() {
-  const token = localStorage.getItem('token')
-  return token ? { Authorization: `Bearer ${token}` } : {}
+  return getAccessHeaders()
 }
 
 export const apiClient = {
@@ -54,8 +54,8 @@ export const coupon = {
     return apiClient.post('/api/coupon/activate', { code })
   },
 
-  getMembership() {
-    return apiClient.get('/api/coupon/membership')
+  getAccessStatus() {
+    return apiClient.get('/api/coupon/access')
   },
 
   getDurations() {

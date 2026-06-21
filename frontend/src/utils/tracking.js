@@ -76,31 +76,3 @@ export function trackFeedback({ result, diagnosisId }) {
     diagnosis_id: diagnosisId
   })
 }
-
-/**
- * 付费墙页面浏览
- */
-export function trackPaywallSeen({ remainingFree }) {
-  track('paywall_seen', { remaining_free: remainingFree })
-}
-
-/**
- * 付费墙操作
- */
-export function trackPaywallAction({ action }) {
-  track('paywall_action', { action }) // 'upgrade' | 'come_back' | 'browse_free'
-}
-
-/**
- * 注册引导展示
- */
-export function trackRegisterPromptSeen({ diagnosisCount }) {
-  track('register_prompt_seen', { diagnosis_count: diagnosisCount })
-}
-
-/**
- * 注册引导操作
- */
-export function trackRegisterPromptAction({ action }) {
-  track('register_prompt_action', { action }) // 'register' | 'skip'
-}

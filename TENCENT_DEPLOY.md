@@ -136,41 +136,81 @@ https://wurenjiyisheng.com
 https://wurenjiyisheng.com/health
 ```
 
-## 6. Update After Code Changes
+## 6. Versioned Release Deployment
 
-> **推荐方式：CDN 逐文件下载**（国内服务器 git pull 几乎必失败）
->
-> 在本地 `git push` 后，用 commit hash 通过 jsdelivr CDN 下载改动文件：
-> ```bash
-> cd /root/drone-doctor
-> curl -sL -o <本地路径> "https://cdn.jsdelivr.net/gh/Xiao1804/drone-doctor@<commit-hash>/<路径>"
-> ```
-> 下载完成后验证文件头（`head -3 <file>`），确认内容正确再构建。
+Do not update production by downloading individual changed files. A release must
+contain the complete repository state for one Git tag.
+
+Before packaging:
 
 ```bash
-cd /root/drone-doctor
-docker compose --env-file .env.tencent -f docker-compose.tencent.yml build backend frontend
-docker compose --env-file .env.tencent -f docker-compose.tencent.yml up -d
+git status --short
+git tag --list
 ```
 
-> **⚠️ 不要使用 `--no-cache`**：sharp 的 libvips 二进制需要从 GitHub 下载，国内服务器会超时（6000+秒后失败）。保留 Docker 缓存层可复用已编译的 sharp。
+The tracked worktree must be clean and the release tag must point to the commit
+that passed tests. Create a complete package locally:
 
-> **备选方式：git pull**（经常失败，仅作备用）
-> ```bash
-> # 方案 1：关闭 SSL 验证
-> GIT_SSL_NO_VERIFY=1 git pull origin main
->
-> # 方案 2：切 HTTP/1.1
-> git config --global http.version HTTP/1.1
-> git config --global http.postBuffer 524288000
-> git pull origin main
-> ```
+```bash
+git archive --format=tar.gz --output drone-doctor-v1.3.0.tar.gz v1.3.0
+sha256sum drone-doctor-v1.3.0.tar.gz > drone-doctor-v1.3.0.tar.gz.sha256
+scp drone-doctor-v1.3.0.tar.gz* root@<server-ip>:/root/releases/
+```
 
-> **`backend/models/` 目录**：embedding 模型文件（~24MB）被 `.gitignore` 排除，`git pull` 不会更新。首次部署需从运行中的容器复制：
-> ```bash
-> docker cp drone-doctor-backend-1:/app/models backend/
-> ```
-> 恢复一次后永久有效（docker compose build 会 COPY 进镜像）。
+Keep the production environment file outside release directories:
+
+```bash
+sudo install -m 600 .env.tencent /root/drone-doctor.env
+```
+
+Deploy the package:
+
+```bash
+cd /root/releases
+sha256sum -c drone-doctor-v1.3.0.tar.gz.sha256
+mkdir -p drone-doctor-v1.3.0
+tar -xzf drone-doctor-v1.3.0.tar.gz -C drone-doctor-v1.3.0
+ln -sfn /root/releases/drone-doctor-v1.3.0 /root/drone-doctor-current
+
+cd /root/drone-doctor-current
+APP_VERSION=v1.3.0 docker compose \
+  --env-file /root/drone-doctor.env \
+  -f docker-compose.tencent.yml \
+  up -d --build
+```
+
+The backend container applies pending PostgreSQL migrations before starting the
+API. If migration fails, the backend does not start.
+
+Verify:
+
+```bash
+docker compose --env-file /root/drone-doctor.env -f docker-compose.tencent.yml ps
+curl --resolve wurenjiyisheng.com:443:127.0.0.1 \
+  https://wurenjiyisheng.com/health
+```
+
+The health response must include the expected release version and
+`"database":"ok"`.
+
+### Code rollback
+
+Keep the previous release directory. If the new version has not introduced an
+incompatible data change, point the symlink back and rebuild:
+
+```bash
+ln -sfn /root/releases/drone-doctor-v1.2.0 /root/drone-doctor-current
+cd /root/drone-doctor-current
+APP_VERSION=v1.2.0 docker compose \
+  --env-file /root/drone-doctor.env \
+  -f docker-compose.tencent.yml \
+  up -d --build
+```
+
+Do not run an automatic migration `down`. The baseline and trial-access
+migrations are intentionally forward-only because reversing them could delete
+business data. For incompatible database incidents, stop deployment, preserve
+evidence, and restore a verified backup or release a forward fix.
 
 ## 7. Database Backup
 
@@ -187,6 +227,17 @@ latest_backup="$(sudo find /root/backups -maxdepth 1 -name 'db_*.dump' -printf '
 docker compose --env-file .env.tencent -f docker-compose.tencent.yml exec -T postgres \
   pg_restore --list < "$latest_backup" > /dev/null
 ```
+
+For a second disk, mounted object-storage directory, or another protected
+filesystem, set:
+
+```bash
+BACKUP_MIRROR_DIR=/mnt/offsite/drone-doctor
+```
+
+To call an alert webhook or local notification script on failure, set
+`BACKUP_FAILURE_COMMAND`. The backup script also creates a `.sha256` file for
+each dump.
 
 Restore example. Stop the backend first, then restore into the target database with
 failure-on-first-error semantics:

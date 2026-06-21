@@ -2,13 +2,10 @@ import React from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import ImageDiagnosisPage from './pages/ImageDiagnosisPage'
-import HistoryPage from './pages/HistoryPage'
 import AuthPage from './pages/AuthPage'
-import ProfilePage from './pages/ProfilePage'
 import GuidePage from './pages/GuidePage'
 import FlightLogPage from './pages/FlightLogPage'
 import AdminFeedbackPage from './pages/AdminFeedbackPage'
-import MyFeedbackPage from './pages/MyFeedbackPage'
 import FeedbackWidget from './components/FeedbackWidget'
 import AdminCouponPage from './pages/AdminCouponPage'
 import CompliancePage from './pages/CompliancePage'
@@ -29,13 +26,14 @@ function App() {
           <Route path="/diagnosis" element={<Navigate to="/guide" replace />} />
           <Route path="/conversation" element={<Navigate to="/guide" replace />} />
           <Route path="/image-diagnosis" element={<ImageDiagnosisPage />} />
-          <Route path="/history" element={<HistoryPage />} />
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/auth" element={<Navigate to="/admin/login" replace />} />
+          <Route path="/admin/login" element={<AuthPage />} />
+          <Route path="/profile" element={<Navigate to="/" replace />} />
+          <Route path="/history" element={<Navigate to="/" replace />} />
           <Route path="/guide" element={<GuidePage />} />
           <Route path="/guide/:treeId" element={<GuidePage />} />
           <Route path="/flight-log" element={<FlightLogPage />} />
-          <Route path="/my-feedback" element={<MyFeedbackPage />} />
+          <Route path="/my-feedback" element={<Navigate to="/" replace />} />
           <Route path="/admin/feedback" element={<AdminFeedbackPage />} />
           <Route path="/admin/coupons" element={<AdminCouponPage />} />
         </Routes>

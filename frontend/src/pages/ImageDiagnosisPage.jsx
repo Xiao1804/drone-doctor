@@ -13,15 +13,11 @@ function ImageDiagnosisPage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    // 检查会员状态
+    // 检查体验状态
     checkFreeUsageBeforeDiagnosis().then(state => {
       if (!state.allowed) {
-        if (!localStorage.getItem('token')) {
-          navigate('/auth')
-        } else {
-          showToast('当前体验未开通，请返回首页', 'warning')
-          navigate('/#pricing')
-        }
+        showToast('请先在首页输入兑换券激活免费体验', 'warning')
+        navigate('/#trial')
       }
     })
   }, [navigate])
@@ -53,15 +49,11 @@ function ImageDiagnosisPage() {
       return
     }
 
-    // 再次检查会员状态
+    // 再次检查体验状态
     const state = await checkFreeUsageBeforeDiagnosis()
     if (!state.allowed) {
-      if (!localStorage.getItem('token')) {
-        navigate('/auth')
-      } else {
-        showToast('当前体验未开通，请返回首页', 'warning')
-        navigate('/#pricing')
-      }
+      showToast('请先在首页输入兑换券激活免费体验', 'warning')
+      navigate('/#trial')
       return
     }
 

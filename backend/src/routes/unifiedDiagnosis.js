@@ -5,20 +5,27 @@ const { freeUsageLimit } = require('../middleware/freeUsageLimit');
 const { optionalAuthMiddleware } = require('../middleware/auth');
 const freeUsageService = require('../services/freeUsageService');
 const historyService = require('../services/historyService');
+const { run } = require('../db');
 
 // 确保数据已加载
 loadData().catch(err => console.error('[UnifiedDiagnosis] Failed to load data:', err.message));
 
-function consumesFreeUsage(req) {
-  const mode = req.body?.mode || 'quick';
-  return mode === 'quick' || (mode === 'interactive' && !req.body?.sessionId);
-}
+async function recordMarketEvent(req, event, data = {}) {
+  if (!req.trialAccess) return;
 
-async function freeUsageLimitOnStart(req, res, next) {
-  if (!consumesFreeUsage(req)) {
-    return next();
+  try {
+    await run(
+      'INSERT INTO events (event, data, user_id, ip) VALUES (?, ?, ?, ?)',
+      [
+        event,
+        JSON.stringify(data),
+        `trial:${req.trialAccess.accessId}`,
+        req.ip || '',
+      ]
+    );
+  } catch (error) {
+    console.warn(`[MarketMetrics] Failed to record ${event}:`, error.message);
   }
-  return freeUsageLimit(req, res, next);
 }
 
 function hasUsefulQuickDiagnosis(result) {
@@ -142,7 +149,7 @@ async function saveDiagnosisHistoryIfPossible(req, { mode, input, result }) {
  *   model?: string           // 具体型号
  * }
  */
-router.post('/', optionalAuthMiddleware, freeUsageLimitOnStart, async (req, res) => {
+router.post('/', optionalAuthMiddleware, freeUsageLimit, async (req, res) => {
   try {
     const {
       mode = 'quick',
@@ -165,10 +172,12 @@ router.post('/', optionalAuthMiddleware, freeUsageLimitOnStart, async (req, res)
     };
 
     if (mode === 'quick') {
+      await recordMarketEvent(req, 'trial_diagnosis_start', { mode });
       const result = await quickDiagnose(input, structuredHints);
 
       if (shouldChargeUsage(mode, sessionId, result) && req.freeUsage?.identifier) {
         await freeUsageService.incrementUsage(req.freeUsage.identifier);
+        await recordMarketEvent(req, 'trial_diagnosis_complete', { mode });
       }
 
       await saveDiagnosisHistoryIfPossible(req, { mode, input, result });
@@ -176,10 +185,16 @@ router.post('/', optionalAuthMiddleware, freeUsageLimitOnStart, async (req, res)
     }
 
     if (mode === 'interactive') {
+      if (!sessionId) {
+        await recordMarketEvent(req, 'trial_diagnosis_start', { mode });
+      }
       const result = await interactiveDiagnose(sessionId, input, userAnswer, structuredHints);
 
       if (shouldChargeUsage(mode, sessionId, result) && req.freeUsage?.identifier) {
         await freeUsageService.incrementUsage(req.freeUsage.identifier);
+      }
+      if (hasCompletedInteractiveDiagnosis(result)) {
+        await recordMarketEvent(req, 'trial_diagnosis_complete', { mode });
       }
 
       await saveDiagnosisHistoryIfPossible(req, { mode, input, result });
@@ -197,7 +212,7 @@ router.post('/', optionalAuthMiddleware, freeUsageLimitOnStart, async (req, res)
  * GET /api/diagnosis/unified/intent
  * 意图解析测试接口（用于前端实时提示）
  */
-router.get('/intent', async (req, res) => {
+router.get('/intent', freeUsageLimit, async (req, res) => {
   try {
     const { input } = req.query;
     if (!input) {
@@ -222,7 +237,7 @@ router.get('/intent', async (req, res) => {
  * GET /api/diagnosis/unified/session/:sessionId
  * 获取会话状态
  */
-router.get('/session/:sessionId', async (req, res) => {
+router.get('/session/:sessionId', freeUsageLimit, async (req, res) => {
   try {
     const { getSession } = require('../services/unifiedDiagnosisService');
     const session = await getSession(req.params.sessionId);

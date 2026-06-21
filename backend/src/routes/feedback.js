@@ -25,9 +25,7 @@ router.post('/', optionalAuthMiddleware, async (req, res) => {
         status: feedback.status,
         publicStatus: feedback.publicStatus,
       },
-      message: req.user
-        ? '反馈已收到。你可以在个人中心查看处理状态。'
-        : '反馈已收到。若希望收到处理结果，请登录后提交或留下联系方式。',
+      message: '反馈已收到。若方便回访，请留下微信或电话。',
     });
   } catch (error) {
     console.error('[Feedback] create error:', error);
@@ -46,26 +44,6 @@ router.get('/meta', async (req, res) => {
     ratings: feedbackService.FEEDBACK_RATINGS,
     statuses: feedbackService.FEEDBACK_STATUSES,
   });
-});
-
-/**
- * GET /api/feedback/my
- * 登录用户查看自己的反馈处理状态。
- */
-router.get('/my', authMiddleware, async (req, res) => {
-  try {
-    const result = await feedbackService.listUserFeedback(req.userId, {
-      page: req.query.page,
-      pageSize: req.query.pageSize,
-    });
-    res.json({
-      success: true,
-      ...result,
-    });
-  } catch (error) {
-    console.error('[Feedback] my list error:', error);
-    sendError(res, error);
-  }
 });
 
 /**

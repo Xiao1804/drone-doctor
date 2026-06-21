@@ -13,13 +13,13 @@ const authMiddleware = async (req, res, next) => {
 
     const decoded = userService.verifyToken(token);
     
-    if (!decoded?.userId) {
+    if (!decoded?.userId || decoded?.tokenType === 'trial_access') {
       return res.status(401).json({ error: 'Token无效或已过期' });
     }
 
     const user = await userService.getActiveUser(decoded.userId);
-    if (!user) {
-      return res.status(401).json({ error: '用户不存在或已停用' });
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ error: '仅管理员可访问' });
     }
 
     req.user = user;
@@ -50,10 +50,10 @@ const optionalAuthMiddleware = async (req, res, next) => {
     
     if (token) {
       const decoded = userService.verifyToken(token);
-      const user = decoded?.userId
+      const user = decoded?.userId && decoded?.tokenType !== 'trial_access'
         ? await userService.getActiveUser(decoded.userId)
         : null;
-      if (user) {
+      if (user?.role === 'admin') {
         req.user = user;
         req.userId = user.id;
       }

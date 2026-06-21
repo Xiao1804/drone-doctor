@@ -1,4 +1,8 @@
-# Render 全栈部署指南
+# Render 全栈部署指南（历史参考，当前未验证）
+
+> 当前生产环境使用腾讯云 Docker Compose。本文件没有经过 v1.3.0
+> 免注册体验和自动迁移流程的线上验证。若重新启用 Render，必须先按
+> `DEPLOY.md` 重新完成安全、迁移、健康检查和备份验收。
 
 > 本指南用于在 Render 上部署 drone-doctor 作为 Railway 的长期免费替代方案。
 

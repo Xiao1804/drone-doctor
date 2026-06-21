@@ -157,12 +157,20 @@ export default function AdminFeedbackPage() {
             <h1 className="text-2xl font-bold text-gray-900">用户反馈</h1>
             <p className="text-sm text-gray-500 mt-1">查看真实用户反馈，用于改进诊断流程和产品功能。</p>
           </div>
-          <button
-            onClick={() => navigate('/')}
-            className="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:border-gray-400"
-          >
-            返回首页
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => navigate('/admin/coupons')}
+              className="px-4 py-2 border border-orange-200 rounded-lg text-sm text-[#FF6B00] hover:border-[#FF6B00]"
+            >
+              券码与指标
+            </button>
+            <button
+              onClick={() => navigate('/')}
+              className="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:border-gray-400"
+            >
+              返回首页
+            </button>
+          </div>
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6 flex items-center justify-between gap-4">

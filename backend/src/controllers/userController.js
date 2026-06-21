@@ -1,49 +1,6 @@
 const userService = require('../services/userService');
 
 /**
- * 用户注册
- */
-exports.register = async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
-
-    // 验证必填字段
-    if (!username || !email || !password) {
-      return res.status(400).json({ error: '用户名、邮箱和密码不能为空' });
-    }
-
-    // 验证用户名格式
-    if (username.length < 3 || username.length > 20) {
-      return res.status(400).json({ error: '用户名长度应为3-20个字符' });
-    }
-
-    // 验证邮箱格式
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: '邮箱格式不正确' });
-    }
-
-    // 验证密码强度
-    if (password.length < 6) {
-      return res.status(400).json({ error: '密码长度至少6个字符' });
-    }
-
-    const result = await userService.register(username, email, password);
-
-    res.json({
-      success: true,
-      message: '注册成功',
-      user: result.user,
-      token: result.token
-    });
-
-  } catch (error) {
-    console.error('Register error:', error);
-    res.status(400).json({ error: error.message });
-  }
-};
-
-/**
  * 用户登录
  */
 exports.login = async (req, res) => {
@@ -137,63 +94,6 @@ exports.changePassword = async (req, res) => {
   } catch (error) {
     console.error('Change password error:', error);
     res.status(400).json({ error: error.message });
-  }
-};
-
-/**
- * 删除用户（管理员）
- */
-exports.deleteUser = async (req, res) => {
-  try {
-    const { userId } = req.params;
-
-    await userService.deleteUser(userId);
-
-    res.json({
-      success: true,
-      message: '用户已删除'
-    });
-
-  } catch (error) {
-    console.error('Delete user error:', error);
-    res.status(400).json({ error: error.message });
-  }
-};
-
-/**
- * 获取所有用户（管理员）
- */
-exports.getAllUsers = async (req, res) => {
-  try {
-    const users = await userService.getAllUsers();
-
-    res.json({
-      success: true,
-      total: users.length,
-      users
-    });
-
-  } catch (error) {
-    console.error('Get all users error:', error);
-    res.status(500).json({ error: '获取用户列表失败' });
-  }
-};
-
-/**
- * 获取用户统计信息
- */
-exports.getStats = async (req, res) => {
-  try {
-    const stats = await userService.getStats();
-
-    res.json({
-      success: true,
-      stats
-    });
-
-  } catch (error) {
-    console.error('Get stats error:', error);
-    res.status(500).json({ error: '获取统计信息失败' });
   }
 };
 

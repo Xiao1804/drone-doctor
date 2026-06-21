@@ -124,7 +124,7 @@ router.get('/status', async (req, res) => {
  * 意图解析测试接口（调试用）
  * POST /api/diagnosis/agent/parse-intent
  */
-router.post('/parse-intent', async (req, res) => {
+router.post('/parse-intent', freeUsageLimit, async (req, res) => {
   try {
     const { query } = req.body;
     if (!query) {
@@ -142,7 +142,7 @@ router.post('/parse-intent', async (req, res) => {
  * 知识检索测试接口（调试用）
  * POST /api/diagnosis/agent/retrieve
  */
-router.post('/retrieve', async (req, res) => {
+router.post('/retrieve', freeUsageLimit, async (req, res) => {
   try {
     const { query, topK = 5 } = req.body;
     if (!query) {

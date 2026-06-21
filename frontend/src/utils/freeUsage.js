@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { apiUrl } from '../config/api'
+import { getAccessHeaders, getAccessToken } from './accessToken'
 
 const MAX_FREE = 3
 const STORAGE_KEY = 'dd_diagnosis_count'
@@ -8,43 +9,31 @@ const STORAGE_DATE_KEY = 'dd_diagnosis_date'
 /**
  * 获取当前登录用户的 token
  */
-function getAuthToken() {
-  return localStorage.getItem('token')
-}
-
 /**
- * 从后端获取真实的免费使用状态
- * 已登录用户和未登录用户都适用
+ * 从后端获取管理员或免注册体验通行证状态。
  */
 export async function fetchFreeUsageState() {
   try {
-    const token = getAuthToken()
-    const headers = token ? { Authorization: `Bearer ${token}` } : {}
     const res = await axios.get(apiUrl('/api/stats/free-usage'), {
-      headers,
+      headers: getAccessHeaders(),
       timeout: 5000,
     })
-    // 新格式：{ allowed, isMember, expiresAt, daysLeft, isAdmin }
-    // 兼容旧格式：{ allowed, used, remaining, limit, isAdmin }
+    // 格式：{ allowed, isTrial, expiresAt, daysLeft, isAdmin }
     return {
       used: Number(res.data.used || 0),
-      remaining: res.data.isAdmin ? Infinity : (res.data.isMember ? Infinity : 0),
+      remaining: res.data.allowed ? Infinity : 0,
       limit: Number(res.data.limit || MAX_FREE),
       allowed: !!res.data.allowed,
       isAdmin: !!res.data.isAdmin,
-      isMember: !!res.data.isMember,
+      isTrial: !!res.data.isTrial,
       expiresAt: res.data.expiresAt || null,
       daysLeft: res.data.daysLeft || 0,
     }
   } catch (error) {
-    // 后端不可用时，检查是否有 token
-    const token = getAuthToken()
-    // 没有 token 则不允许
-    if (!token) {
-      return { used: 0, remaining: 0, limit: MAX_FREE, allowed: false, isAdmin: false, isMember: false }
+    if (!getAccessToken()) {
+      return { used: 0, remaining: 0, limit: MAX_FREE, allowed: false, isAdmin: false, isTrial: false }
     }
-    // 有 token 但后端不可用，保守返回 false
-    return { used: 0, remaining: 0, limit: MAX_FREE, allowed: false, isAdmin: false, isMember: false }
+    return { used: 0, remaining: 0, limit: MAX_FREE, allowed: false, isAdmin: false, isTrial: false }
   }
 }
 
@@ -86,12 +75,12 @@ export function isFreeLimitError(error) {
   return error?.response?.status === 429 ||
     error?.response?.status === 403 ||
     error?.response?.data?.code === 'FREE_LIMIT_EXCEEDED' ||
-    error?.response?.data?.error === 'MEMBERSHIP_REQUIRED'
+    error?.response?.data?.error === 'TRIAL_ACCESS_REQUIRED'
 }
 
 /**
  * 获取错误提示文案
  */
 export function getFreeLimitMessage() {
-  return '需要券码激活会员才能使用诊断功能'
+  return '请先输入兑换券激活免费体验'
 }

@@ -6,7 +6,7 @@ import { showToast } from '../components/Toast'
 function AdminCouponPage() {
   const [loading, setLoading] = useState(false)
   const [generateForm, setGenerateForm] = useState({
-    count: 10,
+    count: 1,
     note: '',
   })
   const [generatedCodes, setGeneratedCodes] = useState([])
@@ -15,6 +15,7 @@ function AdminCouponPage() {
   const [totalCount, setTotalCount] = useState(0)
   const [page, setPage] = useState(1)
   const [filters, setFilters] = useState({ status: '', batchId: '' })
+  const [metrics, setMetrics] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -24,9 +25,7 @@ function AdminCouponPage() {
       navigate('/')
       return
     }
-
-    fetchCoupons()
-  }, [navigate, page])
+  }, [navigate])
 
   const fetchCoupons = useCallback(async () => {
     try {
@@ -45,9 +44,19 @@ function AdminCouponPage() {
     }
   }, [filters, page])
 
+  const fetchMetrics = useCallback(async () => {
+    try {
+      const res = await apiClient.get('/api/coupon/metrics')
+      setMetrics(res.data)
+    } catch (err) {
+      console.error('Fetch market metrics error:', err)
+    }
+  }, [])
+
   useEffect(() => {
     fetchCoupons()
-  }, [fetchCoupons])
+    fetchMetrics()
+  }, [fetchCoupons, fetchMetrics])
 
   const handleGenerate = async () => {
     setLoading(true)
@@ -58,8 +67,8 @@ function AdminCouponPage() {
       })
       setGeneratedCodes(res.data.codes)
       showToast(`成功生成 ${res.data.count} 个券码`, 'success')
-      // 刷新列表
       fetchCoupons()
+      fetchMetrics()
     } catch (err) {
       showToast(err.response?.data?.error || '生成券码失败', 'error')
     } finally {
@@ -87,9 +96,27 @@ function AdminCouponPage() {
     }
   }
 
+  const handleIssue = async (coupon) => {
+    try {
+      await navigator.clipboard.writeText(coupon.code)
+      await apiClient.put(`/api/coupon/${coupon.id}/issue`)
+      showToast('券码已复制，并记录为已发给微信用户', 'success')
+      fetchCoupons()
+      fetchMetrics()
+    } catch (err) {
+      showToast(err.response?.data?.error || '复制或标记发放失败', 'error')
+    }
+  }
+
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }))
     setPage(1)
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    navigate('/')
   }
 
   const statusColors = {
@@ -110,18 +137,58 @@ function AdminCouponPage() {
       <div className="bg-[#FF6B00] text-white px-4 py-6">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-2">
-            <button onClick={() => navigate('/profile')} className="text-white hover:opacity-80">
+            <button onClick={() => navigate('/')} className="text-white hover:opacity-80">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <h1 className="text-xl font-bold">券码管理</h1>
-            <div className="w-6"></div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate('/admin/feedback')}
+                className="text-sm text-white/90 hover:text-white"
+              >
+                反馈管理
+              </button>
+              <button
+                onClick={handleLogout}
+                className="text-sm text-white/70 hover:text-white"
+              >
+                退出
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+        {metrics && (
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
+              <div className="text-xs text-gray-500">微信领券人数</div>
+              <div className="mt-1 text-2xl font-bold text-gray-900">{metrics.coupons?.issued || 0}</div>
+              <div className="mt-1 text-xs text-gray-400">共生成 {metrics.coupons?.total || 0} 张</div>
+            </div>
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
+              <div className="text-xs text-gray-500">券码激活率</div>
+              <div className="mt-1 text-2xl font-bold text-[#FF6B00]">
+                {((metrics.coupons?.activationRate || 0) * 100).toFixed(1)}%
+              </div>
+            </div>
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
+              <div className="text-xs text-gray-500">实际体验人数</div>
+              <div className="mt-1 text-2xl font-bold text-gray-900">{metrics.diagnosis?.uniqueUsers || 0}</div>
+            </div>
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
+              <div className="text-xs text-gray-500">有效反馈</div>
+              <div className="mt-1 text-2xl font-bold text-gray-900">{metrics.feedback?.total || 0}</div>
+              <div className="mt-1 text-xs text-gray-500">
+                有帮助 {metrics.feedback?.helpful || 0} · 没帮助 {metrics.feedback?.notHelpful || 0}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 生成券码 */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-200">
@@ -175,7 +242,7 @@ function AdminCouponPage() {
                   onClick={handleCopyAll}
                   className="px-3 py-1 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-700 transition-colors"
                 >
-                  {copied ? '已复制 ✓' : '一键复制'}
+                  {copied ? '已复制 ✓' : '复制全部（不计发放）'}
                 </button>
               </div>
               <div className="bg-gray-50 rounded-lg p-3 max-h-48 overflow-y-auto">
@@ -185,6 +252,9 @@ function AdminCouponPage() {
                   </div>
                 ))}
               </div>
+              <p className="mt-3 text-xs text-orange-600">
+                为准确统计微信咨询人数，请在下方券码列表点击“复制并标记发放”后再发给用户。
+              </p>
             </div>
           )}
         </div>
@@ -224,6 +294,7 @@ function AdminCouponPage() {
                   <th className="px-3 py-2 text-left font-medium">券码</th>
                   <th className="px-3 py-2 text-left font-medium">时长</th>
                   <th className="px-3 py-2 text-left font-medium">状态</th>
+                  <th className="px-3 py-2 text-left font-medium">是否发放</th>
                   <th className="px-3 py-2 text-left font-medium">创建时间</th>
                   <th className="px-3 py-2 text-left font-medium">激活人</th>
                   <th className="px-3 py-2 text-left font-medium">激活时间</th>
@@ -234,7 +305,7 @@ function AdminCouponPage() {
               <tbody className="divide-y divide-gray-100">
                 {couponList.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-3 py-8 text-center text-gray-400">
+                    <td colSpan={9} className="px-3 py-8 text-center text-gray-400">
                       暂无券码记录
                     </td>
                   </tr>
@@ -247,6 +318,9 @@ function AdminCouponPage() {
                         <span className={`inline-block px-2 py-0.5 rounded text-xs ${statusColors[coupon.status] || 'bg-gray-100'}`}>
                           {statusLabels[coupon.status] || coupon.status}
                         </span>
+                      </td>
+                      <td className="px-3 py-2 text-gray-600">
+                        {coupon.issued_at ? '已发给用户' : '未标记'}
                       </td>
                       <td className="px-3 py-2 text-gray-500">
                         {coupon.created_at ? new Date(coupon.created_at).toLocaleString('zh-CN') : '-'}
@@ -262,11 +336,27 @@ function AdminCouponPage() {
                       </td>
                       <td className="px-3 py-2">
                         {coupon.status === 'unused' && (
+                          <div className="flex flex-col items-start gap-1">
+                            <button
+                              onClick={() => handleIssue(coupon)}
+                              className="text-xs text-[#FF6B00] hover:text-orange-700"
+                            >
+                              复制并标记发放
+                            </button>
+                            <button
+                              onClick={() => handleDisable(coupon.id)}
+                              className="text-xs text-red-500 hover:text-red-700"
+                            >
+                              禁用
+                            </button>
+                          </div>
+                        )}
+                        {coupon.status === 'used' && (
                           <button
                             onClick={() => handleDisable(coupon.id)}
                             className="text-xs text-red-500 hover:text-red-700"
                           >
-                            禁用
+                            撤销体验
                           </button>
                         )}
                       </td>

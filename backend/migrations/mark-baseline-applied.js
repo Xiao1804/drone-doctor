@@ -38,14 +38,21 @@ async function markBaselineApplied() {
       )
     `);
 
+    // Older setup documentation stored the filename including ".js", while
+    // node-pg-migrate v8 stores the basename without an extension.
+    await pool.query(
+      `UPDATE pgmigrations SET name = $1 WHERE name = $2`,
+      ['001_initial_schema', '001_initial_schema.js']
+    );
+
     // Check if baseline already marked
     const existing = await pool.query(
       'SELECT id FROM pgmigrations WHERE name = $1',
-      ['001_initial_schema.js']
+      ['001_initial_schema']
     );
 
     if (existing.rows.length > 0) {
-      console.log('Baseline migration 001_initial_schema.js is already marked as applied.');
+      console.log('Baseline migration 001_initial_schema is already marked as applied.');
       console.log('Nothing to do.');
       return;
     }
@@ -53,10 +60,10 @@ async function markBaselineApplied() {
     // Mark baseline as applied
     await pool.query(
       'INSERT INTO pgmigrations (name, run_on) VALUES ($1, NOW())',
-      ['001_initial_schema.js']
+      ['001_initial_schema']
     );
 
-    console.log('✅ Baseline migration 001_initial_schema.js marked as applied.');
+    console.log('✅ Baseline migration 001_initial_schema marked as applied.');
     console.log('Future `npm run migrate` will only apply new migrations.');
   } catch (err) {
     console.error('❌ Failed to mark baseline:', err.message);

@@ -258,14 +258,10 @@ function FlightLogPage() {
   const identityItems = useMemo(() => Object.entries(report?.identity || {}), [report])
 
   useEffect(() => {
-    // 检查会员状态
+    // 检查体验状态
     checkFreeUsageBeforeDiagnosis().then(state => {
       if (!state.allowed) {
-        if (!localStorage.getItem('token')) {
-          navigate('/auth')
-        } else {
-          navigate('/#pricing')
-        }
+        navigate('/#trial')
       }
     })
   }, [navigate])
@@ -283,14 +279,10 @@ function FlightLogPage() {
       return
     }
 
-    // 再次检查会员状态
+    // 再次检查体验状态
     const state = await checkFreeUsageBeforeDiagnosis()
     if (!state.allowed) {
-      if (!localStorage.getItem('token')) {
-        navigate('/auth')
-      } else {
-        navigate('/#pricing')
-      }
+      navigate('/#trial')
       return
     }
 

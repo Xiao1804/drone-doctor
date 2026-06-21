@@ -155,14 +155,8 @@ exports.up = (pgm) => {
   });
 };
 
-exports.down = (pgm) => {
-  pgm.dropTable('fault_case_embeddings');
-  pgm.dropTable('coupons');
-  pgm.dropTable('diagnosis_sessions');
-  pgm.dropTable('free_usage');
-  pgm.dropTable('tree_change_requests');
-  pgm.dropTable('events');
-  pgm.dropTable('history');
-  pgm.dropTable('users');
-  // Don't drop the vector extension — it may be used by other things
+exports.down = () => {
+  throw new Error(
+    'Baseline migration rollback is disabled because it would delete all production business data.'
+  );
 };

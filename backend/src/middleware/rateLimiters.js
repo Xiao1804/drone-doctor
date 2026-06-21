@@ -62,9 +62,18 @@ function createEventLimiter() {
   });
 }
 
+function createCouponActivationLimiter() {
+  return createLimiter({
+    windowMs: 10 * 60 * 1000,
+    max: 10,
+    message: { error: '兑换尝试过于频繁，请稍后再试' },
+  });
+}
+
 module.exports = {
   createGlobalApiLimiter,
   createAuthLimiters,
   createEventLimiter,
+  createCouponActivationLimiter,
   normalizedIpKey,
 };

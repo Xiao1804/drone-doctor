@@ -9,9 +9,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Pending
-- 项目规范符合性检查报告已生成（`docs/project-compliance-audit-2026-06-20.md`）
-- 引入数据库迁移工具 `node-pg-migrate`，将 schema 变更从 `initDatabase()` 迁移到版本化迁移文件
+---
+
+## [1.3.0] - 2026-06-21
+
+### Added
+- 免注册兑换券通行证：用户无需账号即可激活 3 天免费体验
+- 券码“已发放”记录和需求验证指标：发放数、激活率、体验人数、诊断完成率、反馈分布
+- 数据库迁移 `002_trial_access_and_feedback`
+- 数据库依赖健康检查和应用版本输出
+- 结构化 HTTP 请求与错误日志
+- GitHub Actions 自动执行后端测试、语法检查、前端构建和 Compose 校验
+- `CONTRIBUTING.md`、`SECURITY.md` 和 MIT `LICENSE`
+
+### Changed
+- 普通账号、个人中心、云端历史和付费会员路径下线；账号登录仅供管理员
+- 首页定位改为免费需求验证，不再展示付费和会员叙事
+- PostgreSQL 生产容器启动前自动执行迁移
+- 备份新增 SHA-256 校验、可选镜像目录和失败告警命令
+- README、技术栈、部署和迁移说明与实际代码对齐
+
+### Security
+- 从当前版本树删除运行时用户和历史数据，并阻止再次提交
+- 管理员 JWT 与体验通行证采用不同 token 类型，不能互相冒充
+- 普通历史账号即使仍在数据库中也无法登录或访问管理接口
+- 券码使用条件更新，避免并发重复兑换
+- 基线迁移禁用破坏性自动回滚
+
+### Removed
+- 运行时 `data/users.json`、`data/history.json`
+- 逐文件 CDN 覆盖式部署建议
+- Render 任意来源 CORS 默认值
 
 ---
 

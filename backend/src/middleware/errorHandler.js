@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const logger = require('../utils/logger');
 
 /**
  * 统一错误处理中间件
@@ -35,10 +36,14 @@ function errorHandler(err, req, res, next) {
     errorResponse.stack = err.stack || null;
   }
 
-  console.error(`[ERROR] [${requestId}] ${req.method} ${req.path} ${statusCode}:`, err.message);
-  if (isDev && err.stack) {
-    console.error(err.stack);
-  }
+  logger.error('request_error', {
+    requestId,
+    method: req.method,
+    path: req.path,
+    statusCode,
+    message: err.message || 'Unknown error',
+    ...(isDev && err.stack ? { stack: err.stack } : {}),
+  });
 
   // 确保响应头已发送时不会重复响应
   if (res.headersSent) {

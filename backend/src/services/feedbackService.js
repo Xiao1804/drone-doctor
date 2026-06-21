@@ -37,32 +37,9 @@ async function ensureFeedbackTable() {
   if (tableReady) return;
 
   if (isPostgres) {
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS feedback (
-        id SERIAL PRIMARY KEY,
-        user_id TEXT,
-        username TEXT,
-        type TEXT NOT NULL,
-        rating TEXT DEFAULT 'none',
-        page TEXT,
-        content TEXT NOT NULL,
-        contact TEXT,
-        diagnosis_id TEXT,
-        tree_id TEXT,
-        node_id TEXT,
-        status TEXT DEFAULT 'new',
-        admin_note TEXT,
-        public_reply TEXT,
-        resolved_at TIMESTAMP,
-        created_at TIMESTAMP DEFAULT NOW(),
-        updated_at TIMESTAMP DEFAULT NOW()
-      )
-    `);
-    await db.query(`ALTER TABLE feedback ADD COLUMN IF NOT EXISTS public_reply TEXT`);
-    await db.query(`ALTER TABLE feedback ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMP`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_feedback_status ON feedback(status)`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_feedback_created_at ON feedback(created_at)`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_feedback_user_id ON feedback(user_id)`);
+    // PostgreSQL schema is managed exclusively by node-pg-migrate.
+    // This check fails clearly if deployment skipped migrations.
+    await db.query('SELECT 1 FROM feedback LIMIT 1');
   } else {
     await run(`
       CREATE TABLE IF NOT EXISTS feedback (
@@ -172,14 +149,6 @@ function formatFeedback(row) {
   };
 }
 
-function formatFeedbackForUser(row) {
-  const feedback = formatFeedback(row);
-  delete feedback.adminNote;
-  delete feedback.userId;
-  delete feedback.username;
-  return feedback;
-}
-
 async function createFeedback(input, user = null) {
   await ensureFeedbackTable();
   const data = validateFeedbackInput(input);
@@ -246,31 +215,6 @@ async function listFeedback({ status, page = 1, pageSize = 20 }) {
 
   return {
     items: listResult.rows.map(formatFeedback),
-    page: safePage,
-    pageSize: safePageSize,
-    total,
-  };
-}
-
-async function listUserFeedback(userId, { page = 1, pageSize = 20 } = {}) {
-  await ensureFeedbackTable();
-  const safePage = Math.max(1, parseInt(page, 10) || 1);
-  const safePageSize = Math.min(50, Math.max(1, parseInt(pageSize, 10) || 20));
-  const offset = (safePage - 1) * safePageSize;
-
-  const totalResult = await query(
-    `SELECT COUNT(*) as total FROM feedback WHERE user_id = ?`,
-    [userId]
-  );
-  const total = parseInt(totalResult.rows?.[0]?.total || '0', 10);
-
-  const listResult = await query(
-    `SELECT * FROM feedback WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?`,
-    [userId, safePageSize, offset]
-  );
-
-  return {
-    items: listResult.rows.map(formatFeedbackForUser),
     page: safePage,
     pageSize: safePageSize,
     total,
@@ -349,7 +293,6 @@ module.exports = {
   ensureFeedbackTable,
   createFeedback,
   listFeedback,
-  listUserFeedback,
   updateFeedback,
   FEEDBACK_TYPES: Array.from(FEEDBACK_TYPES),
   FEEDBACK_RATINGS: Array.from(FEEDBACK_RATINGS),

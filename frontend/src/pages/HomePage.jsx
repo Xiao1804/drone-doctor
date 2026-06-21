@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
 import DiagnosisCounter, { incrementDiagnosisCount, refreshFreeUsage } from '../components/DiagnosisCounter'
-import { checkFreeUsageBeforeDiagnosis, isFreeLimitError, getFreeLimitMessage } from '../utils/freeUsage'
+import { checkFreeUsageBeforeDiagnosis } from '../utils/freeUsage'
 import { trackDiagnosisStart } from '../utils/tracking'
 import { DEVICE_TYPES, FAULT_TYPES } from '../shared/enums'
 import { showToast } from '../components/Toast'
@@ -48,7 +48,6 @@ function HomePage() {
   const [currentTip, setCurrentTip] = useState(TIPS[0])
   const [totalDiagnoses, setTotalDiagnoses] = useState(null)
 
-  const [user, setUser] = useState(null)
   const navigate = useNavigate()
 
   // 智能体诊断状态（试点）
@@ -57,35 +56,28 @@ function HomePage() {
   const [agentLoading, setAgentLoading] = useState(false)
   const [agentResult, setAgentResult] = useState(null)
 
-  // 付费墙弹窗
-  const [showPaywall, setShowPaywall] = useState(false)
-
-  // 会员状态
-  const [membership, setMembership] = useState(null)
+  // 体验状态
+  const [accessStatus, setAccessStatus] = useState(null)
   const [showCouponModal, setShowCouponModal] = useState(false)
 
   useEffect(() => {
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      setUser(JSON.parse(userData))
-    }
     // 获取总诊断次数
     axios.get(apiUrl('/api/stats/total-diagnoses')).then(res => {
       setTotalDiagnoses(res.data.total)
     }).catch(() => {})
 
-    // 获取会员状态
+    // 获取体验状态
     apiClient.get('/api/stats/free-usage').then(res => {
-      setMembership(res.data)
+      setAccessStatus(res.data)
     }).catch(() => {
-      setMembership({ isMember: false, isAdmin: false })
+      setAccessStatus({ allowed: false, isAdmin: false })
     })
   }, [])
 
   useEffect(() => {
-    if (window.location.hash === '#pricing') {
+    if (['#trial', '#pricing'].includes(window.location.hash)) {
       setTimeout(() => {
-        document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
+        document.getElementById('trial')?.scrollIntoView({ behavior: 'smooth' })
       }, 100)
     }
   }, [])
@@ -165,16 +157,11 @@ function HomePage() {
     const symptom = `${selectedDevice?.label || ''} ${faultText} ${extraDescription}`.trim()
     if (!symptom) return
 
-    // 会员检查
+    // 体验通行证检查
     const usageState = await checkFreeUsageBeforeDiagnosis()
     if (!usageState.allowed) {
       refreshFreeUsage()
-      // 未登录 -> 登录页；已登录无会员 -> 券码弹窗
-      if (!localStorage.getItem('token')) {
-        navigate('/auth')
-      } else {
-        setShowCouponModal(true)
-      }
+      setShowCouponModal(true)
       return
     }
 
@@ -231,11 +218,12 @@ function HomePage() {
       }, 500)
     } catch (error) {
       console.error('Diagnosis error:', error)
-      if (error?.response?.status === 403 && error?.response?.data?.error === 'MEMBERSHIP_REQUIRED') {
+      if (
+        [401, 403].includes(error?.response?.status)
+        && error?.response?.data?.error === 'TRIAL_ACCESS_REQUIRED'
+      ) {
         refreshFreeUsage()
         setShowCouponModal(true)
-      } else if (error?.response?.status === 401 || error?.response?.data?.error === 'AUTH_REQUIRED') {
-        navigate('/auth')
       } else {
         showToast('诊断失败，请稍后重试', 'error')
       }
@@ -247,15 +235,11 @@ function HomePage() {
   const handleAgentDiagnose = async () => {
     if (!agentQuery.trim()) return
 
-    // 会员检查
+    // 体验通行证检查
     const usageState = await checkFreeUsageBeforeDiagnosis()
     if (!usageState.allowed) {
       refreshFreeUsage()
-      if (!localStorage.getItem('token')) {
-        navigate('/auth')
-      } else {
-        setShowCouponModal(true)
-      }
+      setShowCouponModal(true)
       return
     }
 
@@ -277,11 +261,12 @@ function HomePage() {
       }
     } catch (error) {
       console.error('Agent diagnosis error:', error)
-      if (error?.response?.status === 403 && error?.response?.data?.error === 'MEMBERSHIP_REQUIRED') {
+      if (
+        [401, 403].includes(error?.response?.status)
+        && error?.response?.data?.error === 'TRIAL_ACCESS_REQUIRED'
+      ) {
         refreshFreeUsage()
         setShowCouponModal(true)
-      } else if (error?.response?.status === 401 || error?.response?.data?.error === 'AUTH_REQUIRED') {
-        navigate('/auth')
       } else {
         showToast('智能体诊断失败，请稍后重试', 'error')
       }
@@ -299,7 +284,7 @@ function HomePage() {
       setPlatformStats([
         { number: d.totalDiagnoses > 0 ? d.totalDiagnoses.toLocaleString() + '+' : '—', label: '诊断次数' },
         { number: d.totalCases > 0 ? d.totalCases + '条' : '—', label: '故障案例' },
-        { number: d.totalUsers > 0 ? d.totalUsers.toLocaleString() + '+' : '—', label: '用户数' },
+        { number: d.totalTrials > 0 ? d.totalTrials.toLocaleString() + '+' : '—', label: '已激活体验' },
         { number: 'AI辅助', label: '智能诊断' },
       ])
     }).catch(() => {
@@ -307,7 +292,7 @@ function HomePage() {
       setPlatformStats([
         { number: '—', label: '诊断次数' },
         { number: '129条', label: '故障案例' },
-        { number: '—', label: '用户数' },
+        { number: '—', label: '已激活体验' },
         { number: 'AI辅助', label: '智能诊断' },
       ])
     })
@@ -332,19 +317,9 @@ function HomePage() {
           </div>
           <div className="flex items-center gap-8">
             <a href="#features" className="text-sm text-gray-600 hover:text-black transition-colors">功能</a>
-            <a href="#pricing" className="text-sm text-gray-600 hover:text-black transition-colors">定价</a>
-            <button onClick={() => navigate('/history')} className="text-sm text-gray-600 hover:text-black transition-colors">历史记录</button>
+            <a href="#trial" className="text-sm text-gray-600 hover:text-black transition-colors">免费体验</a>
             <button onClick={() => navigate('/guide')} className="px-4 py-2 bg-[#FF6B00] text-white text-sm rounded-lg hover:bg-black transition-colors">维修助手</button>
-            {user ? (
-              <button onClick={() => navigate('/profile')} className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:border-black transition-colors">
-                <div className="w-6 h-6 bg-[#FF6B00] rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">{user.username?.charAt(0).toUpperCase()}</span>
-                </div>
-                <span className="text-sm">{user.username}</span>
-              </button>
-            ) : (
-              <button onClick={() => navigate('/auth')} className="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-[#FF6B00] transition-colors">登录</button>
-            )}
+            <button onClick={() => setShowCouponModal(true)} className="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-[#FF6B00] transition-colors">输入兑换券</button>
           </div>
         </div>
       </nav>
@@ -599,18 +574,18 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 px-6 bg-gray-50">
+      {/* Free trial validation section */}
+      <section id="trial" className="py-20 px-6 bg-gray-50">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-black mb-4">使用方式</h2>
-            <p className="text-gray-600">券码激活，即享全部诊断功能</p>
+            <p className="text-gray-600">当前免费开放，用真实体验判断大家是否需要这个工具</p>
           </div>
           <div className="bg-white rounded-2xl border border-gray-200 p-8 md:p-12 text-center">
             <div className="text-5xl mb-4">🎫</div>
             <h3 className="text-2xl font-bold text-black mb-3">3天免费体验</h3>
             <p className="text-gray-600 mb-8 max-w-md mx-auto">
-              想体验 DroneDoctor？添加我的微信，免费领取体验账号和兑换券，解锁全部诊断功能3天。
+              添加我的微信，说明你遇到的无人机问题。我会免费发放兑换券，无需注册账号，激活后可使用全部诊断功能 3 天。
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto mb-8">
               <div className="bg-gray-50 rounded-xl p-4">
@@ -619,7 +594,7 @@ function HomePage() {
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
                 <div className="font-bold text-black">② 免费领取</div>
-                <div className="text-xs text-gray-500 mt-1">获取体验账号和券码</div>
+                <div className="text-xs text-gray-500 mt-1">直接获取免费兑换券</div>
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
                 <div className="font-bold text-black">③ 体验3天</div>
@@ -630,7 +605,7 @@ function HomePage() {
               <p className="text-sm text-gray-700 mb-4">扫码加我微信，免费体验3天</p>
               <WeChatQR size="md" />
             </div>
-            {localStorage.getItem('token') && membership && !membership.isMember && !membership.isAdmin && (
+            {!accessStatus?.allowed && !accessStatus?.isAdmin && (
               <button
                 onClick={() => setShowCouponModal(true)}
                 className="px-8 py-3 bg-[#FF6B00] text-white rounded-lg font-medium hover:bg-[#FF8533] transition-colors"
@@ -649,15 +624,15 @@ function HomePage() {
           <p className="text-gray-400 mb-8">添加微信，免费领取3天体验</p>
           <button
             onClick={() => {
-              if (localStorage.getItem('token') && membership?.isMember) {
+              if (accessStatus?.allowed || accessStatus?.isAdmin) {
                 window.scrollTo({ top: 0, behavior: 'smooth' })
               } else {
-                document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
+                document.getElementById('trial')?.scrollIntoView({ behavior: 'smooth' })
               }
             }}
             className="px-8 py-4 bg-[#FF6B00] text-white rounded-lg font-medium hover:bg-[#FF8533] transition-colors"
           >
-            {membership?.isMember || membership?.isAdmin ? '开始诊断' : '领取免费体验'}
+            {accessStatus?.allowed || accessStatus?.isAdmin ? '开始诊断' : '领取免费兑换券'}
           </button>
         </div>
       </section>
@@ -791,46 +766,6 @@ function HomePage() {
         </div>
       )}
 
-      {/* 免费次数用完弹窗 */}
-      {showPaywall && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-8 text-center">
-            <div className="text-5xl mb-4">🎫</div>
-            <h3 className="text-xl font-bold text-black mb-2">领取3天免费体验</h3>
-            <p className="text-gray-600 mb-6">添加微信获取体验账号和券码，激活后免费使用3天</p>
-            <div className="space-y-3">
-              <button
-                onClick={() => {
-                  setShowPaywall(false)
-                  setShowCouponModal(true)
-                }}
-                className="w-full py-3 bg-[#FF6B00] text-white rounded-xl font-medium hover:bg-[#FF8533] transition-colors"
-              >
-                输入券码
-              </button>
-              <button
-                onClick={() => {
-                  setShowPaywall(false)
-                  navigate('/#pricing')
-                  setTimeout(() => {
-                    document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
-                  }, 100)
-                }}
-                className="w-full py-3 border-2 border-gray-200 rounded-xl font-medium hover:border-black transition-colors"
-              >
-                获取券码
-              </button>
-              <button
-                onClick={() => setShowPaywall(false)}
-                className="w-full py-3 text-gray-500 text-sm hover:text-gray-700 transition-colors"
-              >
-                暂时不用
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* 券码激活弹窗 */}
       {showCouponModal && (
         <CouponModal
@@ -838,9 +773,9 @@ function HomePage() {
           onActivated={() => {
             setShowCouponModal(false)
             refreshFreeUsage()
-            // 重新获取会员状态
+            // 重新获取体验状态
             apiClient.get('/api/stats/free-usage').then(res => {
-              setMembership(res.data)
+              setAccessStatus(res.data)
             }).catch(() => {})
           }}
         />

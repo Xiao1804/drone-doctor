@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
-const { initDatabase } = require('./db');
+const { initDatabase, query } = require('./db');
+const packageInfo = require('../package.json');
 
 const diagnosisRoutes = require('./routes/diagnosis');
 const knowledgeRoutes = require('./routes/knowledge');
@@ -10,7 +11,6 @@ const caacRoutes = require('./routes/caac');
 const casesRoutes = require('./routes/cases');
 const imageRoutes = require('./routes/image');
 const userRoutes = require('./routes/user');
-const historyRoutes = require('./routes/history');
 const decisionTreeRoutes = require('./routes/decisionTrees');
 const eventsRoutes = require('./routes/events');
 const statsRoutes = require('./routes/stats');
@@ -21,6 +21,8 @@ const feedbackRoutes = require('./routes/feedback');
 const couponRoutes = require('./routes/coupon');
 
 const { errorHandler } = require('./middleware/errorHandler');
+const { requestContext } = require('./middleware/requestContext');
+const logger = require('./utils/logger');
 const {
   createGlobalApiLimiter,
   createAuthLimiters,
@@ -30,6 +32,7 @@ const app = express();
 
 // 信任代理（nginx 反向代理场景，1层代理）
 app.set('trust proxy', 1);
+app.use(requestContext);
 
 const DEFAULT_ALLOWED_ORIGINS = process.env.NODE_ENV === 'production'
   ? []
@@ -73,7 +76,6 @@ app.use('/api/caac', caacRoutes);
 app.use('/api/cases', casesRoutes);
 app.use('/api/image', imageRoutes);
 app.use('/api/user', userRoutes(authLimiters));
-app.use('/api/history', historyRoutes);
 app.use('/api/decision-trees', decisionTreeRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/stats', statsRoutes);
@@ -83,8 +85,26 @@ app.use('/api/diagnosis/unified', unifiedDiagnosisRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/coupon', couponRoutes);
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/health', async (req, res) => {
+  const version = process.env.APP_VERSION || packageInfo.version;
+
+  try {
+    await query('SELECT 1 AS healthy');
+    res.json({
+      status: 'ok',
+      version,
+      database: 'ok',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    logger.error('health_database_failed', { message: error.message });
+    res.status(503).json({
+      status: 'degraded',
+      version,
+      database: 'unavailable',
+      timestamp: new Date().toISOString(),
+    });
+  }
 });
 
 app.use(errorHandler);
@@ -98,10 +118,14 @@ async function startServer() {
     // 加载已批准的决策树变更
     await decisionTreeRoutes.loadApprovedChanges();
     app.listen(PORT, HOST, () => {
-      console.log(`DroneDoctor API running on ${HOST}:${PORT}`);
+      logger.info('server_started', {
+        host: HOST,
+        port: PORT,
+        version: process.env.APP_VERSION || packageInfo.version,
+      });
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    logger.error('server_start_failed', { message: error.message, stack: error.stack });
     process.exit(1);
   }
 }

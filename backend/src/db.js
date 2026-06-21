@@ -218,6 +218,7 @@ async function _legacyPostgresInit() {
   await db.query(`CREATE INDEX IF NOT EXISTS idx_diagnosis_sessions_status ON diagnosis_sessions(status)`);
   await db.query(`CREATE INDEX IF NOT EXISTS idx_diagnosis_sessions_last_activity ON diagnosis_sessions(last_activity_at)`);
 
+  // 历史数据库兼容字段：不再用于公开会员功能，暂不做破坏性删列。
   await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_expires_at TEXT`);
 
   await db.query(`
@@ -232,12 +233,19 @@ async function _legacyPostgresInit() {
       activated_at TIMESTAMP,
       created_at TIMESTAMP DEFAULT NOW(),
       batch_id TEXT,
-      note TEXT
+      note TEXT,
+      access_id TEXT,
+      expires_at TIMESTAMP,
+      issued_at TIMESTAMP
     )
   `);
+  await db.query(`ALTER TABLE coupons ADD COLUMN IF NOT EXISTS access_id TEXT`);
+  await db.query(`ALTER TABLE coupons ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP`);
+  await db.query(`ALTER TABLE coupons ADD COLUMN IF NOT EXISTS issued_at TIMESTAMP`);
   await db.query(`CREATE INDEX IF NOT EXISTS idx_coupons_code ON coupons(code)`);
   await db.query(`CREATE INDEX IF NOT EXISTS idx_coupons_status ON coupons(status)`);
   await db.query(`CREATE INDEX IF NOT EXISTS idx_coupons_batch_id ON coupons(batch_id)`);
+  await db.query(`CREATE UNIQUE INDEX IF NOT EXISTS idx_coupons_access_id_unique ON coupons(access_id) WHERE access_id IS NOT NULL`);
 
   // 标准化未使用券码为 3 天体验
   await db.query(`
@@ -264,20 +272,24 @@ async function initDatabase() {
     `);
 
     if (rows[0].exists) {
-      // 迁移系统已初始化，检查是否有待执行迁移
-      const { rowCount } = await db.query(`
-        SELECT COUNT(*) as count FROM pgmigrations WHERE name = '001_initial_schema.js'
-      `);
-      console.log(`[DB] Migration system active. Baseline ${rowCount > 0 ? 'applied' : 'pending'}.`);
-      console.log('[DB] Run `npm run migrate` to apply pending migrations.');
+      const requiredMigrations = [
+        '001_initial_schema',
+        '002_trial_access_and_feedback',
+      ];
+      const migrationResult = await db.query(
+        'SELECT name FROM pgmigrations WHERE name = ANY($1::text[])',
+        [requiredMigrations]
+      );
+      const appliedMigrations = new Set(migrationResult.rows.map(row => row.name));
+      const missingMigrations = requiredMigrations.filter(name => !appliedMigrations.has(name));
 
-      // 初始化向量表（迁移系统不管理 pgvector 相关表）
-      try {
-        const { initVectorTables } = require('./services/vectorService');
-        await initVectorTables();
-      } catch (err) {
-        console.warn('[Init] Vector tables init skipped:', err.message);
+      if (missingMigrations.length > 0) {
+        throw new Error(
+          `Database migrations are pending: ${missingMigrations.join(', ')}`
+        );
       }
+
+      console.log('[DB] Required PostgreSQL migrations are applied.');
     } else {
       // 旧数据库（迁移系统未初始化）：回退到幂等 DDL 确保兼容
       console.warn('[DB] Migration system not initialized. Using fallback DDL.');
@@ -395,7 +407,7 @@ async function initDatabase() {
         db.run(`CREATE INDEX IF NOT EXISTS idx_diagnosis_sessions_status ON diagnosis_sessions(status)`);
         db.run(`CREATE INDEX IF NOT EXISTS idx_diagnosis_sessions_last_activity ON diagnosis_sessions(last_activity_at)`);
 
-        // 新增字段：会员到期时间
+        // 历史数据库兼容字段：不再用于公开会员功能，暂不做破坏性删列。
         db.run(`ALTER TABLE users ADD COLUMN membership_expires_at TEXT`, (err) => {
           // SQLite 的 ALTER TABLE ADD COLUMN 不支持 IF NOT EXISTS（3.35.0+ 支持）
           // 忽略 "duplicate column name" 错误
@@ -417,12 +429,31 @@ async function initDatabase() {
             activated_at TEXT,
             created_at TEXT DEFAULT (datetime('now')),
             batch_id TEXT,
-            note TEXT
+            note TEXT,
+            access_id TEXT,
+            expires_at TEXT,
+            issued_at TEXT
           )
         `);
+        db.run(`ALTER TABLE coupons ADD COLUMN access_id TEXT`, err => {
+          if (err && !String(err.message).includes('duplicate column')) {
+            console.warn('[Init] Add coupon access_id column:', err.message);
+          }
+        });
+        db.run(`ALTER TABLE coupons ADD COLUMN expires_at TEXT`, err => {
+          if (err && !String(err.message).includes('duplicate column')) {
+            console.warn('[Init] Add coupon expires_at column:', err.message);
+          }
+        });
+        db.run(`ALTER TABLE coupons ADD COLUMN issued_at TEXT`, err => {
+          if (err && !String(err.message).includes('duplicate column')) {
+            console.warn('[Init] Add coupon issued_at column:', err.message);
+          }
+        });
         db.run(`CREATE INDEX IF NOT EXISTS idx_coupons_code ON coupons(code)`);
         db.run(`CREATE INDEX IF NOT EXISTS idx_coupons_status ON coupons(status)`);
         db.run(`CREATE INDEX IF NOT EXISTS idx_coupons_batch_id ON coupons(batch_id)`);
+        db.run(`CREATE UNIQUE INDEX IF NOT EXISTS idx_coupons_access_id_unique ON coupons(access_id)`);
         // 统一尚未使用的历史券码为 3 天体验；已激活权益不受影响。
         db.run(`
           UPDATE coupons

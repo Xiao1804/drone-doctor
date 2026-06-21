@@ -1,53 +1,44 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useCallback, useEffect, useState } from 'react'
 import { apiClient } from '../utils/apiClient'
 
-// 全局刷新回调
 let globalRefreshFn = null
 
-/**
- * 外部调用：刷新会员状态
- */
 export function refreshFreeUsage() {
-  if (globalRefreshFn) {
-    globalRefreshFn()
-  }
+  globalRefreshFn?.()
 }
 
-/**
- * 向后兼容旧调用
- */
 export function incrementDiagnosisCount() {
   refreshFreeUsage()
 }
 
 export default function DiagnosisCounter({ showUpgradeHint = false, showTrialEntry = false }) {
-  const [membership, setMembership] = useState({
-    isMember: false,
+  const [access, setAccess] = useState({
+    allowed: false,
+    isTrial: false,
+    isAdmin: false,
     expiresAt: null,
     daysLeft: 0,
-    isAdmin: false,
   })
   const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
 
   const syncFromBackend = useCallback(async () => {
     setLoading(true)
     try {
       const res = await apiClient.get('/api/stats/free-usage')
-      setMembership({
-        isMember: !!res.data.isMember,
-        expiresAt: res.data.expiresAt,
-        daysLeft: res.data.daysLeft || 0,
+      setAccess({
+        allowed: !!res.data.allowed,
+        isTrial: !!res.data.isTrial,
         isAdmin: !!res.data.isAdmin,
+        expiresAt: res.data.expiresAt || null,
+        daysLeft: res.data.daysLeft || 0,
       })
-    } catch (e) {
-      // 未登录或接口不可用
-      setMembership({
-        isMember: false,
+    } catch {
+      setAccess({
+        allowed: false,
+        isTrial: false,
+        isAdmin: false,
         expiresAt: null,
         daysLeft: 0,
-        isAdmin: false,
       })
     } finally {
       setLoading(false)
@@ -58,52 +49,36 @@ export default function DiagnosisCounter({ showUpgradeHint = false, showTrialEnt
     syncFromBackend()
     globalRefreshFn = syncFromBackend
     return () => {
-      if (globalRefreshFn === syncFromBackend) {
-        globalRefreshFn = null
-      }
+      if (globalRefreshFn === syncFromBackend) globalRefreshFn = null
     }
   }, [syncFromBackend])
 
   const scrollToTrial = () => {
-    document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
+    document.getElementById('trial')?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  // 管理员
-  if (membership.isAdmin) {
+  if (access.isAdmin) {
     return (
-      <>
-        <div className="fixed top-20 right-6 z-40">
-          <div className="bg-white/95 backdrop-blur-sm rounded-full px-4 py-2 shadow-sm border border-gray-100 flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full" />
-            <span className="text-sm font-medium text-green-600">管理员</span>
-            {loading && (
-              <span className="w-3 h-3 border-2 border-gray-300 border-t-green-500 rounded-full animate-spin" />
-            )}
-          </div>
-        </div>
-      </>
+      <div className="fixed top-20 right-6 z-40 rounded-full border border-green-100 bg-white/95 px-4 py-2 shadow-sm">
+        <span className="text-sm font-medium text-green-600">管理员模式</span>
+      </div>
     )
   }
 
-  // 有会员
-  if (membership.isMember) {
+  if (access.allowed) {
     return (
       <>
-        <div className="fixed top-20 right-6 z-40">
-          <div className="bg-white/95 backdrop-blur-sm rounded-full px-4 py-2 shadow-sm border border-gray-100 flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            <span className="text-sm font-medium text-green-600">
-              会员到期：{membership.daysLeft}天后
-            </span>
-            {loading && (
-              <span className="w-3 h-3 border-2 border-gray-300 border-t-green-500 rounded-full animate-spin" />
-            )}
-          </div>
+        <div className="fixed top-20 right-6 z-40 rounded-full border border-green-100 bg-white/95 px-4 py-2 shadow-sm">
+          <span className="text-sm font-medium text-green-600">
+            免费体验有效 · 剩余 {access.daysLeft} 天
+          </span>
+          {loading && <span className="ml-2 text-xs text-gray-400">同步中</span>}
         </div>
         {showUpgradeHint && (
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 mt-4">
+          <div className="mt-4 rounded-xl border border-green-200 bg-green-50 p-4">
             <p className="text-sm text-green-700">
-              会员有效中，到期时间：{membership.expiresAt ? new Date(membership.expiresAt).toLocaleString('zh-CN') : '-'}
+              体验已激活，可直接使用。到期时间：
+              {access.expiresAt ? new Date(access.expiresAt).toLocaleString('zh-CN') : '-'}
             </p>
           </div>
         )}
@@ -111,61 +86,23 @@ export default function DiagnosisCounter({ showUpgradeHint = false, showTrialEnt
     )
   }
 
-  // 已登录但无会员
-  const token = localStorage.getItem('token')
-  if (token) {
-    if (!showTrialEntry) {
-      return null
-    }
+  if (!showTrialEntry) return null
 
-    return (
-      <>
-        <div className="fixed top-20 right-6 z-40">
-          <div className="bg-white/95 backdrop-blur-sm rounded-full px-4 py-2 shadow-sm border border-gray-100 flex items-center gap-2">
-            <div className="w-2 h-2 bg-orange-500 rounded-full" />
-            <button
-              onClick={scrollToTrial}
-              className="text-sm font-medium text-orange-500 hover:text-[#FF6B00] transition-colors"
-            >
-              3天免费体验
-            </button>
-            {loading && (
-              <span className="w-3 h-3 border-2 border-gray-300 border-t-orange-500 rounded-full animate-spin" />
-            )}
-          </div>
-        </div>
-        {showUpgradeHint && (
-          <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mt-4">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <div>
-                <p className="text-sm font-medium text-gray-900">添加微信，免费体验3天</p>
-                <p className="text-xs text-gray-500 mt-1">在首页领取体验账号和券码</p>
-              </div>
-              <button
-                onClick={scrollToTrial}
-                className="px-4 py-2 bg-[#FF6B00] text-white text-sm rounded-lg hover:bg-[#FF8533] transition-colors whitespace-nowrap"
-              >
-                查看体验方式
-              </button>
-            </div>
-          </div>
-        )}
-      </>
-    )
-  }
-
-  // 未登录
   return (
-    <div className="fixed top-20 right-6 z-40">
-      <div className="bg-white/95 backdrop-blur-sm rounded-full px-4 py-2 shadow-sm border border-gray-100 flex items-center gap-2">
-        <div className="w-2 h-2 bg-gray-400 rounded-full" />
+    <>
+      <div className="fixed top-20 right-6 z-40 rounded-full border border-orange-100 bg-white/95 px-4 py-2 shadow-sm">
         <button
-          onClick={() => navigate('/auth')}
-          className="text-sm font-medium text-gray-600 hover:text-[#FF6B00] transition-colors"
+          onClick={scrollToTrial}
+          className="text-sm font-medium text-[#FF6B00]"
         >
-          登录
+          输入兑换券，免费体验
         </button>
       </div>
-    </div>
+      {showUpgradeHint && (
+        <div className="mt-4 rounded-xl border border-orange-200 bg-orange-50 p-4">
+          <p className="text-sm text-gray-700">加微信免费领取兑换券，无需注册账号。</p>
+        </div>
+      )}
+    </>
   )
 }

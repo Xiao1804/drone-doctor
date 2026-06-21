@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { apiClient } from '../utils/apiClient'
+import { storeTrialAccess } from '../utils/accessToken'
 
 function CouponModal({ onClose, onActivated }) {
   const [code, setCode] = useState('')
@@ -36,6 +37,7 @@ function CouponModal({ onClose, onActivated }) {
 
     try {
       const res = await apiClient.post('/api/coupon/activate', { code: cleanCode })
+      storeTrialAccess(res.data)
       setSuccess({
         expiresAt: res.data.expiresAt,
         durationLabel: res.data.durationLabel,
@@ -140,7 +142,7 @@ function CouponModal({ onClose, onActivated }) {
                     二维码占位
                   </div>
                   <p className="text-sm text-gray-600 font-medium">扫码加微信，免费体验3天</p>
-                  <p className="text-xs text-gray-400 mt-1">添加后领取体验账号和券码</p>
+                  <p className="text-xs text-gray-400 mt-1">添加后直接领取兑换券，无需注册账号</p>
                 </div>
               </div>
             </div>

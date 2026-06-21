@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
 import { showToast } from './Toast'
@@ -19,14 +19,6 @@ const RATING_OPTIONS = [
   { value: 'unclear', label: '看不懂' },
   { value: 'none', label: '暂不选择' },
 ]
-
-function getCurrentUser() {
-  try {
-    return JSON.parse(localStorage.getItem('user') || 'null')
-  } catch {
-    return null
-  }
-}
 
 function getEmptyForm() {
   return {
@@ -58,9 +50,7 @@ export default function FeedbackWidget() {
   const [submitting, setSubmitting] = useState(false)
   const [form, setForm] = useState(getEmptyForm())
   const location = useLocation()
-  const navigate = useNavigate()
 
-  const user = getCurrentUser()
   const isDiagnosisPage = location.pathname.startsWith('/guide') || location.pathname.startsWith('/image-diagnosis') || location.pathname.startsWith('/flight-log')
   const isCompliancePage = location.pathname === '/compliance'
 
@@ -166,24 +156,7 @@ export default function FeedbackWidget() {
               看不懂
             </button>
           </div>
-          {user && (
-            <button
-              onClick={() => navigate('/my-feedback')}
-              className="w-full mt-3 py-2 text-xs rounded-lg border border-gray-200 text-gray-600 hover:border-[#FF6B00] hover:text-[#FF6B00]"
-            >
-              查看我的反馈处理进度
-            </button>
-          )}
         </div>
-      )}
-
-      {user && location.pathname !== '/my-feedback' && (
-        <button
-          onClick={() => navigate('/my-feedback')}
-          className="fixed right-24 bottom-6 z-50 px-4 py-3 bg-white text-gray-700 border border-gray-200 rounded-full shadow-lg hover:border-[#FF6B00] hover:text-[#FF6B00] transition-colors text-sm font-medium"
-        >
-          我的反馈
-        </button>
       )}
 
       <button
@@ -267,7 +240,7 @@ export default function FeedbackWidget() {
                   value={form.contact}
                   onChange={(e) => updateField('contact', e.target.value)}
                   maxLength={200}
-                  placeholder={user?.email || '邮箱 / 微信 / 电话'}
+                  placeholder="微信号 / 电话（选填，方便回访真实使用情况）"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#FF6B00]"
                 />
               </div>
