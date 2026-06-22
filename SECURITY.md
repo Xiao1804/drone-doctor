@@ -23,9 +23,13 @@ Completed:
 
 Still required before the incident is fully closed:
 
-1. rotate the affected administrator password;
-2. ask collaborators to re-clone or hard-reset to rewritten branches;
-3. submit the prepared GitHub Support request so cached views and pull-request refs 1 through 9 are purged;
-4. wait for GitHub Support confirmation and repeat the fresh-clone reachability check.
+1. ask collaborators to re-clone or hard-reset to rewritten branches;
+2. wait for GitHub Support ticket `#4501736` confirmation and repeat the fresh-clone reachability check.
+
+Completed on 2026-06-22:
+
+- the affected production administrator password was rotated after a verified PostgreSQL backup;
+- the new administrator credential was verified through the public login endpoint;
+- GitHub Support ticket `#4501736` was submitted to purge cached views, pull-request refs 1 through 9, and retained sensitive objects.
 
 GitHub pull-request refs are read-only to repository owners. Rewriting ordinary branches and tags cannot remove objects retained exclusively by those refs.
