@@ -12,15 +12,20 @@ Do not publish vulnerabilities, credentials, access tokens, real user contacts, 
 
 ## Historical runtime data incident
 
-Runtime account data was removed from the current tree in commit `d204d2a`. Removing a file from the current branch does not remove it from existing Git history or forks.
+Runtime account data was removed from the current tree and the affected Git history was rewritten on 2026-06-22.
 
-Before treating the incident as fully remediated:
+Completed:
 
-1. rotate passwords for affected historical accounts;
-2. create a verified repository backup;
-3. coordinate a Git history rewrite with all collaborators;
-4. force-push only after explicit approval;
-5. ask collaborators to re-clone;
-6. verify the old blob is no longer reachable from the public repository.
+- created and SHA-256 verified an offline bundle before rewriting;
+- removed `data/users.json` and `data/history.json` from rewritten history;
+- force-updated every GitHub branch and the `v1.2.0` tag using explicit leases;
+- verified with a fresh mirror clone that branch and tag history has zero references to either sensitive path.
 
-History rewriting is intentionally not automated by application code because it is destructive to shared Git history.
+Still required before the incident is fully closed:
+
+1. rotate the affected administrator password;
+2. ask collaborators to re-clone or hard-reset to rewritten branches;
+3. submit the prepared GitHub Support request so cached views and pull-request refs 1 through 9 are purged;
+4. wait for GitHub Support confirmation and repeat the fresh-clone reachability check.
+
+GitHub pull-request refs are read-only to repository owners. Rewriting ordinary branches and tags cannot remove objects retained exclusively by those refs.

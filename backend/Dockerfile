@@ -40,7 +40,8 @@ ENV LOCAL_MODEL_PATH=/app/models
 COPY backend/package*.json ./
 
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
-    npm ci --omit=dev
+    npm ci --omit=dev \
+    && npm rebuild sqlite3 --build-from-source
 
 # ═══════════════════════════════════════════════════════════════
 # 4. 应用代码（变更最频繁，放在最后以最大化缓存命中）

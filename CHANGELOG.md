@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Docker 后端镜像在 Debian Bookworm 中从源码重建 `sqlite3`，避免预编译模块要求 GLIBC 2.38 导致容器启动失败
+
+### Security
+- 2026-06-22 已重写并强制更新 GitHub 全部分支和 `v1.2.0` 标签，移除历史运行账号与诊断历史文件
+- GitHub PR 只读引用仍需由 GitHub Support 完成缓存和对象清理
+
 ---
 
 ## [1.3.0] - 2026-06-21
