@@ -80,7 +80,7 @@ npm run dev
 - 健康检查：http://localhost:3000/health
 - 管理员登录：http://localhost:5173/admin/login
 
-管理员通过受控脚本创建：
+管理员通过受控脚本创建；若用户名或邮箱已存在，同一命令会轮换管理员密码：
 
 ```bash
 cd backend

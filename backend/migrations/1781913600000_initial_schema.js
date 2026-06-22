@@ -1,5 +1,5 @@
 /**
- * 001_initial_schema.js
+ * 1781913600000_initial_schema.js
  *
  * Baseline migration: captures the full PostgreSQL schema as of v1.2.0.
  *
@@ -38,7 +38,12 @@ exports.up = (pgm) => {
   // ──────────────────────────────────────────────
   pgm.createTable('history', {
     id: { type: 'TEXT', primaryKey: true },
-    user_id: { type: 'TEXT', notNull: true, references: 'users(id) ON DELETE CASCADE' },
+    user_id: {
+      type: 'TEXT',
+      notNull: true,
+      references: 'users',
+      onDelete: 'CASCADE',
+    },
     type: { type: 'TEXT', notNull: true },
     content: { type: 'TEXT', notNull: true },
     result: { type: 'TEXT' },

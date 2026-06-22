@@ -42,16 +42,19 @@ async function main() {
   }
 
   await initDatabase();
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   const existing = await query('SELECT id, role FROM users WHERE username = ? OR email = ?', [username, email]);
   if (existing.rows.length > 0) {
     const user = existing.rows[0];
-    await run('UPDATE users SET role = ?, is_active = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?', ['admin', user.id]);
-    console.log(`Existing user promoted to admin: ${user.id}`);
+    await run(
+      'UPDATE users SET password = ?, role = ?, is_active = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      [hashedPassword, 'admin', user.id]
+    );
+    console.log(`Existing administrator password rotated: ${user.id}`);
     return;
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
   const userId = `admin_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
 
   await run(
@@ -63,11 +66,19 @@ async function main() {
   console.log(`Admin user created: ${userId}`);
 }
 
-main()
-  .catch(error => {
-    console.error('Failed to create admin:', error.message);
+async function runCli() {
+  try {
+    await main();
+  } catch (error) {
+    console.error('Failed to create or update admin:', error.message);
     process.exitCode = 1;
-  })
-  .finally(async () => {
+  } finally {
     await closeDatabase();
-  });
+  }
+}
+
+if (require.main === module) {
+  runCli();
+}
+
+module.exports = { main };

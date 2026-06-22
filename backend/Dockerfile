@@ -48,6 +48,7 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
 # ═══════════════════════════════════════════════════════════════
 COPY backend/src ./src
 COPY backend/migrations ./migrations
+COPY backend/scripts ./scripts
 COPY backend/shared ./shared
 COPY data ./data
 COPY backend/models ./models

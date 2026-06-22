@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Docker 后端镜像在 Debian Bookworm 中从源码重建 `sqlite3`，避免预编译模块要求 GLIBC 2.38 导致容器启动失败
+- Docker 后端镜像包含生产启动和管理员维护脚本
+- PostgreSQL 迁移改用 node-pg-migrate v8 支持的 13 位时间戳名称，并修正基线外键定义
 
 ### Security
 - 2026-06-22 已重写并强制更新 GitHub 全部分支和 `v1.2.0` 标签，移除历史运行账号与诊断历史文件
@@ -23,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - 免注册兑换券通行证：用户无需账号即可激活 3 天免费体验
 - 券码“已发放”记录和需求验证指标：发放数、激活率、体验人数、诊断完成率、反馈分布
-- 数据库迁移 `002_trial_access_and_feedback`
+- 数据库迁移 `1782000000000_trial_access_and_feedback`
 - 数据库依赖健康检查和应用版本输出
 - 结构化 HTTP 请求与错误日志
 - GitHub Actions 自动执行后端测试、语法检查、前端构建和 Compose 校验

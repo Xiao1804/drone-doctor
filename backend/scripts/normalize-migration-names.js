@@ -30,13 +30,17 @@ async function main() {
   await pool.query(`
     UPDATE pgmigrations
     SET name = CASE name
-      WHEN '001_initial_schema.js' THEN '001_initial_schema'
-      WHEN '002_trial_access_and_feedback.js' THEN '002_trial_access_and_feedback'
+      WHEN '001_initial_schema.js' THEN '1781913600000_initial_schema'
+      WHEN '001_initial_schema' THEN '1781913600000_initial_schema'
+      WHEN '002_trial_access_and_feedback.js' THEN '1782000000000_trial_access_and_feedback'
+      WHEN '002_trial_access_and_feedback' THEN '1782000000000_trial_access_and_feedback'
       ELSE name
     END
     WHERE name IN (
       '001_initial_schema.js',
-      '002_trial_access_and_feedback.js'
+      '001_initial_schema',
+      '002_trial_access_and_feedback.js',
+      '002_trial_access_and_feedback'
     )
   `);
 }

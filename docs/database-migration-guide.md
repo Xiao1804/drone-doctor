@@ -44,8 +44,8 @@ psql "$DATABASE_URL" -c "SELECT name, run_on FROM pgmigrations ORDER BY id;"
 至少应包含：
 
 ```text
-001_initial_schema
-002_trial_access_and_feedback
+1781913600000_initial_schema
+1782000000000_trial_access_and_feedback
 ```
 
 ## 全新数据库

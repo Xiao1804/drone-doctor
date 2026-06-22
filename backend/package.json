@@ -12,7 +12,7 @@
     "migrate": "node scripts/normalize-migration-names.js && node-pg-migrate --migrations-dir migrations up",
     "migrate:dev": "node scripts/normalize-migration-names.js && node-pg-migrate --migrations-dir migrations up",
     "migrate:make": "node-pg-migrate --migrations-dir migrations create",
-    "migrate:mark-baseline": "node migrations/mark-baseline-applied.js",
+    "migrate:mark-baseline": "node scripts/mark-baseline-applied.js",
     "migrate:status": "node -e \"console.log('Use: psql \\\"$DATABASE_URL\\\" -c \\\"SELECT * FROM pgmigrations ORDER BY id;\\\"')\""
   },
   "dependencies": {

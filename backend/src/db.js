@@ -273,8 +273,8 @@ async function initDatabase() {
 
     if (rows[0].exists) {
       const requiredMigrations = [
-        '001_initial_schema',
-        '002_trial_access_and_feedback',
+        '1781913600000_initial_schema',
+        '1782000000000_trial_access_and_feedback',
       ];
       const migrationResult = await db.query(
         'SELECT name FROM pgmigrations WHERE name = ANY($1::text[])',

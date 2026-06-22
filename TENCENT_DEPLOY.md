@@ -136,6 +136,20 @@ https://wurenjiyisheng.com
 https://wurenjiyisheng.com/health
 ```
 
+Create the administrator after the first deployment, or rotate its password
+after a security event:
+
+```bash
+docker compose --env-file .env.tencent -f docker-compose.tencent.yml exec backend \
+  node scripts/create-admin.js \
+  --username=admin \
+  --email=admin@example.com \
+  --password='replace-with-a-new-strong-password'
+```
+
+If the username or email already exists, the command updates the password,
+restores the administrator role, and re-enables the account.
+
 ## 6. Versioned Release Deployment
 
 Do not update production by downloading individual changed files. A release must
