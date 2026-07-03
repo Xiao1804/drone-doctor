@@ -637,27 +637,7 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 px-6 border-t border-gray-100 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-[#FF6B00] rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">D</span>
-              </div>
-              <span className="font-semibold">DroneDoctor</span>
-            </div>
-            <WeChatQR size="sm" />
-            <button
-              onClick={() => navigate('/compliance')}
-              className="text-sm text-gray-500 underline decoration-gray-300 underline-offset-4 hover:text-[#FF6B00]"
-            >
-              合规与使用说明
-            </button>
-            <div className="text-sm text-gray-500">© 2026 DroneDoctor. All rights reserved.</div>
-          </div>
-        </div>
-      </footer>
+      {/* Footer via global layout in App.jsx */}
 
       {/* AI智能诊断弹窗（试点） */}
       {showAgentModal && (

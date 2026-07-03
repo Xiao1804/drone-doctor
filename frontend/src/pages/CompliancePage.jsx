@@ -9,6 +9,7 @@ import {
 const sections = [
   ['scope', '使用范围与责任边界'],
   ['accuracy', 'AI、知识库与 CAAC 内容'],
+  ['ai-source', 'AI 服务来源与处理方式'],
   ['safety', '维修与飞行安全'],
   ['data', '账户、记录与分析数据'],
   ['uploads', '图片与飞行日志'],
@@ -91,7 +92,19 @@ function CompliancePage() {
                 </p>
               </Section>
 
-              <Section id="safety" title="3. 维修与飞行安全">
+              <Section id="ai-source" title="3. AI 服务来源与处理方式">
+                <p>
+                  本网站的生成式文本诊断和图像识别能力通过第三方云服务 API 接入，不自行训练或运营面向公众的基础大模型。当前代码可调用阿里云通义千问、月之暗面 Kimi，以及用于图像识别容错的 Xiaomi MiMo 接口。实际请求接收方取决于当前生产配置及故障切换结果。
+                </p>
+                <p>
+                  系统自行开发的部分主要是故障流程编排、规则判断、知识检索和结果展示。本地 bge-small-zh-v1.5 模型仅用于知识向量化与检索，不直接生成对外诊断内容。
+                </p>
+                <p>
+                  用户提交的故障描述、机型、补充上下文及主动上传的图片，可能为完成诊断而发送给当前启用的第三方服务商。请勿提交与故障排查无关的个人敏感信息、商业秘密或无权处理的内容。
+                </p>
+              </Section>
+
+              <Section id="safety" title="4. 维修与飞行安全">
                 <p>
                   涉及拆机、焊接、动力系统、飞控、结构件、电池、螺旋桨、带电检测和试飞的操作具有较高风险。缺少相应知识、工具、隔离措施或现场条件时，请勿自行操作。
                 </p>
@@ -103,7 +116,7 @@ function CompliancePage() {
                 </ul>
               </Section>
 
-              <Section id="data" title="4. 体验通行证、反馈与分析数据">
+              <Section id="data" title="5. 体验通行证、反馈与分析数据">
                 <p>
                   普通体验用户无需注册账号。浏览器本地存储会保存兑换券激活后取得的限时通行证和到期时间，请勿在不受信任或多人共用设备上长期保留。
                 </p>
@@ -115,7 +128,7 @@ function CompliancePage() {
                 </p>
               </Section>
 
-              <Section id="uploads" title="5. 图片与飞行日志">
+              <Section id="uploads" title="6. 图片与飞行日志">
                 <p>
                   用户上传的图片和 ULog 飞行日志可能先写入服务器临时磁盘。系统会在处理后尝试删除临时文件，但因程序异常、进程中断、备份或基础设施机制，短时间内仍可能存在残留。
                 </p>
@@ -127,7 +140,7 @@ function CompliancePage() {
                 </p>
               </Section>
 
-              <Section id="payment" title="6. 免费验证与数据请求">
+              <Section id="payment" title="7. 免费验证与数据请求">
                 <p>
                   当前阶段通过微信免费发放兑换券，不提供在线支付、订阅、自动续费或退款渠道。
                 </p>
@@ -136,7 +149,7 @@ function CompliancePage() {
                 </p>
               </Section>
 
-              <Section id="changes" title="7. 服务变更与试运行说明">
+              <Section id="changes" title="8. 服务变更与试运行说明">
                 <p>
                   试运行期间，功能、模型、知识库、数据字段、保存方式和可用范围可能调整、暂停或终止。本说明会随重要变化更新，继续使用前请关注生效日期和当前部署模式。
                 </p>

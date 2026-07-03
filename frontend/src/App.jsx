@@ -11,6 +11,7 @@ import AdminCouponPage from './pages/AdminCouponPage'
 import CompliancePage from './pages/CompliancePage'
 import ToastContainer from './components/Toast'
 import PersonalLearningBanner from './components/PersonalLearningBanner'
+import Footer from './components/Footer'
 import './index.css'
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
           <Route path="/admin/feedback" element={<AdminFeedbackPage />} />
           <Route path="/admin/coupons" element={<AdminCouponPage />} />
         </Routes>
+        <Footer />
       </div>
     </Router>
   )

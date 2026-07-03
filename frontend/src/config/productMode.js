@@ -6,4 +6,4 @@ export const PERSONAL_LEARNING_EDITION = !disabledValues.has(
 )
 
 export const PERSONAL_LEARNING_EDITION_VERSION = '1.0'
-export const COMPLIANCE_EFFECTIVE_DATE = '2026-06-18'
+export const COMPLIANCE_EFFECTIVE_DATE = '2026-07-03'
