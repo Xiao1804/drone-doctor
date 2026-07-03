@@ -5,6 +5,9 @@ FROM node:20-bookworm-slim
 # 1. 国内镜像加速配置（必须在任何安装命令之前设置）
 # ═══════════════════════════════════════════════════════════════
 ENV npm_config_registry=https://registry.npmmirror.com
+ENV SHARP_DIST_BASE_URL=https://npmmirror.com/mirrors/sharp-libvips/v8.14.5/
+ENV npm_config_sharp_dist_base_url=https://npmmirror.com/mirrors/sharp-libvips/v8.14.5/
+ENV npm_config_sharp_libvips_binary_host=https://npmmirror.com/mirrors/sharp-libvips
 
 # ═══════════════════════════════════════════════════════════════
 # 2. 系统依赖安装（使用 BuildKit 缓存挂载加速 apt）
