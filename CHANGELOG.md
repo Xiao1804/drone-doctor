@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-07-03
+
 ### Compliance
 - 全局页脚展示 `粤ICP备2026085133号` 并链接至工信部备案查询平台
 - 合规说明新增第三方 AI 服务来源、本地检索模型边界和数据处理提示

@@ -34,7 +34,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      APP_VERSION: ${APP_VERSION:-1.3.0}
+      APP_VERSION: ${APP_VERSION:-1.3.1}
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       PGSSLMODE: disable
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env.tencent}
