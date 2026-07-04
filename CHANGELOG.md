@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.2] - 2026-07-04
+
+### Changed
+- 文字诊断、意图解析、咨询回答和追问统一切换为 DeepSeek 标准 API。
+- 图片识别统一切换为智谱 GLM-4.6V-Flash 标准 API。
+- 下线通义千问、Kimi、Xiaomi MiMo 和百度相关生产配置及运行时调用链。
+- 合规页面同步更新为当前实际启用的 DeepSeek 与智谱服务来源。
+
+### Verification
+- 新增 DeepSeek 与智谱请求端点、模型、鉴权和多模态载荷测试。
+
 ## [1.3.1] - 2026-07-03
 
 ### Compliance

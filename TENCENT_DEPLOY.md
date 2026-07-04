@@ -95,7 +95,8 @@ At minimum, replace these values:
 ```env
 POSTGRES_PASSWORD=replace-with-a-long-random-database-password
 JWT_SECRET=replace-with-a-long-random-jwt-secret-at-least-32-chars
-QWEN_API_KEY=your_qwen_api_key
+DEEPSEEK_API_KEY=your_deepseek_api_key
+ZHIPU_API_KEY=your_zhipu_standard_api_key
 ```
 
 You can generate strong random values on the server:
@@ -166,9 +167,9 @@ The tracked worktree must be clean and the release tag must point to the commit
 that passed tests. Create a complete package locally:
 
 ```bash
-git archive --format=tar.gz --output drone-doctor-v1.3.0.tar.gz v1.3.0
-sha256sum drone-doctor-v1.3.0.tar.gz > drone-doctor-v1.3.0.tar.gz.sha256
-scp drone-doctor-v1.3.0.tar.gz* root@<server-ip>:/root/releases/
+git archive --format=tar.gz --output drone-doctor-v1.3.2.tar.gz v1.3.2
+sha256sum drone-doctor-v1.3.2.tar.gz > drone-doctor-v1.3.2.tar.gz.sha256
+scp drone-doctor-v1.3.2.tar.gz* root@<server-ip>:/root/releases/
 ```
 
 Keep the production environment file outside release directories:
@@ -181,13 +182,13 @@ Deploy the package:
 
 ```bash
 cd /root/releases
-sha256sum -c drone-doctor-v1.3.0.tar.gz.sha256
-mkdir -p drone-doctor-v1.3.0
-tar -xzf drone-doctor-v1.3.0.tar.gz -C drone-doctor-v1.3.0
-ln -sfn /root/releases/drone-doctor-v1.3.0 /root/drone-doctor-current
+sha256sum -c drone-doctor-v1.3.2.tar.gz.sha256
+mkdir -p drone-doctor-v1.3.2
+tar -xzf drone-doctor-v1.3.2.tar.gz -C drone-doctor-v1.3.2
+ln -sfn /root/releases/drone-doctor-v1.3.2 /root/drone-doctor-current
 
 cd /root/drone-doctor-current
-APP_VERSION=v1.3.0 docker compose \
+APP_VERSION=v1.3.2 docker compose \
   --env-file /root/drone-doctor.env \
   -f docker-compose.tencent.yml \
   up -d --build

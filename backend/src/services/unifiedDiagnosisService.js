@@ -1,6 +1,5 @@
 const fs = require('fs').promises;
 const path = require('path');
-const axios = require('axios');
 const crypto = require('crypto');
 const {
   mapFrontendFaultToBackend,
@@ -8,6 +7,7 @@ const {
 } = require('../shared/enums');
 const vectorService = require('./vectorService');
 const embeddingService = require('./embeddingService');
+const deepSeekService = require('./deepSeekService');
 const {
   createSession: createSessionDB,
   getSession: getSessionDB,
@@ -53,12 +53,7 @@ function getCase(caseId) {
 // ========== AI 配置 ==========
 
 function getAIConfig() {
-  const kimiModel = process.env.KIMI_MODEL || 'moonshot-v1-8k';
-  return {
-    apiKey: process.env.KIMI_API_KEY,
-    apiBase: process.env.KIMI_API_BASE || 'https://api.moonshot.cn/v1',
-    model: kimiModel === 'kimi-for-coding' ? 'moonshot-v1-8k' : kimiModel,
-  };
+  return deepSeekService.getConfig();
 }
 
 async function callAI(prompt, temperature = 0.2, maxTokens = 500) {
@@ -66,26 +61,17 @@ async function callAI(prompt, temperature = 0.2, maxTokens = 500) {
   if (!config.apiKey) return null;
 
   try {
-    const response = await axios.post(
-      `${config.apiBase}/chat/completions`,
-      {
-        model: config.model,
-        messages: [
-          { role: 'system', content: '你是一个专业的无人机维修意图解析助手。请严格按要求的格式输出。' },
-          { role: 'user', content: prompt },
-        ],
-        temperature,
-        max_tokens: maxTokens,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${config.apiKey}`,
-        },
-        timeout: 15000,
-      }
-    );
-    return response.data.choices[0].message.content;
+    return await deepSeekService.chatCompletion({
+      config,
+      messages: [
+        { role: 'system', content: '你是一个专业的无人机维修意图解析助手。请严格按要求输出 JSON。' },
+        { role: 'user', content: prompt },
+      ],
+      temperature,
+      maxTokens,
+      timeout: 15000,
+      responseFormat: { type: 'json_object' },
+    });
   } catch (err) {
     console.error('[UnifiedDiagnosis] AI call failed:', err.message);
     return null;

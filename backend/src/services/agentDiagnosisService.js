@@ -1,6 +1,5 @@
 const fs = require('fs').promises;
 const path = require('path');
-const axios = require('axios');
 
 /**
  * 智能体诊断服务 (Agent Diagnosis Service) - v1.0
@@ -925,51 +924,6 @@ function buildSuggestedActions(diagnosis) {
   }
 
   return actions;
-}
-
-// ========== 调用外部AI增强（可选） ==========
-
-/**
- * 调用KIMI API做意图解析增强（MVP中暂不使用，预留接口）
- */
-async function callKimiIntentParse(query, config) {
-  const systemPrompt = `你是无人机维修领域的意图解析专家。请从用户输入中提取以下信息，以JSON格式返回：
-{
-  "brand": "品牌（dji/autel/jifei/null）",
-  "model": "型号（mavic/air/mini/phantom/inspire/agras/matrice/null）",
-  "faultType": "故障类型（battery/power_on/charge/flight_time/null）",
-  "symptom": "用户描述的核心症状",
-  "confidence": 0.0-1.0
-}
-只返回JSON，不要其他内容。`;
-
-  try {
-    const response = await axios.post(
-      `${config.apiBase}/chat/completions`,
-      {
-        model: config.model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: query },
-        ],
-        temperature: 0.1,
-        max_tokens: 200,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${config.apiKey}`,
-        },
-        timeout: 10000,
-      }
-    );
-
-    const content = response.data.choices[0].message.content;
-    return JSON.parse(content);
-  } catch (err) {
-    console.error('[Agent] Kimi intent parse failed:', err.message);
-    return null;
-  }
 }
 
 // ========== 导出 ==========

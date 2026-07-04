@@ -53,9 +53,8 @@
 | `NODE_ENV` | `production` | 生产环境 |
 | `DATABASE_URL` | `[粘贴步骤1复制的Internal Database URL]` | 数据库连接串 |
 | `JWT_SECRET` | `drone-doctor-secret-2026-render` | JWT 签名密钥（可自己改） |
-| `KIMI_API_KEY` | `[你的 Kimi API Key]` | AI 诊断必备 |
-| `QWEN_API_KEY` | `[你的 Qwen API Key]` | 可选，有就填 |
-| `XIAOMI_API_KEY` | `[你的 xiaomimimo Key]` | 图片诊断 fallback |
+| `DEEPSEEK_API_KEY` | `[你的 DeepSeek API Key]` | 文字诊断必备 |
+| `ZHIPU_API_KEY` | `[你的智谱标准 API Key]` | 图片诊断必备 |
 | `ALLOWED_ORIGINS` | `*` | 允许所有前端域名跨域 |
 
 5. 点击 **Create Web Service**
@@ -116,7 +115,7 @@ A: 确保后端环境变量 `ALLOWED_ORIGINS=*`。代码已支持 `*.onrender.co
 A: Render 的 PostgreSQL 使用 SSL，代码已配置 `rejectUnauthorized: false`。检查 `DATABASE_URL` 是否复制正确。
 
 ### Q4: 图片诊断不可用？
-A: 确保至少配置了 `KIMI_API_KEY` 或 `XIAOMI_API_KEY`。代码支持 Qwen → Kimi → Xiaomi 三层 fallback。
+A: 文字诊断需要 `DEEPSEEK_API_KEY`，图片诊断需要 `ZHIPU_API_KEY`。两者均未配置时，对应云端能力不可用，本地规则仍可继续提供有限降级结果。
 
 ---
 

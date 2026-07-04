@@ -1,6 +1,6 @@
 # DroneDoctor - 无人机维修诊断需求验证版
 
-**版本**：v1.3.1
+**版本**：v1.3.2
 
 **阶段**：需求验证
 
@@ -37,7 +37,7 @@ DroneDoctor 当前用于验证一个问题：无人机维修学习者、维修�
 | 前端 | React 18 + Vite 8 + Tailwind CSS |
 | 后端 | Node.js 20 + Express |
 | 数据库 | PostgreSQL 16 + pgvector；本地可回退 SQLite |
-| AI | Kimi / Qwen 等兼容接口 + bge-small-zh-v1.5 本地向量模型 |
+| AI | DeepSeek 文字诊断 + 智谱 GLM-4.6V-Flash 图片识别 + bge-small-zh-v1.5 本地向量模型 |
 | 部署 | 腾讯云单服务器 + Docker Compose + Caddy |
 
 仓库内曾记录过 50 个案例的内部评估结果，但目前没有可重复运行的公开评测集和评测脚本，因此不得把该结果当作已验证的对外准确率承诺。

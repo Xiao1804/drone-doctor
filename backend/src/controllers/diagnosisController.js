@@ -1,9 +1,9 @@
 const fs = require('fs').promises;
 const path = require('path');
-const axios = require('axios');
 const crypto = require('crypto');
 const sessionService = require('../services/sessionService');
 const freeUsageService = require('../services/freeUsageService');
+const deepSeekService = require('../services/deepSeekService');
 const { run } = require('../db');
 
 // ========== 内联诊断服务（原 DiagnosisService.js 核心逻辑，已内联避免维护负担）==========
@@ -131,20 +131,7 @@ function matchCasesSmart(symptom, cases) {
 }
 
 function getModelConfig() {
-  const kimiModel = process.env.KIMI_MODEL || 'moonshot-v1-8k';
-  const effectiveKimiModel = kimiModel === 'kimi-for-coding' ? 'moonshot-v1-8k' : kimiModel;
-  return {
-    kimi: {
-      apiKey: process.env.KIMI_API_KEY,
-      apiBase: process.env.KIMI_API_BASE || 'https://api.moonshot.cn/v1',
-      model: effectiveKimiModel,
-    },
-    qwen: {
-      apiKey: process.env.QWEN_API_KEY,
-      apiBase: process.env.QWEN_API_BASE || 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-      model: process.env.QWEN_MODEL || 'qwen-plus',
-    },
-  };
+  return deepSeekService.getConfig();
 }
 
 async function callAIWithRetry(apiCallFn, maxRetries = 2) {
@@ -270,35 +257,31 @@ function parseAIResponse(aiResult) {
   return normalizeDiagnosisResponse(parsed, aiResult);
 }
 
-async function callKimiAPI(symptom, model, context, matchedCases, config) {
+async function callDeepSeekAPI(symptom, model, context, matchedCases, config) {
   const { systemPrompt, userPrompt } = buildPromptV2(symptom, model, context, matchedCases);
-  const response = await axios.post(
-    `${config.apiBase}/chat/completions`,
-    { model: config.model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], temperature: 0.2, max_tokens: 2500 },
-    { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.apiKey}` }, timeout: 30000 }
-  );
-  return parseAIResponse(response.data.choices[0].message.content);
+  const content = await deepSeekService.chatCompletion({
+    config,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ],
+    temperature: 0.2,
+    maxTokens: 2500,
+    responseFormat: { type: 'json_object' },
+  });
+  return parseAIResponse(content);
 }
 
-async function callQwenAPI(symptom, model, context, matchedCases, config) {
-  const { systemPrompt, userPrompt } = buildPromptV2(symptom, model, context, matchedCases);
-  const response = await axios.post(
-    `${config.apiBase}/chat/completions`,
-    { model: config.model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], temperature: 0.2, max_tokens: 2500, response_format: { type: 'json_object' } },
-    { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.apiKey}` }, timeout: 30000 }
-  );
-  return parseAIResponse(response.data.choices[0].message.content);
-}
-
-async function callBaiduAI(symptom, model, context, matchedCases) {
+async function callTextDiagnosisAI(symptom, model, context, matchedCases) {
   const config = getModelConfig();
-  if (config.kimi.apiKey) {
-    try { return await callAIWithRetry(() => callKimiAPI(symptom, model, context, matchedCases, config.kimi)); } catch (e) { console.error('Kimi failed:', e.message); }
+  if (config.apiKey) {
+    try {
+      return await callAIWithRetry(() => callDeepSeekAPI(symptom, model, context, matchedCases, config));
+    } catch (error) {
+      console.error('[DeepSeek] Text diagnosis failed:', error.message);
+    }
   }
-  if (config.qwen.apiKey) {
-    try { return await callAIWithRetry(() => callQwenAPI(symptom, model, context, matchedCases, config.qwen)); } catch (e) { console.error('Qwen failed:', e.message); }
-  }
-  console.warn('[AI] All APIs failed, falling back to case-based diagnosis');
+  console.warn('[AI] DeepSeek unavailable, falling back to case-based diagnosis');
   return generateResultFromCases(symptom, matchedCases);
 }
 
@@ -350,7 +333,7 @@ async function diagnoseLegacy(symptom, model, context, deviceType) {
     matchedResults.slice(0, 5).forEach(r => console.log(`  [${(r.score * 100).toFixed(0)}%] ${r.case.id}: ${r.case.symptom} (${r.reason})`));
   }
 
-  const aiResponse = await callBaiduAI(symptom, model, context, matchedResults);
+  const aiResponse = await callTextDiagnosisAI(symptom, model, context, matchedResults);
   const confidence = calculateConfidence(symptom, matchedResults, aiResponse);
 
   return {
@@ -368,28 +351,23 @@ async function diagnoseLegacy(symptom, model, context, deviceType) {
  */
 async function generateFinalDiagnosisLegacy(symptom, model, fullContext, matchedResults, conversationContext = '') {
   const config = getModelConfig();
-  if (!config.kimi.apiKey && !config.qwen.apiKey) {
+  if (!config.apiKey) {
     console.warn('[Final Diagnosis] No AI API configured, using case-based fallback');
     return generateResultFromCases(symptom, matchedResults);
   }
   try {
     const { systemPrompt, userPrompt } = buildPromptV2(symptom, model, fullContext, matchedResults);
     const enhancedUserPrompt = conversationContext ? `${userPrompt}\n\n【完整对话记录】\n${conversationContext}\n\n请根据以上所有信息，给出最终诊断结果。` : userPrompt;
-    let response;
-    if (config.kimi.apiKey) {
-      response = await callAIWithRetry(() => axios.post(
-        `${config.kimi.apiBase}/chat/completions`,
-        { model: config.kimi.model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: enhancedUserPrompt }], temperature: 0.2, max_tokens: 2500 },
-        { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.kimi.apiKey}` }, timeout: 30000 }
-      ));
-    } else {
-      response = await callAIWithRetry(() => axios.post(
-        `${config.qwen.apiBase}/chat/completions`,
-        { model: config.qwen.model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: enhancedUserPrompt }], temperature: 0.2, max_tokens: 2500, response_format: { type: 'json_object' } },
-        { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.qwen.apiKey}` }, timeout: 30000 }
-      ));
-    }
-    const aiResult = response.data.choices[0].message.content;
+    const aiResult = await callAIWithRetry(() => deepSeekService.chatCompletion({
+      config,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: enhancedUserPrompt },
+      ],
+      temperature: 0.2,
+      maxTokens: 2500,
+      responseFormat: { type: 'json_object' },
+    }));
     return parseAIResponse(aiResult);
   } catch (error) {
     console.error('Generate final diagnosis error:', error.response?.data || error.message);
@@ -964,11 +942,10 @@ async function answerInquiry(question, matchedCases) {
     };
   }
   
-  // 2. 尝试使用 API
-  const kimiApiKey = process.env.KIMI_API_KEY;
-  const qwenApiKey = process.env.QWEN_API_KEY;
+  // 2. 尝试使用 DeepSeek API
+  const deepSeekConfig = getModelConfig();
   
-  if (!kimiApiKey && !qwenApiKey) {
+  if (!deepSeekConfig.apiKey) {
     // 3. API 不可用，返回通用回答
     return {
       answer: '您好！我是无人机诊断助手，可以帮您解答无人机相关问题。请问您想了解哪方面的信息？比如：\n• 品牌介绍（大疆、道通、极飞等）\n• 产品对比\n• 故障诊断\n• 使用技巧',
@@ -979,17 +956,7 @@ async function answerInquiry(question, matchedCases) {
     };
   }
 
-  // 选择 API
-  const useKimi = !!kimiApiKey;
-  const apiKey = useKimi ? kimiApiKey : qwenApiKey;
-  const apiBase = useKimi 
-    ? (process.env.KIMI_API_BASE || 'https://api.kimi.com/coding/v1')
-    : (process.env.QWEN_API_BASE || 'https://coding.dashscope.aliyuncs.com/v1');
-  const model = useKimi 
-    ? (process.env.KIMI_MODEL || 'kimi-for-coding')
-    : (process.env.QWEN_MODEL || 'qwen-plus');
-
-  console.log(`[API] Using ${useKimi ? 'Kimi' : 'Qwen'} API for inquiry`);
+  console.log('[API] Using DeepSeek API for inquiry');
 
   try {
     const prompt = `你是无人机专家，用户问了一个关于无人机的问题。请给出专业、准确的回答。
@@ -1009,23 +976,13 @@ async function answerInquiry(question, matchedCases) {
   }
 }`;
 
-    const response = await axios.post(
-      `${apiBase}/chat/completions`,
-      {
-        model: model,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7,
-        max_tokens: 500
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        }
-      }
-    );
-
-    const aiResult = response.data.choices[0].message.content;
+    const aiResult = await deepSeekService.chatCompletion({
+      config: deepSeekConfig,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.7,
+      maxTokens: 500,
+      responseFormat: { type: 'json_object' },
+    });
     const jsonMatch = aiResult.match(/\{[\s\S]*\}/);
     
     if (jsonMatch) {
@@ -1042,93 +999,6 @@ async function answerInquiry(question, matchedCases) {
 
   } catch (error) {
     console.error('Answer inquiry error:', error.response?.data || error.message);
-    
-    // 如果 Kimi 失败，尝试 Qwen
-    if (useKimi && qwenApiKey) {
-      console.log('[API] Kimi failed, trying Qwen...');
-      return await answerInquiryWithQwen(question);
-    }
-    
-    return {
-      answer: '抱歉，回答问题时出现了错误。请稍后再试。',
-      followUp: {
-        question: '请问您是否遇到了无人机故障问题？',
-        options: ['是的，有故障', '只是咨询一下', '其他问题']
-      }
-    };
-  }
-}
-
-/**
- * 使用 Qwen API 回答咨询问题（降级方案）
- */
-async function answerInquiryWithQwen(question) {
-  const qwenApiKey = process.env.QWEN_API_KEY;
-  
-  if (!qwenApiKey) {
-    return {
-      answer: '抱歉，回答问题时出现了错误。请稍后再试。',
-      followUp: {
-        question: '请问您是否遇到了无人机故障问题？',
-        options: ['是的，有故障', '只是咨询一下', '其他问题']
-      }
-    };
-  }
-
-  try {
-    const apiBase = process.env.QWEN_API_BASE || 'https://coding.dashscope.aliyuncs.com/v1';
-    const qwenModel = process.env.QWEN_MODEL || 'qwen-plus';
-
-    const prompt = `你是无人机专家，用户问了一个关于无人机的问题。请给出专业、准确的回答。
-
-用户问题：${question}
-
-请按照以下格式回答：
-1. 先直接回答问题（简洁明了）
-2. 然后询问用户是否需要进一步帮助
-
-输出JSON格式：
-{
-  "answer": "你的回答",
-  "followUp": {
-    "question": "是否遇到了故障问题？",
-    "options": ["是的，有故障", "只是咨询一下", "其他问题"]
-  }
-}`;
-
-    const response = await axios.post(
-      `${apiBase}/chat/completions`,
-      {
-        model: qwenModel,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7,
-        max_tokens: 500
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${qwenApiKey}`
-        }
-      }
-    );
-
-    const aiResult = response.data.choices[0].message.content;
-    const jsonMatch = aiResult.match(/\{[\s\S]*\}/);
-    
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
-    }
-    
-    return {
-      answer: aiResult,
-      followUp: {
-        question: '请问您是否遇到了无人机故障问题？',
-        options: ['是的，有故障', '只是咨询一下', '其他问题']
-      }
-    };
-
-  } catch (error) {
-    console.error('Qwen fallback error:', error.response?.data || error.message);
     return {
       answer: '抱歉，回答问题时出现了错误。请稍后再试。',
       followUp: {
@@ -1143,17 +1013,14 @@ async function answerInquiryWithQwen(question) {
  * 生成追问
  */
 async function generateFollowUpQuestion(sessionId, symptom, model, matchedCases, conversationHistory = []) {
-  const qwenApiKey = process.env.QWEN_API_KEY;
+  const deepSeekConfig = getModelConfig();
   
-  if (!qwenApiKey) {
+  if (!deepSeekConfig.apiKey) {
     // 如果没有API，返回默认追问
     return getDefaultQuestion(sessionId, symptom);
   }
 
   try {
-    const apiBase = process.env.QWEN_API_BASE || 'https://coding.dashscope.aliyuncs.com/v1';
-    const qwenModel = process.env.QWEN_MODEL || 'qwen3.5-plus';
-
     // 构建prompt
     let prompt = `你是一位专业的无人机故障诊断专家。用户描述了故障现象，请根据对话历史判断：
 
@@ -1186,28 +1053,13 @@ ${conversationHistory.length > 0 ? conversationHistory.map(msg => `${msg.role ==
   }
 }`;
 
-    const response = await axios.post(
-      `${apiBase}/chat/completions`,
-      {
-        model: qwenModel,
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 500
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${qwenApiKey}`
-        }
-      }
-    );
-
-    const aiResult = response.data.choices[0].message.content;
+    const aiResult = await deepSeekService.chatCompletion({
+      config: deepSeekConfig,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.7,
+      maxTokens: 500,
+      responseFormat: { type: 'json_object' },
+    });
     const jsonMatch = aiResult.match(/\{[\s\S]*\}/);
     
     if (jsonMatch) {

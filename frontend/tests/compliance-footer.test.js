@@ -17,6 +17,7 @@ test('does not publish placeholder filing numbers', () => {
 
 test('discloses third-party AI service sources', () => {
   assert.match(complianceSource, /第三方云服务 API/)
-  assert.match(complianceSource, /通义千问/)
-  assert.match(complianceSource, /Kimi/)
+  assert.match(complianceSource, /DeepSeek API/)
+  assert.match(complianceSource, /GLM-4\.6V-Flash/)
+  assert.doesNotMatch(complianceSource, /通义千问|Kimi|Xiaomi MiMo/)
 })

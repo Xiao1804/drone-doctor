@@ -9,24 +9,14 @@ const path = require('path');
 
 class ImageRecognitionService {
   constructor() {
-    this.qwenApiKey = process.env.QWEN_API_KEY;
-    this.qwenApiBase = process.env.QWEN_API_BASE || 'https://coding.dashscope.aliyuncs.com/v1';
-    this.qwenVisionModel = process.env.QWEN_VISION_MODEL || 'qwen-vl-max'; // 通义千问视觉模型
-    this.kimiApiKey = process.env.KIMI_API_KEY;
-    this.kimiApiBase = process.env.KIMI_API_BASE || 'https://api.moonshot.cn/v1';
-    this.kimiVisionModel = process.env.KIMI_VISION_MODEL || 'moonshot-v1-32k-vision-preview';
-    // Xiaomi mimo 中转平台
-    this.xiaomiApiKey = process.env.XIAOMI_API_KEY;
-    this.xiaomiApiBase = process.env.XIAOMI_API_BASE || 'https://token-plan-cn.xiaomimimo.com';
-    this.xiaomiVisionModel = process.env.XIAOMI_VISION_MODEL || 'mimo-v2.5';
-    this.xiaomiClaudeModel = process.env.XIAOMI_CLAUDE_MODEL || 'claude-3-5-sonnet-20241022';
+    this.zhipuApiKey = process.env.ZHIPU_API_KEY;
+    this.zhipuApiBase = (process.env.ZHIPU_API_BASE || 'https://open.bigmodel.cn/api/paas/v4').replace(/\/$/, '');
+    this.zhipuVisionModel = process.env.ZHIPU_VISION_MODEL || 'glm-4.6v-flash';
     
     // 调试日志：输出配置状态（仅在非生产环境）
     if (process.env.NODE_ENV !== 'production') {
       console.log('🔧 Vision API 配置状态:');
-      console.log('  Qwen:', this.qwenApiKey ? '✅ 已配置' : '❌ 未配置', `(${this.qwenApiBase})`);
-      console.log('  Kimi:', this.kimiApiKey ? '✅ 已配置' : '❌ 未配置', `(${this.kimiApiBase})`);
-      console.log('  Xiaomi:', this.xiaomiApiKey ? '✅ 已配置' : '❌ 未配置', `(${this.xiaomiApiBase})`);
+      console.log('  Zhipu GLM:', this.zhipuApiKey ? '✅ 已配置' : '❌ 未配置', `(${this.zhipuApiBase})`);
     }
   }
 
@@ -37,8 +27,8 @@ class ImageRecognitionService {
    * @returns {Object} 识别结果
    */
   async recognizeImage(imagePath, scenario = 'fault') {
-    if (!this.qwenApiKey && !this.kimiApiKey && !this.xiaomiApiKey) {
-      throw new Error('未配置图片识别API Key。请在环境变量中设置 QWEN_API_KEY、KIMI_API_KEY 或 XIAOMI_API_KEY。');
+    if (!this.zhipuApiKey) {
+      throw new Error('未配置图片识别API Key。请在环境变量中设置 ZHIPU_API_KEY。');
     }
 
     try {
@@ -50,33 +40,7 @@ class ImageRecognitionService {
       // 根据场景构建prompt
       const prompt = this.buildPrompt(scenario);
       
-      // Fallback 链：Xiaomi mimo (OpenAI兼容) → Xiaomi mimo (Anthropic) → Qwen → Kimi
-      // 优先使用已验证可用的 Xiaomi mimo
-      const providers = [
-        { key: this.xiaomiApiKey, fn: async () => {
-          try {
-            return await this.recognizeWithOpenAICompatible(base64Image, mimeType, prompt, scenario);
-          } catch (openAiErr) {
-            console.warn('Xiaomi OpenAI format failed, trying Anthropic format:', openAiErr.message);
-            return await this.recognizeWithAnthropic(base64Image, mimeType, prompt, scenario);
-          }
-        }},
-        { key: this.qwenApiKey, fn: () => this.recognizeWithQwen(base64Image, mimeType, prompt, scenario) },
-        { key: this.kimiApiKey, fn: () => this.recognizeWithKimi(base64Image, mimeType, prompt, scenario) }
-      ];
-
-      for (const provider of providers) {
-        if (provider.key) {
-          try {
-            return await provider.fn();
-          } catch (err) {
-            console.warn(`Provider failed, trying next:`, err.message);
-            // 继续尝试下一个 provider
-          }
-        }
-      }
-
-      throw new Error('所有图片识别服务均不可用');
+      return await this.recognizeWithGLM(base64Image, mimeType, prompt, scenario);
 
     } catch (error) {
       console.error('Image recognition error:', error.response?.data || error.message);
@@ -85,13 +49,13 @@ class ImageRecognitionService {
   }
 
   /**
-   * 使用通义千问VL API识别图片（OpenAI 兼容格式）
+   * 使用智谱 GLM-4.6V-Flash 识别图片（OpenAI 兼容格式）
    */
-  async recognizeWithQwen(base64Image, mimeType, prompt, scenario) {
+  async recognizeWithGLM(base64Image, mimeType, prompt, scenario) {
     const response = await axios.post(
-      `${this.qwenApiBase}/chat/completions`,
+      `${this.zhipuApiBase}/chat/completions`,
       {
-        model: this.qwenVisionModel,
+        model: this.zhipuVisionModel,
         messages: [
           {
             role: 'user',
@@ -101,128 +65,20 @@ class ImageRecognitionService {
             ]
           }
         ],
-        temperature: 0.7,
-        max_tokens: 2000
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.qwenApiKey}`
-        },
-        timeout: 60000
-      }
-    );
-
-    const result = response.data.choices[0].message.content;
-    return this.parseResult(result, scenario);
-  }
-
-  /**
-   * 使用Kimi Vision API识别图片
-   */
-  async recognizeWithKimi(base64Image, mimeType, prompt, scenario) {
-    const response = await axios.post(
-      `${this.kimiApiBase}/chat/completions`,
-      {
-        model: this.kimiVisionModel,
-        messages: [
-          {
-            role: 'user',
-            content: [
-              { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64Image}` } },
-              { type: 'text', text: prompt }
-            ]
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 2000
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.kimiApiKey}`
-        },
-        timeout: 60000
-      }
-    );
-
-    const result = response.data.choices[0].message.content;
-    return this.parseResult(result, scenario);
-  }
-
-  /**
-   * 使用 OpenAI 兼容格式识别图片 (xiaomimimo /v1)
-   */
-  async recognizeWithOpenAICompatible(base64Image, mimeType, prompt, scenario) {
-    const response = await axios.post(
-      `${this.xiaomiApiBase}/v1/chat/completions`,
-      {
-        model: this.xiaomiVisionModel,
-        messages: [
-          {
-            role: 'user',
-            content: [
-              { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64Image}` } },
-              { type: 'text', text: prompt }
-            ]
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 2000
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.xiaomiApiKey}`
-        },
-        timeout: 60000
-      }
-    );
-
-    const result = response.data.choices[0].message.content;
-    return this.parseResult(result, scenario);
-  }
-
-  /**
-   * 使用 Anthropic 格式识别图片 (xiaomimimo /anthropic)
-   */
-  async recognizeWithAnthropic(base64Image, mimeType, prompt, scenario) {
-    const response = await axios.post(
-      `${this.xiaomiApiBase}/anthropic/v1/messages`,
-      {
-        model: this.xiaomiClaudeModel,
+        thinking: { type: 'disabled' },
+        temperature: 0.2,
         max_tokens: 2000,
-        messages: [
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'image',
-                source: {
-                  type: 'base64',
-                  media_type: mimeType,
-                  data: base64Image
-                }
-              },
-              {
-                type: 'text',
-                text: prompt
-              }
-            ]
-          }
-        ]
       },
       {
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': this.xiaomiApiKey,
-          'anthropic-version': '2023-06-01'
+          'Authorization': `Bearer ${this.zhipuApiKey}`
         },
         timeout: 60000
       }
     );
 
-    const result = response.data.content[0].text;
+    const result = response.data.choices[0].message.content;
     return this.parseResult(result, scenario);
   }
 
@@ -387,3 +243,4 @@ class ImageRecognitionService {
 const imageRecognitionService = new ImageRecognitionService();
 
 module.exports = imageRecognitionService;
+module.exports.ImageRecognitionService = ImageRecognitionService;

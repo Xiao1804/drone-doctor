@@ -5,7 +5,7 @@
 - DroneDoctor is currently a free demand-validation tool for drone repair diagnosis.
 - Public users do not register accounts. They add the maintainer on WeChat, receive a free coupon, and activate a time-limited browser pass.
 - Account login is admin-only. Keep coupon access and administrator authentication as separate token types.
-- Current stack: React 18 + Vite + Tailwind CSS frontend, Node.js 20 + Express backend, PostgreSQL 16 + pgvector, Kimi/Qwen-compatible APIs, local bge-small-zh-v1.5 embeddings.
+- Current stack: React 18 + Vite + Tailwind CSS frontend, Node.js 20 + Express backend, PostgreSQL 16 + pgvector, DeepSeek text API, Zhipu GLM-4.6V-Flash vision API, and local bge-small-zh-v1.5 embeddings.
 - Long-term project memory is in `.workbuddy/memory/MEMORY.md`.
 
 ## Content Safety
