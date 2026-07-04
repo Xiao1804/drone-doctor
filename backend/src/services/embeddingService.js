@@ -127,6 +127,104 @@ function cosineSimilarity(a, b) {
 }
 
 /**
+ * 分块策略：将文章内容切分为多个 chunk
+ * @param {string} content - 文章内容
+ * @param {string} strategy - 分块策略 ('fault_diagnosis', 'knowledge', 'api_doc', 'quiz')
+ * @returns {Array<{index: number, text: string, type: string, strategy: string}>}
+ */
+function chunkContent(content, strategy = 'fault_diagnosis') {
+  if (!content) return [];
+
+  const chunks = [];
+  const maxChunkSize = strategy === 'api_doc' ? 500 : strategy === 'quiz' ? 1000 : 800;
+
+  // 简单分块策略（v2.1 基础实现）
+  const paragraphs = content.split(/\n\s*\n/).filter(p => p.trim());
+
+  let currentChunk = '';
+  let chunkIndex = 0;
+
+  for (const para of paragraphs) {
+    const trimmedPara = para.trim();
+    if (!trimmedPara) continue;
+
+    // 检测标题
+    const isHeading = trimmedPara.match(/^#{1,6}\s+/) || trimmedPara.match(/^[一二三四五六七八九十]+、/);
+    const chunkType = isHeading ? 'heading' : 'paragraph';
+
+    // 如果当前 chunk 加上新段落超过限制，则保存当前 chunk
+    if (currentChunk.length + trimmedPara.length > maxChunkSize && currentChunk.length > 0) {
+      chunks.push({
+        index: chunkIndex++,
+        text: currentChunk.trim(),
+        type: 'paragraph',
+        strategy,
+      });
+      currentChunk = '';
+    }
+
+    // 如果是大标题且当前 chunk 有内容，则先保存
+    if (isHeading && currentChunk.length > 0) {
+      chunks.push({
+        index: chunkIndex++,
+        text: currentChunk.trim(),
+        type: 'paragraph',
+        strategy,
+      });
+      currentChunk = '';
+    }
+
+    // 添加到当前 chunk
+    currentChunk += (currentChunk ? '\n\n' : '') + trimmedPara;
+  }
+
+  // 添加最后一个 chunk
+  if (currentChunk.length > 0) {
+    chunks.push({
+      index: chunkIndex++,
+      text: currentChunk.trim(),
+      type: 'paragraph',
+      strategy,
+    });
+  }
+
+  return chunks;
+}
+
+/**
+ * 生成知识文章的所有 chunk 及其 embeddings
+ * @param {string} articleId - 文章 ID
+ * @param {string} content - 文章内容
+ * @param {string} strategy - 分块策略
+ * @param {Object} db - 数据库连接
+ * @returns {Promise<Array>}
+ */
+async function embedArticleChunks(articleId, content, strategy = 'fault_diagnosis', db = null) {
+  const chunks = chunkContent(content, strategy);
+
+  if (chunks.length === 0) {
+    return [];
+  }
+
+  // 生成所有 chunk 的 embeddings
+  const chunkTexts = chunks.map(c => c.text);
+  const embeddings = await generateEmbedding(chunkTexts);
+
+  // 组合结果
+  const embeddedChunks = chunks.map((chunk, index) => ({
+    article_id: articleId,
+    chunk_index: chunk.index,
+    chunk_text: chunk.text,
+    chunk_embedding: embeddings[index],
+    chunk_type: chunk.type,
+    chunk_strategy: chunk.strategy,
+    token_count: null, // 可选：添加 token 计数
+  }));
+
+  return embeddedChunks;
+}
+
+/**
  * 获取模型状态
  */
 function getStatus() {
@@ -144,5 +242,7 @@ module.exports = {
   vectorToSql,
   cosineSimilarity,
   getStatus,
+  chunkContent,
+  embedArticleChunks,
   EMBEDDING_DIM,
 };
