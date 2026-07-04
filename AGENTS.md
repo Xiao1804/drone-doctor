@@ -23,6 +23,13 @@
 - Production releases use complete versioned source packages; do not update a server by downloading individual changed files.
 - Do not claim an AI diagnosis accuracy percentage without a reproducible dataset, evaluation script, and review standard.
 
+## Cross-Agent Handoff
+
+- Before starting DroneDoctor work, read `C:\Users\xmh\Documents\硅翼智库\40.无人机维修\业务项目\DroneDoctor-项目主控.md` and `DroneDoctor-Agent交接记录.md` in the same folder.
+- After changing code, deployment, product status, or validation evidence, update the project master and add a new entry at the top of the handoff history.
+- Keep code and deployment facts authoritative in this repository; the knowledge-base files summarize current state and cross-Agent continuity.
+- Never copy API keys, passwords, production data, or real user contact details into the handoff record.
+
 ## Local Question Bank Handoff
 
 - 2026-06-01 integrated local Word/PDF question banks into `C:\Users\xmh\Desktop\题库_整合输出\`.

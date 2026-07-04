@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
 import DiagnosisCounter, { incrementDiagnosisCount, refreshFreeUsage } from '../components/DiagnosisCounter'
@@ -318,6 +318,7 @@ function HomePage() {
           <div className="flex items-center gap-8">
             <a href="#features" className="text-sm text-gray-600 hover:text-black transition-colors">功能</a>
             <a href="#trial" className="text-sm text-gray-600 hover:text-black transition-colors">免费体验</a>
+            <Link to="/agent" className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-teal-500 text-white text-sm rounded-lg hover:from-cyan-700 hover:to-teal-600 transition-all">🚁 智能对话</Link>
             <button onClick={() => navigate('/guide')} className="px-4 py-2 bg-[#FF6B00] text-white text-sm rounded-lg hover:bg-black transition-colors">维修助手</button>
             <button onClick={() => setShowCouponModal(true)} className="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-[#FF6B00] transition-colors">输入兑换券</button>
           </div>
@@ -493,12 +494,12 @@ function HomePage() {
           {/* 其他诊断模式入口 */}
           {!loading && (
             <div className="flex items-center justify-center gap-4 mb-8 flex-wrap">
-              <button
-                onClick={() => setShowAgentModal(true)}
-                className="px-6 py-3 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors flex items-center gap-2"
+              <Link
+                to="/agent"
+                className="px-6 py-3 bg-gradient-to-r from-cyan-600 to-teal-500 text-white rounded-lg text-sm font-medium hover:from-cyan-700 hover:to-teal-600 transition-all flex items-center gap-2"
               >
-                <span>🤖</span> AI智能诊断
-              </button>
+                <span>🚁</span> 智能对话（新）
+              </Link>
               <button
                 onClick={() => navigate('/guide?mode=interactive')}
                 className="px-6 py-3 bg-[#FF6B00] text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors"
