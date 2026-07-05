@@ -11,8 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - 版本号单一来源：移除 `.env.tencent` 的 `APP_VERSION` 钉死值、compose 默认改空，版本统一由 `backend/package.json` 决定（`app.js`、`agentService`、`logger` 均回落到 `package.json`）。发版只需 bump `package.json`，不再改服务器 env。`APP_VERSION` 仍可作 shell 覆盖（§6 版本化发布流程用）。
-- `/api/agent/chat`、`/api/agent/retrieve` 加门禁：匿名访客每 IP 免费体验 2 次（内存计数，重启清零），用完需兑换券通行证（3 天 trial_access）继续；`/api/agent/status` 保持开放（页面就绪检查用）。前端 `/agent` 用完额度自动弹 `<CouponModal>`（复用诊断路径的输券 + 扫码加微信引导），HTTP 层沿用全局 token 拦截器，未改。
-- 新增 `backend/src/middleware/agentGate.js` + `backend/src/services/agentAnonUsageService.js`（仿 `freeUsageLimit.js` 结构，复用 `freeUsageService.getIpIdentifier` 与 `couponService.validateTrialAccessToken`）。
+- `/api/agent/chat`、`/api/agent/retrieve` 改硬门禁（与诊断路径一致）：必须持有效兑换券通行证（3 天 trial_access）或管理员 token，否则 401 `TRIAL_ACCESS_REQUIRED`，前端弹 `<CouponModal>`（输券 + 扫码加微信）。`/api/agent/status` 保持开放。复用 `freeUsageLimit` 中间件；禁用券即时生效（`validateTrialAccessToken` 校验 `status`）。原计划的"匿名 2 次免费"已撤回——会让禁用券失效、与"禁用即拦"冲突。
 
 ## [2.1.0] - 2026-07-05
 
