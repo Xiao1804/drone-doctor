@@ -1,9 +1,11 @@
+const packageInfo = require('../../package.json');
+
 function write(level, event, context = {}) {
   const payload = {
     timestamp: new Date().toISOString(),
     level,
     event,
-    version: process.env.APP_VERSION || 'development',
+    version: process.env.APP_VERSION || packageInfo.version,
     ...context,
   };
 
