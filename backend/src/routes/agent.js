@@ -6,12 +6,13 @@ const express = require('express');
 const router = express.Router();
 const agentService = require('../services/agentService');
 const knowledgeRetrievalService = require('../services/knowledgeRetrievalService');
+const { agentGate } = require('../middleware/agentGate');
 
 /**
  * POST /api/agent/chat
  * 智能体对话接口
  */
-router.post('/chat', async (req, res) => {
+router.post('/chat', agentGate, async (req, res) => {
   try {
     const {
       message,
@@ -69,7 +70,7 @@ router.get('/status', async (req, res) => {
  * POST /api/agent/retrieve
  * 知识库检索接口
  */
-router.post('/retrieve', async (req, res) => {
+router.post('/retrieve', agentGate, async (req, res) => {
   try {
     const { query, topK = 5, filters = {} } = req.body;
 

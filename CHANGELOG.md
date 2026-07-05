@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `/api/agent/chat`、`/api/agent/retrieve` 加门禁：匿名访客每 IP 免费体验 2 次（内存计数，重启清零），用完需兑换券通行证（3 天 trial_access）继续；`/api/agent/status` 保持开放（页面就绪检查用）。前端 `/agent` 用完额度自动弹 `<CouponModal>`（复用诊断路径的输券 + 扫码加微信引导），HTTP 层沿用全局 token 拦截器，未改。
+- 新增 `backend/src/middleware/agentGate.js` + `backend/src/services/agentAnonUsageService.js`（仿 `freeUsageLimit.js` 结构，复用 `freeUsageService.getIpIdentifier` 与 `couponService.validateTrialAccessToken`）。
+
 ## [2.1.0] - 2026-07-05
 
 ### Added

@@ -155,6 +155,7 @@ async function checkLimit(req) {
 
 module.exports = {
   getIdentifier,
+  getIpIdentifier,
   getTodayUsage,
   incrementUsage,
   checkLimit,

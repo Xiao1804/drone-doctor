@@ -4,6 +4,8 @@ import axios from 'axios'
 import { apiUrl } from '../config/api'
 import { apiClient } from '../utils/apiClient'
 import { showToast } from '../components/Toast'
+import CouponModal from '../components/CouponModal'
+import { isFreeLimitError } from '../utils/freeUsage'
 
 function AgentChatPage() {
   const [messages, setMessages] = useState([
@@ -16,6 +18,7 @@ function AgentChatPage() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState(null)
+  const [showCouponModal, setShowCouponModal] = useState(false)
   const messagesEndRef = useRef(null)
 
   // 自动滚动到底部
@@ -71,7 +74,11 @@ function AgentChatPage() {
       }
     } catch (error) {
       console.error('[AgentChat] 错误:', error)
-      showToast(error.message || '网络错误，请稍后重试', 'error')
+      if (isFreeLimitError(error)) {
+        setShowCouponModal(true)
+      } else {
+        showToast(error.message || '网络错误，请稍后重试', 'error')
+      }
     } finally {
       setLoading(false)
     }
@@ -274,6 +281,12 @@ function AgentChatPage() {
           </div>
         </div>
       </div>
+      {showCouponModal && (
+        <CouponModal
+          onClose={() => setShowCouponModal(false)}
+          onActivated={() => setShowCouponModal(false)}
+        />
+      )}
     </div>
   )
 }
