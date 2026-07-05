@@ -181,7 +181,7 @@ ${chunk.chunk_text || chunk.content || ''}
   getStatus() {
     return {
       name: '无人机医生',
-      version: '2.1',
+      version: process.env.APP_VERSION || require('../../package.json').version,
       llmConfigured: !!(process.env.DEEPSEEK_API_KEY || process.env.ZHIPU_API_KEY),
       systemPromptLength: this.SYSTEM_PROMPT.length,
       memoryDepth: this.MEMORY_DEPTH,

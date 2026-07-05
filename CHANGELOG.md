@@ -9,8 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-07-05
+
+### Added
+- 智能体对话：新增 `/agent` 页面与 `POST /api/agent/chat`、`GET /api/agent/status`、`POST /api/agent/retrieve` 三个接口；统一 LLM 服务（DeepSeek 文本 + 智谱 GLM 多模态）；pgvector 向量检索（本地 `bge-small-zh-v1.5`，512 维）。本版本整合此前已上线但未正式记录的 v2.1 智能体功能。
+- v2.1 知识库体系：`knowledge_articles` + `knowledge_chunks` 表与分块/嵌入流水线；迁移 `1782505200000_knowledge_v21_migration`、`1782591600000_transitional_dual_write`（新旧表双写过渡）。
+
 ### Fixed
-- 知识库向量检索覆盖缺陷：`knowledge_chunks.chunk_embedding` 原为 `IVFFlat(lists=100)` 索引，且在数据灌入【之前】建于空表，导致 129 行数据下大量 list 为空；查询落入空 list 时返回 0 条（如"云台抖动""电池保养"），使智能体对话 `/api/agent/chat` 拿不到 `sources`、退化为无知识库接地的 LLM 回答。改为 `HNSW` 索引（基于图、无空 list、规模自适应）。迁移 `1783209600000_fix_chunks_embedding_index`。
+- 知识库向量检索覆盖缺陷：`knowledge_chunks.chunk_embedding` 原为 `IVFFlat(lists=100)`，且在数据灌入【之前】建于空表，导致 129 行下大量 list 为空；查询落入空 list 时返回 0 条（如"云台抖动""电池保养"），使 `/api/agent/chat` 拿不到 `sources`、退化为无知识库接地的 LLM 回答。改为 `HNSW` 索引。迁移 `1783209600000_fix_chunks_embedding_index`。
+- 删除冲突的重复迁移 `1782505200000_knowledge_v21_migration_fixed.js`：与前一个文件同前缀 `1782505200000`，触发 node-pg-migrate v8 排序校验死锁、阻塞后端启动。
 
 ## [1.3.2] - 2026-07-04
 
