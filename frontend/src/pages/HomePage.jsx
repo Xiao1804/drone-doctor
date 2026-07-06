@@ -304,6 +304,15 @@ function HomePage() {
     { icon: '🎓', title: '考证指南', description: 'CAAC考证全流程指导，题库练习' }
   ]
 
+  // 统一 4 个功能入口的门禁：没券且非管理员 → 滚到“扫码加微信”区（与图片识别/飞行日志页一致），
+  // 不进功能页。accessStatus 还在加载(null)时放行，交给目标页自身门禁兜底。
+  const requireFeatureAccess = () => {
+    if (accessStatus === null) return true
+    if (accessStatus?.allowed || accessStatus?.isAdmin) return true
+    document.getElementById('trial')?.scrollIntoView({ behavior: 'smooth' })
+    return false
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -496,24 +505,25 @@ function HomePage() {
             <div className="flex items-center justify-center gap-4 mb-8 flex-wrap">
               <Link
                 to="/agent"
+                onClick={(e) => { if (!requireFeatureAccess()) e.preventDefault() }}
                 className="px-6 py-3 bg-gradient-to-r from-cyan-600 to-teal-500 text-white rounded-lg text-sm font-medium hover:from-cyan-700 hover:to-teal-600 transition-all flex items-center gap-2"
               >
                 <span>🚁</span> 智能对话（新）
               </Link>
               <button
-                onClick={() => navigate('/guide?mode=interactive')}
+                onClick={() => { if (requireFeatureAccess()) navigate('/guide?mode=interactive') }}
                 className="px-6 py-3 bg-[#FF6B00] text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors"
               >
                 交互式诊断（推荐）
               </button>
               <button
-                onClick={() => navigate('/image-diagnosis')}
+                onClick={() => { if (requireFeatureAccess()) navigate('/image-diagnosis') }}
                 className="px-6 py-3 border-2 border-[#FF6B00] text-[#FF6B00] rounded-lg text-sm font-medium hover:bg-orange-50 transition-colors"
               >
                 📷 图片识别
               </button>
               <button
-                onClick={() => navigate('/flight-log')}
+                onClick={() => { if (requireFeatureAccess()) navigate('/flight-log') }}
                 className="px-6 py-3 border-2 border-gray-900 text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
               >
                 飞行日志解析
