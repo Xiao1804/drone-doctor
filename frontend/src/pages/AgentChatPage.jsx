@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
 import { apiClient } from '../utils/apiClient'
@@ -20,6 +21,7 @@ function AgentChatPage() {
   const [status, setStatus] = useState(null)
   const [showCouponModal, setShowCouponModal] = useState(false)
   const messagesEndRef = useRef(null)
+  const navigate = useNavigate()
 
   // 自动滚动到底部
   const scrollToBottom = () => {
@@ -107,6 +109,10 @@ function AgentChatPage() {
       <div className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center gap-3">
+            <button onClick={() => navigate('/')} className="text-gray-600 hover:text-gray-900">
+              ← 返回
+            </button>
+            <div className="w-px h-6 bg-gray-300" />
             <div className="w-10 h-10 bg-gradient-to-br from-cyan-600 to-teal-400 rounded-xl flex items-center justify-center">
               <span className="text-white font-bold text-lg">🚁</span>
             </div>
