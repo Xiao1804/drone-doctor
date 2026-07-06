@@ -13,3 +13,15 @@ wurenjiyisheng.com {
 	# 前端静态资源
 	reverse_proxy frontend:80
 }
+
+# IP 地址访问
+81.71.39.150:80, 81.71.39.150:443 {
+	encode gzip
+
+	# API 和 health 路由代理到后端
+	reverse_proxy /api/* backend:3000
+	reverse_proxy /health backend:3000
+
+	# 前端静态资源
+	reverse_proxy frontend:80
+}
