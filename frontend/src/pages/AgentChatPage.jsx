@@ -7,6 +7,8 @@ import { apiClient } from '../utils/apiClient'
 import { showToast } from '../components/Toast'
 import CouponModal from '../components/CouponModal'
 import { isFreeLimitError } from '../utils/freeUsage'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 function AgentChatPage() {
   const [messages, setMessages] = useState([
@@ -174,7 +176,15 @@ function AgentChatPage() {
                           ? 'bg-cyan-600 text-white'
                           : 'bg-gray-50 text-gray-900 border border-gray-200'
                       }`}>
-                        <div className="whitespace-pre-wrap leading-relaxed">{msg.content}</div>
+                        {msg.role === 'assistant' ? (
+                          <div className="prose prose-sm max-w-none prose-headings:mt-3 prose-headings:mb-1.5 prose-p:my-1.5 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0 prose-code:before:content-none prose-code:after:content-none">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                              {msg.content}
+                            </ReactMarkdown>
+                          </div>
+                        ) : (
+                          <div className="whitespace-pre-wrap leading-relaxed">{msg.content}</div>
+                        )}
                       </div>
                       {/* 参考来源 */}
                       {msg.sources && msg.sources.length > 0 && (
