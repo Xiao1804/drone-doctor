@@ -150,18 +150,29 @@ function HomePage() {
 
   // 提交诊断
   const handleSubmitDiagnosis = async () => {
-    const faultText = selectedFault?.id === 'other'
-      ? customFault
-      : selectedFault?.label || ''
+    const isOtherDevice = selectedDevice?.id === 'other'
+    const isOtherFault = selectedFault?.id === 'other'
+    const faultText = isOtherFault ? customFault : (selectedFault?.label || '')
 
     if (!faultText && !extraDescription.trim()) return
 
     // 拼装给智能体的初始消息：机型 + 故障 + 补充描述
-    let initialMessage = '我的无人机'
-    if (selectedDevice?.label) initialMessage += `是${selectedDevice.label}，`
-    initialMessage += `遇到了"${faultText}"的问题。`
-    if (extraDescription.trim()) initialMessage += `补充：${extraDescription.trim()}。`
-    initialMessage += '请帮我初步诊断可能的原因和排查步骤。'
+    // - 选"其他机型"时不硬塞"是其他机型"（无意义），用户真机型号通常已在描述里
+    // - 选"其他故障"时 customFault 是用户原话描述，直接用，不套"遇到了…的问题"（否则双重嵌套）
+    let initialMessage = ''
+    if (!isOtherDevice && selectedDevice?.label) {
+      initialMessage += `我的无人机是${selectedDevice.label}，`
+    }
+    if (isOtherFault) {
+      initialMessage += customFault.trim()
+    } else if (faultText) {
+      initialMessage += `出现了"${faultText}"的问题。`
+    }
+    if (extraDescription.trim()) {
+      initialMessage += `\n补充：${extraDescription.trim()}`
+    }
+    initialMessage += '\n请帮我初步诊断可能的原因和排查步骤。'
+    initialMessage = initialMessage.trim()
 
     // 体验通行证检查（与图片识别/飞行日志一致：没券且非管理员 → 弹兑换券）
     const usageState = await checkFreeUsageBeforeDiagnosis()
