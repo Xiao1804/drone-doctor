@@ -9,9 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- 管理员后台入口：管理员登录后首页导航显示「⚙ 管理后台」下拉（券码管理 / 用户反馈 / 退出登录），「输入兑换券」按钮对管理员隐藏；非管理员导航不变。`isAdmin = accessStatus.isAdmin || localStorage.user.role`（同步读 localStorage 兜底，避免 accessStatus 异步加载前 nav 闪烁）。
+
 ### Changed
 - 版本号单一来源：移除 `.env.tencent` 的 `APP_VERSION` 钉死值、compose 默认改空，版本统一由 `backend/package.json` 决定（`app.js`、`agentService`、`logger` 均回落到 `package.json`）。发版只需 bump `package.json`，不再改服务器 env。`APP_VERSION` 仍可作 shell 覆盖（§6 版本化发布流程用）。
 - `/api/agent/chat`、`/api/agent/retrieve` 改硬门禁（与诊断路径一致）：必须持有效兑换券通行证（3 天 trial_access）或管理员 token，否则 401 `TRIAL_ACCESS_REQUIRED`，前端弹 `<CouponModal>`（输券 + 扫码加微信）。`/api/agent/status` 保持开放。复用 `freeUsageLimit` 中间件；禁用券即时生效（`validateTrialAccessToken` 校验 `status`）。原计划的"匿名 2 次免费"已撤回——会让禁用券失效、与"禁用即拦"冲突。
+- 视觉模型代码默认值 `glm-4.6v-flash` → `glm-4.6v`（防御性，fresh deploy 若 env 缺失不至于退回限流档；线上走 `ZHIPU_VISION_MODEL` 不受影响）。
+
+### Fixed
+- `/agent` 智能体回复 markdown 渲染：前端原纯文本直出 `{msg.content}`，导致 `###`、`**` 等符号原样显示给用户；改用 `react-markdown` + `remark-gfm` + `@tailwindcss/typography` 渲染（assistant 消息走 ReactMarkdown + `prose prose-sm`，user 消息保持纯文本）。前端 bundle gzip 102→150KB。
+- 清理死代码：删除 `agentService.isDroneRelated`（领域过滤实际只靠 system prompt，零业务调用）。
 
 ## [2.1.0] - 2026-07-05
 
