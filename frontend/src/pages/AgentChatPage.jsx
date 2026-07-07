@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
 import { apiClient } from '../utils/apiClient'
@@ -22,6 +22,7 @@ function AgentChatPage() {
   const [showCouponModal, setShowCouponModal] = useState(false)
   const messagesEndRef = useRef(null)
   const navigate = useNavigate()
+  const location = useLocation()
 
   // 自动滚动到底部
   const scrollToBottom = () => {
@@ -36,9 +37,20 @@ function AgentChatPage() {
     }).catch(() => {})
   }, [])
 
-  const handleSend = async () => {
-    if (!input.trim()) return
-    const userInput = input.trim()
+  // 来自首页三步诊断器的初始消息：自动发送一次，让智能体立即做初步诊断
+  useEffect(() => {
+    const st = location.state
+    if (st?.initialMessage && st?.autoSend) {
+      // 消费掉 state，避免浏览器 back/forward 重复触发
+      navigate(location.pathname, { replace: true, state: null })
+      handleSend(st.initialMessage)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const handleSend = async (overrideText) => {
+    const userInput = (overrideText !== undefined ? overrideText : input).trim()
+    if (!userInput) return
     setInput('')
     setLoading(true)
 

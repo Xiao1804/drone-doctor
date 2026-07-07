@@ -154,10 +154,16 @@ function HomePage() {
       ? customFault
       : selectedFault?.label || ''
 
-    const symptom = `${selectedDevice?.label || ''} ${faultText} ${extraDescription}`.trim()
-    if (!symptom) return
+    if (!faultText && !extraDescription.trim()) return
 
-    // 体验通行证检查
+    // 拼装给智能体的初始消息：机型 + 故障 + 补充描述
+    let initialMessage = '我的无人机'
+    if (selectedDevice?.label) initialMessage += `是${selectedDevice.label}，`
+    initialMessage += `遇到了"${faultText}"的问题。`
+    if (extraDescription.trim()) initialMessage += `补充：${extraDescription.trim()}。`
+    initialMessage += '请帮我初步诊断可能的原因和排查步骤。'
+
+    // 体验通行证检查（与图片识别/飞行日志一致：没券且非管理员 → 弹兑换券）
     const usageState = await checkFreeUsageBeforeDiagnosis()
     if (!usageState.allowed) {
       refreshFreeUsage()
@@ -173,62 +179,19 @@ function HomePage() {
       remainingFree: usageState.remaining
     })
 
-    setLoading(true)
-    const startTime = Date.now()
+    incrementDiagnosisCount()
+    refreshFreeUsage()
 
-    try {
-      // v2.0: 调用统一诊断API (quick模式)
-      const response = await axios.post(apiUrl('/api/diagnosis/unified'), {
-        mode: 'quick',
-        input: symptom,
+    // 直跳智能对话 /agent，把上下文作为初始消息自动发给智能体做初步诊断。
+    // 决策树已转作 /agent 的 RAG 骨架，不再作前台流程；交互式诊断/维修助手向导已全部隐藏。
+    navigate('/agent', {
+      state: {
+        initialMessage,
+        autoSend: true,
         deviceType: selectedDevice?.id,
         faultType: selectedFault?.id
-      })
-
-      setProgress(100)
-      setProgressText('诊断完成！')
-
-      // 增加次数
-      incrementDiagnosisCount()
-      refreshFreeUsage()
-
-      // 短暂停留让用户看到100%
-      setTimeout(() => {
-        const result = response.data
-        if (!result.fallback && result.matchedTree) {
-          // 高置信度匹配：跳转到决策树预览模式
-          navigate(`/guide/${result.matchedTree.id}?mode=preview`, {
-            state: {
-              unifiedResult: result,
-              durationMs: Date.now() - startTime,
-              deviceType: selectedDevice?.id,
-              faultType: selectedFault?.id
-            }
-          })
-        } else {
-          // 低置信度/无匹配：跳转到维修助手菜单，带提示
-          navigate('/guide', {
-            state: {
-              noMatch: true,
-              input: symptom,
-              intent: result.intent
-            }
-          })
-        }
-      }, 500)
-    } catch (error) {
-      console.error('Diagnosis error:', error)
-      if (
-        [401, 403].includes(error?.response?.status)
-        && error?.response?.data?.error === 'TRIAL_ACCESS_REQUIRED'
-      ) {
-        refreshFreeUsage()
-        setShowCouponModal(true)
-      } else {
-        showToast('诊断失败，请稍后重试', 'error')
       }
-      setLoading(false)
-    }
+    })
   }
 
   // 智能体诊断（试点）
@@ -328,7 +291,10 @@ function HomePage() {
             <a href="#features" className="text-sm text-gray-600 hover:text-black transition-colors">功能</a>
             <a href="#trial" className="text-sm text-gray-600 hover:text-black transition-colors">免费体验</a>
             <Link to="/agent" className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-teal-500 text-white text-sm rounded-lg hover:from-cyan-700 hover:to-teal-600 transition-all">🚁 智能对话</Link>
+            {/* 维修助手（/guide 决策树向导）入口已隐藏（2026-07-07）：决策树转作 /agent 的 RAG 骨架，
+                不再作前台流程；用户统一走 /agent。/guide 路由保留，需恢复时取消此注释即可。
             <button onClick={() => navigate('/guide')} className="px-4 py-2 bg-[#FF6B00] text-white text-sm rounded-lg hover:bg-black transition-colors">维修助手</button>
+            */}
             <button onClick={() => setShowCouponModal(true)} className="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-[#FF6B00] transition-colors">输入兑换券</button>
           </div>
         </div>
