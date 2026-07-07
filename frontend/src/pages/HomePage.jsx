@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
 import { apiUrl } from '../config/api'
 import DiagnosisCounter, { incrementDiagnosisCount, refreshFreeUsage } from '../components/DiagnosisCounter'
-import { checkFreeUsageBeforeDiagnosis } from '../utils/freeUsage'
+import { checkFreeUsageBeforeDiagnosis, clearLocalUsageCache } from '../utils/freeUsage'
 import { trackDiagnosisStart } from '../utils/tracking'
 import { DEVICE_TYPES, FAULT_TYPES } from '../shared/enums'
 import { showToast } from '../components/Toast'
@@ -60,6 +60,13 @@ function HomePage() {
   // 体验状态
   const [accessStatus, setAccessStatus] = useState(null)
   const [showCouponModal, setShowCouponModal] = useState(false)
+
+  // 管理员身份：同步读 localStorage 兜底，避免 accessStatus 异步加载前 nav 闪烁
+  const [adminUser, setAdminUser] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('user') || 'null') } catch { return null }
+  })
+  const [showAdminMenu, setShowAdminMenu] = useState(false)
+  const isAdmin = accessStatus?.isAdmin || adminUser?.role === 'admin'
 
   useEffect(() => {
     // 获取总诊断次数
@@ -293,6 +300,17 @@ function HomePage() {
     return false
   }
 
+  // 管理员退出登录：清凭证与本地缓存，nav 立即切回非管理员态
+  const handleAdminLogout = () => {
+    setShowAdminMenu(false)
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    clearLocalUsageCache()
+    setAdminUser(null)
+    setAccessStatus({ allowed: false, isAdmin: false })
+    navigate('/')
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -312,7 +330,42 @@ function HomePage() {
                 不再作前台流程；用户统一走 /agent。/guide 路由保留，需恢复时取消此注释即可。
             <button onClick={() => navigate('/guide')} className="px-4 py-2 bg-[#FF6B00] text-white text-sm rounded-lg hover:bg-black transition-colors">维修助手</button>
             */}
-            <button onClick={() => setShowCouponModal(true)} className="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-[#FF6B00] transition-colors">输入兑换券</button>
+            {/* 非管理员：输入兑换券入口；管理员不需要（2026-07-07） */}
+            {!isAdmin && (
+              <button onClick={() => setShowCouponModal(true)} className="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-[#FF6B00] transition-colors">输入兑换券</button>
+            )}
+            {/* 管理员：后台下拉入口（券码管理 / 用户反馈 / 退出登录）（2026-07-07） */}
+            {isAdmin && (
+              <div className="relative">
+                <button
+                  onClick={() => setShowAdminMenu(v => !v)}
+                  className="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-[#FF6B00] transition-colors flex items-center gap-1"
+                >
+                  ⚙ 管理后台 <span className="text-xs">▾</span>
+                </button>
+                {showAdminMenu && (
+                  <>
+                    {/* 透明遮罩：点菜单外任意处关闭 */}
+                    <div className="fixed inset-0 z-40" onClick={() => setShowAdminMenu(false)} />
+                    <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                      <button
+                        onClick={() => { setShowAdminMenu(false); navigate('/admin/coupons') }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      >券码管理</button>
+                      <button
+                        onClick={() => { setShowAdminMenu(false); navigate('/admin/feedback') }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      >用户反馈</button>
+                      <div className="border-t border-gray-100 my-1" />
+                      <button
+                        onClick={handleAdminLogout}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                      >退出登录</button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </nav>
