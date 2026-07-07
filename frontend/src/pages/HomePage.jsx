@@ -40,6 +40,7 @@ function HomePage() {
   const [selectedFault, setSelectedFault] = useState(null)
   const [extraDescription, setExtraDescription] = useState('')
   const [customFault, setCustomFault] = useState('')
+  const [customDevice, setCustomDevice] = useState('')
 
   // 等待页状态
   const [loading, setLoading] = useState(false)
@@ -134,6 +135,8 @@ function HomePage() {
   // 选择机型
   const handleSelectDevice = (device) => {
     setSelectedDevice(device)
+    // 其他机型：留在本步露出输入框，让用户填具体型号（与"其他故障"一致）
+    if (device.id === 'other') return
     setStep(2)
   }
 
@@ -160,7 +163,10 @@ function HomePage() {
     // - 选"其他机型"时不硬塞"是其他机型"（无意义），用户真机型号通常已在描述里
     // - 选"其他故障"时 customFault 是用户原话描述，直接用，不套"遇到了…的问题"（否则双重嵌套）
     let initialMessage = ''
-    if (!isOtherDevice && selectedDevice?.label) {
+    if (isOtherDevice) {
+      // 其他机型：用用户填的具体型号（customDevice）
+      if (customDevice.trim()) initialMessage += `我的无人机是${customDevice.trim()}，`
+    } else if (selectedDevice?.label) {
       initialMessage += `我的无人机是${selectedDevice.label}，`
     }
     if (isOtherFault) {
@@ -397,6 +403,27 @@ function HomePage() {
                         </button>
                       ))}
                     </div>
+
+                    {/* "其他机型"选中后：填具体型号（与"其他故障"一致） */}
+                    {selectedDevice?.id === 'other' && (
+                      <div className="mt-4">
+                        <input
+                          type="text"
+                          value={customDevice}
+                          onChange={(e) => setCustomDevice(e.target.value)}
+                          placeholder="请输入你的无人机型号，例如：DJI NEO 2、FPV、道通 EVO Lite、FIMI..."
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#FF6B00] transition-colors"
+                          autoFocus
+                        />
+                        <button
+                          onClick={() => customDevice.trim() && setStep(2)}
+                          disabled={!customDevice.trim()}
+                          className="mt-3 w-full py-3 bg-[#FF6B00] text-white rounded-xl font-medium hover:bg-[#FF8533] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          下一步
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -407,7 +434,7 @@ function HomePage() {
                       <button onClick={() => setStep(1)} className="text-sm text-gray-400 hover:text-[#FF6B00]">← 换机型</button>
                     </div>
                     <h3 className="text-lg font-semibold text-black mb-1">选择故障类型</h3>
-                    <p className="text-sm text-gray-500 mb-6">已选：{selectedDevice?.icon} {selectedDevice?.label}</p>
+                    <p className="text-sm text-gray-500 mb-6">已选：{selectedDevice?.icon} {selectedDevice?.label}{selectedDevice?.id === 'other' && customDevice ? `（${customDevice}）` : ''}</p>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       {FAULT_TYPES.map(fault => (
                         <button
@@ -456,7 +483,7 @@ function HomePage() {
                     </div>
                     <h3 className="text-lg font-semibold text-black mb-1">补充描述（选填）</h3>
                     <p className="text-sm text-gray-500 mb-4">
-                      已选：{selectedDevice?.icon} {selectedDevice?.label} → {selectedFault?.icon} {selectedFault?.id === 'other' ? customFault : selectedFault?.label}
+                      已选：{selectedDevice?.icon} {selectedDevice?.label}{selectedDevice?.id === 'other' && customDevice ? `（${customDevice}）` : ''} → {selectedFault?.icon} {selectedFault?.id === 'other' ? customFault : selectedFault?.label}
                     </p>
                     <textarea
                       value={extraDescription}
