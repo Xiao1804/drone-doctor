@@ -1,0 +1,297 @@
+{
+  "ts": "2026-07-07T01:08:59.981Z",
+  "top_k": 5,
+  "query_count": 5,
+  "results": [
+    {
+      "query": "怎么导出飞行日志",
+      "source_flag": "v2.1",
+      "chunk_count": 5,
+      "chunks": [
+        {
+          "article_id": "sop-tree-power-on",
+          "category_l2": "电源系统",
+          "similarity": "0.661",
+          "preview": "### 步骤 4：导出飞行日志 使用 DA2 工具导出飞行日志，分析异常原因 **工具**：DA2 **预计耗时**：5分钟 - 已导出，回"
+        },
+        {
+          "article_id": "sop-tree-power-on",
+          "category_l2": "电源系统",
+          "similarity": "0.656",
+          "preview": "### 步骤 2：需要数据分析？ 判断是否需要导出飞行日志进行进一步分析 **判定标准**：是否存在异常飞行记录需要分析 - ✅ 需要 → "
+        },
+        {
+          "article_id": "A10-99-000451",
+          "category_l2": "未分类",
+          "similarity": "0.466",
+          "preview": "故障类型：图传系统 症状：普宙图传信号中断 适用机型：Byrd系列 可能原因：超出图传距离（35%）：飞行距离超出图传范围；障碍物遮挡（30"
+        },
+        {
+          "article_id": "A10-99-000401",
+          "category_l2": "未分类",
+          "similarity": "0.448",
+          "preview": "故障类型：图传系统 症状：图传信号中断 适用机型：Mavic系列、Air系列、Mini系列 可能原因：超出图传距离（40%）：飞行距离超出图"
+        },
+        {
+          "article_id": "A10-99-000418",
+          "category_l2": "未分类",
+          "similarity": "0.439",
+          "preview": "故障类型：图传系统 症状：图传距离缩短 适用机型：Mavic系列、Air系列、Mini系列 可能原因：图传天线角度不当（35%）：遥控器天线"
+        }
+      ],
+      "articles": [
+        {
+          "id": "A10-99-000401",
+          "title": "故障案例 #401",
+          "category_l2": "未分类"
+        },
+        {
+          "id": "A10-99-000418",
+          "title": "故障案例 #418",
+          "category_l2": "未分类"
+        },
+        {
+          "id": "A10-99-000451",
+          "title": "故障案例 #451",
+          "category_l2": "未分类"
+        },
+        {
+          "id": "sop-tree-power-on",
+          "title": "无人机无法开机排查 SOP",
+          "category_l2": "电源系统"
+        }
+      ]
+    },
+    {
+      "query": "无人机无法开机怎么排查",
+      "source_flag": "v2.1",
+      "chunk_count": 5,
+      "chunks": [
+        {
+          "article_id": "sop-tree-power-on",
+          "category_l2": "电源系统",
+          "similarity": "0.692",
+          "preview": "# 无人机无法开机排查 SOP > 按电源键无反应的系统性排查流程:按电源键→数据分析(用 DA2 导出飞行日志)→大包版本→链路/APP "
+        },
+        {
+          "article_id": "sop-tree-battery",
+          "category_l2": "电源系统",
+          "similarity": "0.551",
+          "preview": "# 电池故障排查 SOP > 电池无法充电/开机/续航异常的排查:外观→装入开机→充电→APP/电池助手检测→低空飞测,覆盖 FU 模式、S"
+        },
+        {
+          "article_id": "sop-tree-power-on",
+          "category_l2": "电源系统",
+          "similarity": "0.547",
+          "preview": "### 步骤 1：按电源键可开机？ 按下电源键3秒，观察指示灯和电机自检动作 **判定标准**：指示灯正常亮起，或有电机自检声音 - ✅ 可"
+        },
+        {
+          "article_id": "sop-tree-power-on",
+          "category_l2": "电源系统",
+          "similarity": "0.519",
+          "preview": "## 适用场景 无人机按电源键无反应的系统性排查流程。可能的定损结论包括：[电池故障]、[电调板损坏]、APP功能异常、[飞机正常]、[核心"
+        },
+        {
+          "article_id": "A10-99-000486",
+          "category_l2": "未分类",
+          "similarity": "0.494",
+          "preview": "故障类型：待确认 症状：无法开机（待确认） 适用机型：68Y系列 可能原因：多模块复合故障（高）：多个部件同时损坏；隐性短路（中）：机身内部"
+        }
+      ],
+      "articles": [
+        {
+          "id": "A10-99-000486",
+          "title": "故障案例 #486",
+          "category_l2": "未分类"
+        },
+        {
+          "id": "sop-tree-battery",
+          "title": "电池故障排查 SOP",
+          "category_l2": "电源系统"
+        },
+        {
+          "id": "sop-tree-power-on",
+          "title": "无人机无法开机排查 SOP",
+          "category_l2": "电源系统"
+        }
+      ]
+    },
+    {
+      "query": "云台卡住转不动怎么办",
+      "source_flag": "v2.1",
+      "chunk_count": 5,
+      "chunks": [
+        {
+          "article_id": "A10-99-000453",
+          "category_l2": "未分类",
+          "similarity": "0.681",
+          "preview": "故障类型：云台系统 症状：普宙云台卡住 适用机型：Byrd系列 可能原因：云台电机卡滞（40%）：电机轴承磨损或异物卡住；云台连接线松动（3"
+        },
+        {
+          "article_id": "A10-06-001",
+          "category_l2": "未分类",
+          "similarity": "0.669",
+          "preview": "故障类型：云台系统 症状：云台卡住 适用机型：Mavic系列、Air系列、Mini系列 可能原因：云台电机卡滞（40%）：电机轴承磨损或异物"
+        },
+        {
+          "article_id": "sop-tree-gimbal",
+          "category_l2": "云台系统",
+          "similarity": "0.665",
+          "preview": "### 步骤 8：轴臂转动受阻 云台轴臂在手动拨动时有明显卡顿或无法转动 **定损结论**：[轴臂转动受阻] **建议操作**：更换云台（B"
+        },
+        {
+          "article_id": "A10-99-000429",
+          "category_l2": "未分类",
+          "similarity": "0.649",
+          "preview": "故障类型：云台系统 症状：云台限位异常 适用机型：Mavic系列、Air系列、Mini系列 可能原因：云台限位设置错误（40%）：云台限位参"
+        },
+        {
+          "article_id": "A10-99-000498",
+          "category_l2": "未分类",
+          "similarity": "0.613",
+          "preview": "故障类型：云台系统 症状：整机链路测试报错-云台轴臂故障 适用机型：68Y系列 可能原因：云台排线松动（高）：云台与核心板连接排线接触不良；"
+        }
+      ],
+      "articles": [
+        {
+          "id": "A10-06-001",
+          "title": "故障案例 #389",
+          "category_l2": "未分类"
+        },
+        {
+          "id": "A10-99-000429",
+          "title": "故障案例 #429",
+          "category_l2": "未分类"
+        },
+        {
+          "id": "A10-99-000453",
+          "title": "故障案例 #453",
+          "category_l2": "未分类"
+        },
+        {
+          "id": "A10-99-000498",
+          "title": "故障案例 #498",
+          "category_l2": "未分类"
+        },
+        {
+          "id": "sop-tree-gimbal",
+          "title": "云台故障排查 SOP",
+          "category_l2": "云台系统"
+        }
+      ]
+    },
+    {
+      "query": "电池鼓包怎么处理",
+      "source_flag": "v2.1",
+      "chunk_count": 5,
+      "chunks": [
+        {
+          "article_id": "A10-99-000390",
+          "category_l2": "未分类",
+          "similarity": "0.555",
+          "preview": "故障类型：电源系统 症状：电池鼓包 适用机型：Mavic系列、Air系列、Mini系列、植保机 可能原因：过充过放（40%）：长期过充或过放"
+        },
+        {
+          "article_id": "A10-99-000468",
+          "category_l2": "未分类",
+          "similarity": "0.538",
+          "preview": "故障类型：电源系统 症状：极飞电池鼓包 适用机型：P系列植保机、V系列 可能原因：过充过放（40%）：长期过充或过放导致电池老化；高温环境使"
+        },
+        {
+          "article_id": "A10-99-000506",
+          "category_l2": "未分类",
+          "similarity": "0.514",
+          "preview": "故障类型：电源系统 症状：电池外观异常（客户责任/保修判定） 适用机型：68Y系列 可能原因：进水（高）：电池进水导致外观异常；外力撞击（高"
+        },
+        {
+          "article_id": "sop-tree-battery",
+          "category_l2": "电源系统",
+          "similarity": "0.462",
+          "preview": "### 步骤 16：排除电池故障 电池外观、充电、检测、飞测均正常 **定损结论**：[排除电池故障] **建议操作**：电池功能正常"
+        },
+        {
+          "article_id": "A10-99-000447",
+          "category_l2": "未分类",
+          "similarity": "0.458",
+          "preview": "故障类型：电源系统 症状：零零科技电池接触不良 适用机型：Hover Camera系列 可能原因：电池触点氧化（45%）：电池或飞机触点氧化"
+        }
+      ],
+      "articles": [
+        {
+          "id": "A10-99-000390",
+          "title": "故障案例 #390",
+          "category_l2": "未分类"
+        },
+        {
+          "id": "A10-99-000447",
+          "title": "故障案例 #447",
+          "category_l2": "未分类"
+        },
+        {
+          "id": "A10-99-000468",
+          "title": "故障案例 #468",
+          "category_l2": "未分类"
+        },
+        {
+          "id": "A10-99-000506",
+          "title": "故障案例 #506",
+          "category_l2": "未分类"
+        },
+        {
+          "id": "sop-tree-battery",
+          "title": "电池故障排查 SOP",
+          "category_l2": "电源系统"
+        }
+      ]
+    },
+    {
+      "query": "链路测试报错怎么排查",
+      "source_flag": "v2.1",
+      "chunk_count": 5,
+      "chunks": [
+        {
+          "article_id": "sop-tree-link-test",
+          "category_l2": "机身链路",
+          "similarity": "0.741",
+          "preview": "# 机身链路测试故障排查 SOP > 链路/模块检查异常后的定位流程:运行整机链路测试→定位报错模块→检查排线;若涉及相机/云台则进入出图与"
+        },
+        {
+          "article_id": "sop-tree-power-on",
+          "category_l2": "电源系统",
+          "similarity": "0.741",
+          "preview": "### 步骤 12：链路测试报错定位 根据 当前链路/模块检测方式的异常项进行定位。常见报错项包括：核心板、电调板、电机、GPS板、硬盘、T"
+        },
+        {
+          "article_id": "sop-tree-link-test",
+          "category_l2": "机身链路",
+          "similarity": "0.737",
+          "preview": "### 步骤 2：链路测试是否存在报错项？ 检查当前链路/模块检测结果中是否有异常项 **判定标准**：测试结果中存在标红/NG的项目 - "
+        },
+        {
+          "article_id": "sop-tree-link-test",
+          "category_l2": "机身链路",
+          "similarity": "0.721",
+          "preview": "### 步骤 1：运行整机链路测试 使用当前可用链路/模块检测方式完成检查，记录所有报错项 **工具**：当前可用链路/模块检测方式 **预"
+        },
+        {
+          "article_id": "sop-tree-power-on",
+          "category_l2": "电源系统",
+          "similarity": "0.707",
+          "preview": "### 步骤 8：链路/模块检查是否发现异常？ 使用当前可用的链路/模块检测方式，并结合 APP 报错查看结果 **判定标准**：未发现链路"
+        }
+      ],
+      "articles": [
+        {
+          "id": "sop-tree-link-test",
+          "title": "机身链路测试故障排查 SOP",
+          "category_l2": "机身链路"
+        },
+        {
+          "id": "sop-tree-power-on",
+          "title": "无人机无法开机排查 SOP",
+          "category_l2": "电源系统"
+        }
+      ]
+    }
+  ]
+}

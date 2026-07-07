@@ -1,0 +1,31 @@
+{
+  "ts": "2026-07-07T01:08:02.360Z",
+  "processed": [
+    {
+      "id": "sop-tree-battery",
+      "chunks": 23
+    },
+    {
+      "id": "sop-tree-damage-assessment",
+      "chunks": 12
+    },
+    {
+      "id": "sop-tree-gimbal",
+      "chunks": 25
+    },
+    {
+      "id": "sop-tree-link-test",
+      "chunks": 16
+    },
+    {
+      "id": "sop-tree-post-repair-checklist",
+      "chunks": 10
+    },
+    {
+      "id": "sop-tree-power-on",
+      "chunks": 26
+    }
+  ],
+  "sop_tree_articles": "6",
+  "total_articles": "135"
+}
