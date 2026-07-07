@@ -510,12 +510,15 @@ function HomePage() {
               >
                 <span>🚁</span> 智能对话（新）
               </Link>
+              {/* 交互式诊断入口已隐藏（2026-07-07）：决策树是 /agent 的 RAG 骨架，不作前台流程；
+                  用户只见 /agent，不见树。后端代码保留，需恢复时取消此注释即可。
               <button
                 onClick={() => { if (requireFeatureAccess()) navigate('/guide?mode=interactive') }}
                 className="px-6 py-3 bg-[#FF6B00] text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors"
               >
                 交互式诊断（推荐）
               </button>
+              */}
               <button
                 onClick={() => { if (requireFeatureAccess()) navigate('/image-diagnosis') }}
                 className="px-6 py-3 border-2 border-[#FF6B00] text-[#FF6B00] rounded-lg text-sm font-medium hover:bg-orange-50 transition-colors"
