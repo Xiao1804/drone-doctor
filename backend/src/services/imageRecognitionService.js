@@ -11,7 +11,7 @@ class ImageRecognitionService {
   constructor() {
     this.zhipuApiKey = process.env.ZHIPU_API_KEY;
     this.zhipuApiBase = (process.env.ZHIPU_API_BASE || 'https://open.bigmodel.cn/api/paas/v4').replace(/\/$/, '');
-    this.zhipuVisionModel = process.env.ZHIPU_VISION_MODEL || 'glm-4.6v-flash';
+    this.zhipuVisionModel = process.env.ZHIPU_VISION_MODEL || 'glm-4.6v';
     
     // 调试日志：输出配置状态（仅在非生产环境）
     if (process.env.NODE_ENV !== 'production') {
@@ -49,7 +49,7 @@ class ImageRecognitionService {
   }
 
   /**
-   * 使用智谱 GLM-4.6V-Flash 识别图片（OpenAI 兼容格式）
+   * 使用视觉模型识别图片（OpenAI 兼容格式；默认 glm-4.6v，线上走 ZHIPU_VISION_MODEL 指定的模型）
    */
   async recognizeWithGLM(base64Image, mimeType, prompt, scenario) {
     const response = await axios.post(

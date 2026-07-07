@@ -158,24 +158,6 @@ ${chunk.chunk_text || chunk.content || ''}
   }
 
   /**
-   * 简单测试：判断是否是无人机领域问题
-   */
-  isDroneRelated(query) {
-    const keywords = [
-      '无人机', 'drone', 'uav', '多旋翼', '四旋翼', '大疆', 'dji',
-      '飞行', '飞控', '电调', '电机', '螺旋桨', '桨叶',
-      '电池', '充电器', '图传', '摄像头', '云台',
-      'GPS', '定位', '信号', '遥控器', '遥控器',
-      '炸机', '坠机', '维修', '故障', '排查',
-      '考证', 'CAAC', 'AOPA', '执照',
-      '航拍', '植保', '巡检', '测绘',
-    ];
-
-    const lowerQuery = query.toLowerCase();
-    return keywords.some(keyword => lowerQuery.includes(keyword.toLowerCase()));
-  }
-
-  /**
    * 获取智能体状态
    */
   getStatus() {
