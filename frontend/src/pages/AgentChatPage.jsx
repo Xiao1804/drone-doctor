@@ -245,7 +245,7 @@ function AgentChatPage() {
                     style={{ minHeight: '56px', maxHeight: '120px' }}
                   />
                   <button
-                    onClick={handleSend}
+                    onClick={() => handleSend()}
                     disabled={loading || !input.trim()}
                     className="px-6 py-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                   >
