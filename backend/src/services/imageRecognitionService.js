@@ -9,14 +9,14 @@ const path = require('path');
 
 class ImageRecognitionService {
   constructor() {
-    this.zhipuApiKey = process.env.ZHIPU_API_KEY;
-    this.zhipuApiBase = (process.env.ZHIPU_API_BASE || 'https://open.bigmodel.cn/api/paas/v4').replace(/\/$/, '');
-    this.zhipuVisionModel = process.env.ZHIPU_VISION_MODEL || 'glm-4.6v';
-    
+    this.visionApiKey = process.env.VISION_API_KEY;
+    this.visionApiBase = (process.env.VISION_API_BASE || 'https://dashscope.aliyuncs.com/compatible-mode/v1').replace(/\/$/, '');
+    this.visionModel = process.env.VISION_MODEL || 'qwen-vl-plus';
+
     // 调试日志：输出配置状态（仅在非生产环境）
     if (process.env.NODE_ENV !== 'production') {
       console.log('🔧 Vision API 配置状态:');
-      console.log('  Zhipu GLM:', this.zhipuApiKey ? '✅ 已配置' : '❌ 未配置', `(${this.zhipuApiBase})`);
+      console.log('  Vision:', this.visionApiKey ? '✅ 已配置' : '❌ 未配置', `(${this.visionApiBase}, ${this.visionModel})`);
     }
   }
 
@@ -27,8 +27,8 @@ class ImageRecognitionService {
    * @returns {Object} 识别结果
    */
   async recognizeImage(imagePath, scenario = 'fault') {
-    if (!this.zhipuApiKey) {
-      throw new Error('未配置图片识别API Key。请在环境变量中设置 ZHIPU_API_KEY。');
+    if (!this.visionApiKey) {
+      throw new Error('未配置图片识别API Key。请在环境变量中设置 VISION_API_KEY。');
     }
 
     try {
@@ -40,7 +40,7 @@ class ImageRecognitionService {
       // 根据场景构建prompt
       const prompt = this.buildPrompt(scenario);
       
-      return await this.recognizeWithGLM(base64Image, mimeType, prompt, scenario);
+      return await this.callVisionModel(base64Image, mimeType, prompt, scenario);
 
     } catch (error) {
       console.error('Image recognition error:', error.response?.data || error.message);
@@ -49,13 +49,13 @@ class ImageRecognitionService {
   }
 
   /**
-   * 使用视觉模型识别图片（OpenAI 兼容格式；默认 glm-4.6v，线上走 ZHIPU_VISION_MODEL 指定的模型）
+   * 使用视觉模型识别图片（OpenAI 兼容格式；默认 qwen-vl-plus，线上走 VISION_MODEL 指定的模型）
    */
-  async recognizeWithGLM(base64Image, mimeType, prompt, scenario) {
+  async callVisionModel(base64Image, mimeType, prompt, scenario) {
     const response = await axios.post(
-      `${this.zhipuApiBase}/chat/completions`,
+      `${this.visionApiBase}/chat/completions`,
       {
-        model: this.zhipuVisionModel,
+        model: this.visionModel,
         messages: [
           {
             role: 'user',
@@ -72,7 +72,7 @@ class ImageRecognitionService {
       {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.zhipuApiKey}`
+          'Authorization': `Bearer ${this.visionApiKey}`
         },
         timeout: 60000
       }

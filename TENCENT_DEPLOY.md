@@ -96,7 +96,7 @@ At minimum, replace these values:
 POSTGRES_PASSWORD=replace-with-a-long-random-database-password
 JWT_SECRET=replace-with-a-long-random-jwt-secret-at-least-32-chars
 DEEPSEEK_API_KEY=your_deepseek_api_key
-ZHIPU_API_KEY=your_zhipu_standard_api_key
+VISION_API_KEY=your_dashscope_qwen_api_key
 ```
 
 You can generate strong random values on the server:

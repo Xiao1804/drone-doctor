@@ -42,20 +42,20 @@ describe('AI provider configuration', () => {
     );
   });
 
-  test('uses the standard Zhipu API for GLM image recognition', async () => {
-    process.env.ZHIPU_API_KEY = 'test-zhipu-key';
+  test('uses DashScope Qwen for image recognition', async () => {
+    process.env.VISION_API_KEY = 'test-vision-key';
     axios.post.mockResolvedValue({
       data: { choices: [{ message: { content: '{"component":"motor"}' } }] },
     });
 
     const service = new ImageRecognitionService();
-    const result = await service.recognizeWithGLM('base64-data', 'image/png', 'inspect', 'fault');
+    const result = await service.callVisionModel('base64-data', 'image/png', 'inspect', 'fault');
 
     expect(result).toEqual({ component: 'motor' });
     expect(axios.post).toHaveBeenCalledWith(
-      'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+      'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
       expect.objectContaining({
-        model: 'glm-4.6v-flash',
+        model: 'qwen-vl-plus',
         thinking: { type: 'disabled' },
         messages: [
           {
@@ -68,7 +68,7 @@ describe('AI provider configuration', () => {
         ],
       }),
       expect.objectContaining({
-        headers: expect.objectContaining({ Authorization: 'Bearer test-zhipu-key' }),
+        headers: expect.objectContaining({ Authorization: 'Bearer test-vision-key' }),
       })
     );
   });

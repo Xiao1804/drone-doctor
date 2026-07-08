@@ -19,7 +19,7 @@ services:
         generateValue: true
       - key: DEEPSEEK_API_KEY
         sync: false
-      - key: ZHIPU_API_KEY
+      - key: VISION_API_KEY
         sync: false
       - key: ALLOWED_ORIGINS
         sync: false
