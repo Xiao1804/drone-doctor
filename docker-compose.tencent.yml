@@ -1,4 +1,4 @@
-name: drone-doctor
+﻿name: drone-doctor
 
 services:
   postgres:
@@ -83,6 +83,7 @@ services:
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - /root/drone-quiz/dist:/srv/quiz:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
@@ -101,3 +102,4 @@ volumes:
 networks:
   drone-doctor:
     driver: bridge
+

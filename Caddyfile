@@ -6,12 +6,27 @@ www.wurenjiyisheng.com {
 wurenjiyisheng.com {
 	encode gzip
 
-	# API 和 health 路由代理到后端
-	reverse_proxy /api/* backend:3000
-	reverse_proxy /health backend:3000
+	# 无人机五级刷题 App（纯前端静态托管，题库本地加载）
+	# http://192.168.3.212:3000/ 局域网原版，此处为公网镜像
+	redir /quiz /quiz/ permanent
 
-	# 前端静态资源
-	reverse_proxy frontend:80
+	handle_path /quiz/* {
+		root * /srv/quiz
+		file_server
+	}
+
+	# 以下为 DroneDoctor 既有路由（改为 handle 互斥组，行为等价）
+	handle /api/* {
+		reverse_proxy backend:3000
+	}
+
+	handle /health {
+		reverse_proxy backend:3000
+	}
+
+	handle {
+		reverse_proxy frontend:80
+	}
 }
 
 # IP 地址访问
