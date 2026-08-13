@@ -557,37 +557,58 @@ function HomePage() {
             )}
           </div>
 
-          {/* 其他诊断模式入口 */}
+          {/* 两大核心功能入口 + 辅助工具 */}
           {!loading && (
-            <div className="flex items-center justify-center gap-4 mb-8 flex-wrap">
-              <Link
-                to="/agent"
-                onClick={(e) => { if (!requireFeatureAccess()) e.preventDefault() }}
-                className="px-6 py-3 bg-gradient-to-r from-cyan-600 to-teal-500 text-white rounded-lg text-sm font-medium hover:from-cyan-700 hover:to-teal-600 transition-all flex items-center gap-2"
-              >
-                <span>🚁</span> 智能对话（新）
-              </Link>
-              {/* 交互式诊断入口已隐藏（2026-07-07）：决策树是 /agent 的 RAG 骨架，不作前台流程；
-                  用户只见 /agent，不见树。后端代码保留，需恢复时取消此注释即可。
-              <button
-                onClick={() => { if (requireFeatureAccess()) navigate('/guide?mode=interactive') }}
-                className="px-6 py-3 bg-[#FF6B00] text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors"
-              >
-                交互式诊断（推荐）
-              </button>
-              */}
-              <button
-                onClick={() => { if (requireFeatureAccess()) navigate('/image-diagnosis') }}
-                className="px-6 py-3 border-2 border-[#FF6B00] text-[#FF6B00] rounded-lg text-sm font-medium hover:bg-orange-50 transition-colors"
-              >
-                📷 图片识别
-              </button>
-              <button
-                onClick={() => { if (requireFeatureAccess()) navigate('/flight-log') }}
-                className="px-6 py-3 border-2 border-gray-900 text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
-              >
-                飞行日志解析
-              </button>
+            <div className="mb-8 space-y-4">
+              {/* 主入口：维修诊断 + 选购参谋 并列 */}
+              <div className="flex items-center justify-center gap-4 flex-wrap">
+                <Link
+                  to="/agent"
+                  onClick={(e) => { if (!requireFeatureAccess()) e.preventDefault() }}
+                  className="flex-1 min-w-[200px] max-w-[280px] px-6 py-4 bg-gradient-to-br from-cyan-600 to-teal-500 text-white rounded-2xl font-medium hover:from-cyan-700 hover:to-teal-600 transition-all flex items-center gap-3"
+                >
+                  <span className="text-2xl">🚁</span>
+                  <div className="text-left">
+                    <div className="text-base font-semibold">维修诊断</div>
+                    <div className="text-xs opacity-90">故障排查 / 维修咨询</div>
+                  </div>
+                </Link>
+                <Link
+                  to="/advisor"
+                  onClick={(e) => { if (!requireFeatureAccess()) e.preventDefault() }}
+                  className="flex-1 min-w-[200px] max-w-[280px] px-6 py-4 bg-gradient-to-br from-amber-500 to-orange-400 text-white rounded-2xl font-medium hover:from-amber-600 hover:to-orange-500 transition-all flex items-center gap-3"
+                >
+                  <span className="text-2xl">🛒</span>
+                  <div className="text-left">
+                    <div className="text-base font-semibold">选购参谋</div>
+                    <div className="text-xs opacity-90">选机型 / 比参数</div>
+                  </div>
+                </Link>
+              </div>
+              {/* 辅助工具入口 */}
+              <div className="flex items-center justify-center gap-4 flex-wrap">
+                {/* 交互式诊断入口已隐藏（2026-07-07）：决策树是 /agent 的 RAG 骨架，不作前台流程；
+                    用户只见 /agent，不见树。后端代码保留，需恢复时取消此注释即可。
+                <button
+                  onClick={() => { if (requireFeatureAccess()) navigate('/guide?mode=interactive') }}
+                  className="px-6 py-3 bg-[#FF6B00] text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors"
+                >
+                  交互式诊断（推荐）
+                </button>
+                */}
+                <button
+                  onClick={() => { if (requireFeatureAccess()) navigate('/image-diagnosis') }}
+                  className="px-6 py-3 border-2 border-[#FF6B00] text-[#FF6B00] rounded-lg text-sm font-medium hover:bg-orange-50 transition-colors"
+                >
+                  📷 图片识别
+                </button>
+                <button
+                  onClick={() => { if (requireFeatureAccess()) navigate('/flight-log') }}
+                  className="px-6 py-3 border-2 border-gray-900 text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                >
+                  飞行日志解析
+                </button>
+              </div>
             </div>
           )}
 

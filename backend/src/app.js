@@ -20,6 +20,7 @@ const unifiedDiagnosisRoutes = require('./routes/unifiedDiagnosis');
 const feedbackRoutes = require('./routes/feedback');
 const couponRoutes = require('./routes/coupon');
 const agentRoutes = require('./routes/agent');
+const purchaseAdvisorRoutes = require('./routes/purchaseAdvisor');
 
 const { errorHandler } = require('./middleware/errorHandler');
 const { requestContext } = require('./middleware/requestContext');
@@ -86,6 +87,7 @@ app.use('/api/diagnosis/unified', unifiedDiagnosisRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/coupon', couponRoutes);
 app.use('/api/agent', agentRoutes);
+app.use('/api/advisor', purchaseAdvisorRoutes);
 
 app.get('/health', async (req, res) => {
   const version = process.env.APP_VERSION || packageInfo.version;
